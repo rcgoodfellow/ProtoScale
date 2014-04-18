@@ -21,9 +21,19 @@
 *.app
 
 #lex/yacc generated
-Parser.cpp
-Parser.hpp
-Tokens.cpp
+MetaParser.cpp
+MetaParser.hpp
+MetaScanner.cpp
+MetaScanner.hpp
+CommandParser.cpp
+CommandParser.hpp
+CommandScanner.cpp
+CommandScanner.hpp
 
 #binaries
-psc
+proto
+
+#vim
+*.swp
+*.swo
+

@@ -1,13 +1,11 @@
-
 %{
-  #include "ASTNode.hpp"
+  #include "MetaAST.hpp"
   Module *mm;
   extern int yylex();
 %}
 
 %locations
 %error-verbose
-
 
 %union {
   Module *module;

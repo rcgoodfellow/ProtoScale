@@ -1,11 +1,11 @@
 %{
 #include <string>
-#include "ASTNode.hpp"
-#include "Parser.hpp"
-#define SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
-#define TOKEN(t) (yylval.token = t)
-extern "C" int yywrap() {}
-#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;
+#include "MetaAST.hpp"
+#include "MetaParser.hpp"
+#define SAVE_TOKEN metayylval.string = new std::string(metayytext, metayyleng)
+#define TOKEN(t) (metayylval.token = t)
+extern "C" int metayywrap() {}
+#define METAYY_USER_ACTION metayylloc.first_line = metayylloc.last_line = metayylineno;
 %}
 
 %option yylineno
