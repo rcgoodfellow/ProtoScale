@@ -1,0 +1,27 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<style type="text/css">
+body { font-family: HelveticaNeue-Light; color: #111; background-color: #cdcdcd;  margin: 15px;}
+h1 { font-size: 30px; color:#1477c6; font-family: HelveticaNeue-Thin; font-weight: 200; }
+p { text-align: justify; }
+* { font-size: 1em; }
+pre { white-space: pre-wrap; font-family: monospace; color: #7f7f7f; background-color: #1a1a1a; }
+.Statement { color: #1874cd; font-weight: bold; }
+.LineNr { color: #555555; background-color: #0d0d0d; padding-bottom: 1px; }
+.Comment { color: #008b00; font-style: italic; }
+.Special { color: #009acd; }
+</style>
+</head>
+<body>
+<h1>A Bit of Philosophy</h1>
+
+<p>
+Here I provide a bit of philosophy on the relationship between simulations and networks. A simulation typically captures the interaction of objects with each other and with their environment. A computer running a simulation is responsible for computing the behavior of both the objects and the environment in which the objects exist. In all but trivial or highly specific simulations, true-fidelity simulation of the environment is completely intractable. Consider simulating two goldfish swimming in a fishbowl. The movement of each fish creates displacement of water which in turn enacts a force on the other fish. To have a true fidelity simulation of this scenario, we would need to represent the water in the fish bowl and an extremely large vector field of molecules and calculate force wave propagation through that vector field in order to model the effect of one fish on another. Even for a tiny fish bowl, approaching the simulation form this perspective is not achievable in a reasonable amount of time. Thus, the reasonable approach is to come up with a point to point force equation that captures the mutual displacement effect the fish have on each other within the tank. Essentially what we have done is create a network - or, depending on your mathematical upbringing, a sparse matrix - representation of the fishbowl system.
+</p>
+<p>
+If you buy into the fishbowl philosophy and have a complex system to simulate then ProtoScale may be for you. ProtoScale provides an efficient means to simulate complex systems whose behavior is described by nonlinear differential algebraic equations (NDAE) whose structure may be represented by a network. The heart and sole of ProtoScale is a single highly polymorphic algorithm that works quite well for structurally dynamic and highly sensitive systems. We highlight these properties because structural dynamics and high sensitivity are properties of real systems that current solvers tend to struggle with. This is possible because the design philosophy of ProtoScale dictates factorization free solutions and distributed synchronization free algorithms. Factorization freedom means that structural dynamics are not pathological. Distributed and synchronization provides great opportunity for scalability.
+<p>
+
+</body>

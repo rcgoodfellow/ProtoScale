@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>~/Desktop/protoscale/models/ieee14.pm.html</title>
+<meta name="Generator" content="Vim/7.4">
+<meta name="plugin-version" content="vim7.4_v1">
+<meta name="syntax" content="none">
+<meta name="settings" content="number_lines,use_css,pre_wrap,no_foldcolumn,expand_tabs,line_ids,prevent_copy=">
+<meta name="colorscheme" content="macvim">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #7f7f7f; background-color: #1a1a1a; margin: auto; }
+body { font-family: HelveticaNeue-Light; color: #111; background-color: #cdcdcd;  margin: 15px;}
+h1 { font-size: 30px; color:#1477c6; font-family: HelveticaNeue-Thin; font-weight: 200; }
+p { text-align: justify; }
+* { font-size: 1em; }
+.Statement { color: #1874cd; font-weight: bold; }
+.LineNr { color: #555555; background-color: #0d0d0d; padding-bottom: 1px; }
+.Comment { color: #008b00; font-style: italic; }
+.Special { color: #009acd; }
+-->
+</style>
+
+<script type='text/javascript'>
+<!--
+
+/* function to open any folds containing a jumped-to line before jumping to it */
+function JumpToLine()
+{
+  var lineNum;
+  lineNum = window.location.hash;
+  lineNum = lineNum.substr(1); /* strip off '#' */
+
+  if (lineNum.indexOf('L') == -1) {
+    lineNum = 'L'+lineNum;
+  }
+  lineElem = document.getElementById(lineNum);
+  /* Always jump to new location even if the line was hidden inside a fold, or
+   * we corrected the raw number to a line ID.
+   */
+  if (lineElem) {
+    lineElem.scrollIntoView(true);
+  }
+  return true;
+}
+if ('onhashchange' in window) {
+  window.onhashchange = JumpToLine;
+}
+
+-->
+</script>
+</head>
+<h1>Model Language Overview</h1>
+<p>
+The ProtoScale modeling language provides the means to create a concrete model of some object within a domain using that domains metamodel. The code below shows simple 3 bus power system model. Using the semantics of the power metamodel described in the section on metamodels, this code can be used to create a simulation executable that simulates power flow for this model.
+</p>
+<p>
+In what follows this code is given a line by line explanation.
+</p>
+<body onload='JumpToLine();'>
+<pre id='vimCodeElement'>
+<span id="L1" class="LineNr"> 1 </span><span class="Comment">-- ProtoScale 3 Bus Model</span>
+<span id="L2" class="LineNr"> 2 </span>
+<span id="L3" class="LineNr"> 3 </span><span class="Statement">import</span> Power
+<span id="L4" class="LineNr"> 4 </span>
+<span id="L5" class="LineNr"> 5 </span><span class="Statement">create</span> Bus <span class="Special">{</span>vm=1, va=0<span class="Special">}</span>
+<span id="L6" class="LineNr"> 6 </span>  b0, b1, b4
+<span id="L7" class="LineNr"> 7 </span>
+<span id="L8" class="LineNr"> 8 </span><span class="Statement">create</span> Line <span class="Special">[</span>ym, ya<span class="Special">]</span>
+<span id="L9" class="LineNr"> 9 </span>  l0 <span class="Special">[</span>0.0623, 1.2543<span class="Special">]</span> b0 b1
+<span id="L10" class="LineNr">10 </span>  l1 <span class="Special">[</span>0.2295, 1.3331<span class="Special">]</span> b0 b4
+<span id="L11" class="LineNr">11 </span>  l2 <span class="Special">[</span>0.1830, 1.2543<span class="Special">]</span> b1 b4
+<span id="L12" class="LineNr">12 </span>
+</pre>
+<p>
+Line 3 imports the power metamodel so elements from that model can be used.
+</p>
+<p>
+Lines 5-6 instantiates 3 buses. The create keyword indicates that something is being created. The word Bus indicates what we are creating, Buses. The code inside the braces indicate default values. These default values are applied to the entire scope of the create block. A create block is a indentation delimited scope. Default values may be explicitly overwritten for particular elements inside of the create block. In this case the default values indicate that each bus within the create block shall be initialized with a voltage magnitude of 1 and a voltage angle of 0. Within the body of the create block bus elements are created. In the case of line 6 the elements being created are separated by commas, but newlines are also acceptable as will be shown later.
+</p>
+<p>
+Lines 8-11 instantiate 3 lines. The array literal after Line specifies the format that the constructor arguments take.  For example line 9, initializes a Line whose admittance magnitude is 0.0623, and admittance angle is 1.2543. The 3rd and 4th arguments to the line creation routine are the buses it is connecting.
+</p>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->

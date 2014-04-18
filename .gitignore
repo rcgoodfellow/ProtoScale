@@ -19,3 +19,11 @@
 *.exe
 *.out
 *.app
+
+#lex/yacc generated
+Parser.cpp
+Parser.hpp
+Tokens.cpp
+
+#binaries
+psc
