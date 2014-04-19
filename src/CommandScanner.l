@@ -12,17 +12,15 @@
 
 %%
 
-[ \t]*          ;
-"build"         return TOKEN(C_BUILD);
-"from"          return TOKEN(CB_FROM);
-"pkg"           return TOKEN(CB_PKG);
-"code"          return TOKEN(CB_CODE);
-"ast"           return TOKEN(CB_AST);
+[ \t]*                ;
+"build"               return TOKEN(C_BUILD);
+"from"                return TOKEN(CB_FROM);
+"pkg"                 return TOKEN(CB_PKG);
+"code"                return TOKEN(CB_CODE);
+"ast"                 return TOKEN(CB_AST);
 
-[a-zA-Z_"']*\.pmm         SAVE_TOKEN; return F_PMM;
-[a-zA-Z_"']*\.pm          SAVE_TOKEN; return F_PM;
-[a-zA-Z_"']*     SAVE_TOKEN; return ARG;
-.               printf("Unknown token: %s\n", cmdyytext); yyterminate();
+[0-9a-zA-Z_\./"']*    SAVE_TOKEN; return ARG;
+.                     printf("Unknown token: %s\n", cmdyytext); yyterminate();
 
 %%
 

@@ -21,7 +21,7 @@
   }
 %}
 
-%token <arg> F_PMM F_PM ARG
+%token <arg> ARG
 %token <token> C_BUILD CB_PKG CB_CODE CB_AST CB_FROM;
 
 %type <cmd> command build
@@ -39,10 +39,8 @@ build : C_BUILD CB_AST CB_FROM sources { $$ = new BuildASTCommand{$4}; }
       | C_BUILD CB_CODE CB_FROM srouces   */
       ;
 
-sources : F_PMM { $$ = new Args; $$->push_back(*$1); }
-        | F_PM  { $$ = new Args; $$->push_back(*$1); }
-        | sources F_PMM { $1->push_back(*$2); }
-        | sources F_PM  { $1->push_back(*$2); } 
+sources : ARG { $$ = new Args; $$->push_back(*$1); }
+        | sources ARG { $1->push_back(*$2); }
         ;
 
 %%
