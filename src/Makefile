@@ -1,15 +1,22 @@
 CXX=clang++
 FLEX=/usr/local/Cellar/flex/2.5.37/bin/flex
 BISON=/usr/local/Cellar/bison/3.0.2/bin/bison
-CXXFLAGS=-x c++ -std=c++11 -Wno-deprecated-register
+CXXFLAGS=-x c++ -g -std=c++11 -Wno-deprecated-register
 
 .PHONY: all
 all: proto
 
+.PHONY: debug
+debug: CXXFLAGS+=-DDEBUG
+debug: all
+
 proto: Driver.cpp Driver.hpp libprotoscale_parse.so
 	$(CXX) $(CXXFLAGS) -o $@ $< -L . -l protoscale_parse
 
-LIB_PARSE_OBJS=MetaParser.o MetaScanner.o CommandScanner.o CommandParser.o CommandAST.o
+LIB_PARSE_OBJS=MetaParser.o    MetaScanner.o \
+							 CommandParser.o CommandScanner.o \
+							 CommandAST.o
+
 LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp
 
 libprotoscale_parse.so : $(LIB_PARSE_OBJS) $(LIB_PARS_HDR)
@@ -17,7 +24,7 @@ libprotoscale_parse.so : $(LIB_PARSE_OBJS) $(LIB_PARS_HDR)
 
 # MetaModel Language ----------------------------------------------------------
 
-MetaParser.o : MetaParser.cpp
+MetaParser.o : MetaParser.cpp MetaParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 MetaParser.cpp: MetaParser.y
@@ -26,13 +33,13 @@ MetaParser.cpp: MetaParser.y
 MetaParser.hpp: MetaParser.cpp
 	#^^
 
-MetaScanner.o : MetaScanner.cpp
+MetaScanner.o : MetaScanner.cpp MetaScanner.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 MetaScanner.cpp: MetaScanner.l
 	$(FLEX) -P metayy --header-file=MetaScanner.hpp -o $@ $<
 
-MetaScanner.hpp: MetaTokens.cpp
+MetaScanner.hpp: MetaScanner.cpp
 	#^^
 
 # Command Language ------------------------------------------------------------

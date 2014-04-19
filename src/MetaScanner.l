@@ -4,11 +4,11 @@
 #include "MetaParser.hpp"
 #define SAVE_TOKEN metayylval.string = new std::string(metayytext, metayyleng)
 #define TOKEN(t) (metayylval.token = t)
-extern "C" int metayywrap() {}
 #define METAYY_USER_ACTION metayylloc.first_line = metayylloc.last_line = metayylineno;
 %}
 
 %option yylineno
+%option noyywrap
 
 %%
 `.*`                    ; //comment
@@ -40,6 +40,6 @@ extern "C" int metayywrap() {}
 ")"                     return TOKEN(TPCLOSE);
 ","                     return TOKEN(TCOMMA);
 "."                     return TOKEN(TDOT);
-.                       printf("Unknown token: %s\n", yytext); yyterminate();
+.                       printf("Unknown token: %s\n", metayytext); yyterminate();
 
 %%

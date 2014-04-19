@@ -37,3 +37,5 @@ proto
 *.swp
 *.swo
 
+#debugging info
+*.dSYM

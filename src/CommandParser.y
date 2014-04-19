@@ -1,6 +1,6 @@
 %{
   #include "CommandAST.hpp"
-  Commands *cmds;
+  CommandBase *cm;
   extern int yylex();
 %}
 
@@ -31,7 +31,7 @@
 
 %%
 
-command : build { $$ = $1; }
+command : build { cm = $1; }
         ;
 
 build : C_BUILD CB_AST CB_FROM sources { $$ = new BuildASTCommand{$4}; }
@@ -42,7 +42,7 @@ build : C_BUILD CB_AST CB_FROM sources { $$ = new BuildASTCommand{$4}; }
 sources : F_PMM { $$ = new Args; $$->push_back(*$1); }
         | F_PM  { $$ = new Args; $$->push_back(*$1); }
         | sources F_PMM { $1->push_back(*$2); }
-        | sources F_PM  { $1->push_back(*$2); }
+        | sources F_PM  { $1->push_back(*$2); } 
         ;
 
 %%
