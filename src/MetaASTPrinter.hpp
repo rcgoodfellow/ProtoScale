@@ -26,9 +26,10 @@ class Indentation
 class MetaASTPrinter
 {
   public:
-    std::string print(const ASTNode *n); 
+    //std::string print(const ASTNode *n); 
 
   private:
+    /*
     Indentation indent{};
     std::stringstream ss{};
     void print(std::string);
@@ -40,7 +41,7 @@ class MetaASTPrinter
     void print(const Assignment*);
     void print(const Stmt*);
     void print(const Array*);
-
+    */
 };
 
 template <class To, class From>

@@ -1,25 +1,20 @@
 `ProtoScale Power System Metamodel`
  
-module Power
+module Power:
 
 node Bus:
-  info:
-    p, q,   `Power`
-    vm, va, `Voltage`
-    ym, ya  `Impedance`
+  S, V, Y complex          `power, voltage, admittance`
+  p, q := re(Y), im(Y)     `real, reactive power`
+  v, d := angle(V), mag(V) `voltage magnitude and angle`
+  y, t := angle(Y), mag(Y) `admittance magnitude angle`
+  g, b := re(Y), im(Y)     `conductance susceptance`
 
-  alias:
-    g = ym*sin(ya),  `admittance`
-    b = ym*cos(ya)   `susceptance`
-
-  interlate:
-    bus(ij::Line, j::Bus):
-      ym += ym_ij,
-      ya += ya_ij,
-      p += g*vm^2 + vm*vm.i*ym.ij*cos(ya.ij + va.j - va),
-      q += b*vm^2 + vm*vm.i*ym.ij*sin(ya.ij + va.j - va)
+  bus(ij Line, j Bus):
+    y += y.ij
+    p += g*v^2 + v*v.i*y.ij*cos(t.ij + d.j - d) 
+    q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d)
 
 link Line:
-  info: 
-    ym, ya
+  Y complex
+  y, t := angle(Y), mag(Y)
 

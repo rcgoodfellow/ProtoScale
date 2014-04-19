@@ -1,6 +1,6 @@
 %{
   #include "MetaAST.hpp"
-  ASTNode *mm;
+  Module *mm;
   extern int yylex();
 %}
 
@@ -9,31 +9,14 @@
 
 %union {
   Module *module;
-  Decls *decls;
-  ASTNode *node;
-  Decl *decl;
-  Expr *expr;
-  Stmt *stmt;
-  Stmts *stmts;
-  Ident *ident;
-  Idents *idents;
-  IdentQual *identqual;
-  IdentQuals *identquals;
-  Array *array;
-  EqOp *eqop;
-  EqStmt *eqstmt;
-  EqStmts *eqstmts;
-  EqReal *eqreal;
-  EqSym *eqsym;
-  FuncSig *funcsig;
-  Assignment *assignment;
-  Assignments *assignments;
-  NodeDecl *nodedecl;
-  LinkDecl *linkdecl;
-  NodeDecls *nodedecls;
+  Element *element;
+  Elements *elements;
+  Variable *variable;
+  Variables *variables;
+  std::vector<std::string*> *strings;
   std::string *string;
   int token;
-}
+};
 
 %{
   void yyerror(const char *s) 
@@ -42,135 +25,132 @@
   }
 %}
 
-%token <string> TIDENT TREAL TINT
-%token <token> TI NR TKMODULE TKNODE TKLINK TKINFO TASSIGN TSEMI TQUAL TPLEQ
-%token <token> TEQ TPLUS TMINUS TDIV TMUL TPOW TARROPEN TARRCLOSE TCOMMA TPOPEN 
-%token <token> TPCLOSE TALIAS TINTERLATE TDOT
+/* Literals */
+%token <string> TL_IDENT TL_REAL TL_INT
+/* Keywords */
+%token <token> TK_MODULE TK_NODE TK_LINK
+/* Built-In Types */
+%token <token> TT_REAL TT_COMPLEX
+/* Operators */
+%token <token> TO_SEMI TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ
+%token <token> TO_MUEQ TO_POW TO_DOT TO_COMMA
+/* Sepcial Symbols */
+%token <token> TS_POPEN TS_PCLOSE
 
-%type <module> metamodel module
-%type <decls> decls
-%type <stmts> syms eqtns eq_stmts
-%type <ident> ident
-%type <identqual> ident_qual
-%type <identquals> ident_quals
-%type <array> sym_array
-%type <eqstmt> eqtn eq_stmt eq_term eq_fac eq_pgroup eq_atom eq_real eq_sym eq_funcall
-%type <funcsig> func_sig
-%type <assignment> info alias interlate
-%type <assignments> aliases interlates maybe_aliases
-%type <nodedecl> node_decl
-%type <linkdecl> link_decl
+%type <module> module
+%type <element> link node
+%type <elements> elements
+%type <variables> var_decl_groups var_decl_group var_decl_groups_cs
+%type <strings> var_names
+%type <string> typename
 
-%left TPLUS TMINUS
-%left TMUL TDIV
+%left TO_PLUS TO_MINUS
+%left TO_MUL TO_DIV
 
-%start metamodel
+%start module
 
 %%
 
-metamodel : module decls { mm = $1, $1->decls = $2; }
-          ;
-
-module : TKMODULE ident { $$ = new Module($2); }
-       ;
-
-decls : TKNODE node_decl { $$ = new Decls(); $$->push_back($2); }
-      | TKLINK link_decl { $$ = new Decls(); $$->push_back($2); }
-      | decls TKNODE node_decl { $1->push_back($3); }
-      | decls TKLINK link_decl { $1->push_back($3); }
+module: TK_MODULE TL_IDENT TO_SEMI elements { mm = new Module(*$2, *$4); }
       ;
 
-node_decl : ident TSEMI
-            TKINFO TSEMI info
-            maybe_aliases
-            TINTERLATE TSEMI interlates
-            { $$ = new NodeDecl($1, $5, $6, $9); }
-          ;
-
-maybe_aliases : { $$ = nullptr; }
-              | TALIAS TSEMI aliases { $$ = $3; }
-              ;
-
-ident : TIDENT { $$ = new Ident(*$<string>1); }
-      ;
-
-info : sym_array { $$ = new Assignment(new Ident("info"), $1); }
-     ;
-
-sym_array : syms { $$ = new Array($1); }
-          ;
-
-syms : ident { $$ = new Stmts(); $$->push_back($1); }
-     | syms TCOMMA ident { $1->push_back($3); }
-     ;
-
-aliases : alias { $$ = new Assignments(); $$->push_back($1); }
-        | aliases TCOMMA alias { $1->push_back($3); }
+elements: node {$$ = new Elements(); $$->push_back($1); }
+        | link {$$ = new Elements(); $$->push_back($1); }
+        | elements node { $1->push_back($2); }
+        | elements link { $1->push_back($2); }
         ;
 
-alias : ident TEQ eq_stmt { $$ = new Assignment($1, $3); }
+node: TK_NODE TL_IDENT TO_SEMI
+        var_decl_groups
+        aliases   
+        interlates { $$ = new Node(*$2, *$4); }
+    ;
 
-interlates : interlate { $$ = new Assignments(); $$->push_back($1); }
-           | interlates interlate { $1->push_back($2); }
-           ;
+var_decl_groups: var_decl_group
+               | var_decl_groups var_decl_group
+               ;
 
-interlate : func_sig eqtns 
-            { $$ =  new Assignment($1, new Array($2)); }
-          ;
+var_decl_groups_cs: var_decl_group
+                  | var_decl_groups TO_COMMA var_decl_group
+                  ;
 
-eqtns : eqtn { $$ = new Stmts(); $$->push_back($1); }
-      | eqtns TCOMMA eqtn { $1->push_back($3); }
-
-eqtn : eq_stmt TPLEQ eq_stmt { $1->op = new EqOp("+="); $1->r = $3; }
-
-func_sig : ident TPOPEN ident_quals TPCLOSE TSEMI { $$ = new FuncSig($1, $3); }
+var_decl_group: var_names typename { $$ = new Variables();
+                                for(std::string *v : *$1)
+                                {
+                                  $$->push_back(new Variable(*v, *$2));  
+                                }
+                              }
          ;
 
-ident_quals : ident_qual { $$ = new IdentQuals(); $$->push_back($1); }
-            | ident_quals TCOMMA ident_qual { $1->push_back($3); }
-            ;
+var_names: TL_IDENT { $$ = new std::vector<std::string*>(); $$->push_back($1); }
+         | var_names TO_COMMA TL_IDENT { $1->push_back($3); }
+         ;
 
-ident_qual : ident TQUAL ident { $$ = new IdentQual($1, $3); }
-           ;
-
-eq_stmt : eq_term { $$ = $1; }
-        | eq_stmt TPLUS eq_term  { $1->op = new EqOp("+"); $1->r = $3; }
-        | eq_stmt TMINUS eq_term { $1->op = new EqOp("+"); $1->r = $3; }
+typename: TT_COMPLEX { $$ = new std::string("complex"); }
+        | TT_REAL { $$ = new std::string("real"); }
+        | TL_IDENT { $$ = $1; }
         ;
 
-eq_stmts : eq_stmt { $$ = new Stmts(); $$->push_back($1); }
-         | eq_stmts TCOMMA eq_stmt { $1->push_back($3); }
+aliases: alias
+       | aliases alias
 
-eq_term : eq_fac { $$ = $1; }
-        | eq_term TMUL eq_fac { $1->op = new EqOp("*"); $1->r = $3; }
-        | eq_term TDIV eq_fac  { $1->op = new EqOp("/"); $1->r = $3; }
-        ;
-
-eq_pgroup : TPOPEN eq_stmt TPCLOSE { $$ = $2; }
-          ;
-
-eq_fac : eq_atom { $$ = $1; }
-       | eq_atom TPOW eq_atom { $$->op = new EqOp("^"); $$->r = $3; }
+alias: var_names TO_ASSIGN stmts 
        ;
 
-eq_atom : eq_real { $$ = $1; }
-        | eq_sym { $$ = $1; }
-        | eq_pgroup { $$ = $1; }
-        | eq_funcall { $$ = $1; }
-        ;
-
-eq_funcall : ident TPOPEN eq_stmts TPCLOSE { $$ = new EqFuncall($1, $3); }
-
-eq_real : TREAL { $$ = new EqReal(stod(*$1)); }
-        ;
-
-eq_sym : TIDENT { $$ = new EqSym(*$1); }
-       ;
-
-link_decl : ident TSEMI
-            TKINFO TSEMI info 
-            { $$ = new LinkDecl($1, $5); }
+interlates: interlate
+          | interlates interlate
           ;
 
+interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_SEMI
+         | eqtns
+         ;
+
+eqtn: TL_IDENT linkop expr
+    ;
+
+eqtns: eqtn
+     | eqtns eqtn
+     ;
+
+linkop: TO_PLEQ
+      | TO_MUEQ
+      ;
+
+stmts: expr
+     | stmts TO_COMMA expr
+     ;
+
+expr: term
+    | expr addop term
+    ;
+
+addop: TO_PLUS
+     | TO_MINUS
+     ;
+
+mulop: TO_MUL
+     | TO_DIV
+     ;
+
+term: factor
+    | term mulop factor
+    ;
+
+factor: atom
+      | atom TO_POW atom
+      ;
+
+atom: TL_REAL
+    | TL_IDENT
+    | TS_POPEN expr TS_PCLOSE
+    | funcall
+    ;
+
+funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE
+
+link: TK_LINK TL_IDENT TO_SEMI 
+        var_decl_groups 
+        aliases { $$ = new Link(*$2); }
+    ;
 
 %%

@@ -11,35 +11,33 @@
 %option noyywrap
 
 %%
-`.*`                    ; //comment
-[ \t\r\n]               ;
-"module"                return TOKEN(TKMODULE);
-"node"                  return TOKEN(TKNODE);
-"link"                  return TOKEN(TKLINK);
-"info"                  return TOKEN(TKINFO);
-"alias"                 return TOKEN(TALIAS);
-"interlate"             return TOKEN(TINTERLATE);
+`.*`                      ; //comment
+[ \t\r\n]                 ;
+"module"                  return TOKEN(TK_MODULE);
+"node"                    return TOKEN(TK_NODE);
+"link"                    return TOKEN(TK_LINK);
 
-[a-zA-Z_][a-zA-Z0-9_\.]*  SAVE_TOKEN; return TIDENT;
-[0-9]+(\.[0-9]*)*       SAVE_TOKEN; return TREAL;
+"complex"                 return TOKEN(TT_COMPLEX);
+"real"                    return TOKEN(TT_REAL);
+
+[a-zA-Z_][a-zA-Z0-9_\.]*  SAVE_TOKEN; return TL_IDENT;
+[0-9]+(\.[0-9]*)*         SAVE_TOKEN; return TL_REAL;
 
 
-":="                    return TOKEN(TASSIGN);
-":"                     return TOKEN(TSEMI);
-"::"                    return TOKEN(TQUAL);
-"+="                    return TOKEN(TPLEQ);
-"="                     return TOKEN(TEQ);
-"+"                     return TOKEN(TPLUS);
-"-"                     return TOKEN(TMINUS);
-"*"                     return TOKEN(TMUL);
-"/"                     return TOKEN(TDIV);
-"^"                     return TOKEN(TPOW);
-"["                     return TOKEN(TARROPEN);
-"]"                     return TOKEN(TARRCLOSE);
-"("                     return TOKEN(TPOPEN);
-")"                     return TOKEN(TPCLOSE);
-","                     return TOKEN(TCOMMA);
-"."                     return TOKEN(TDOT);
-.                       printf("Unknown token: %s\n", metayytext); yyterminate();
+":="                      return TOKEN(TO_ASSIGN);
+":"                       return TOKEN(TO_SEMI);
+"+="                      return TOKEN(TO_PLEQ);
+"*="                      return TOKEN(TO_MUEQ);
+"="                       return TOKEN(TO_EQ);
+"+"                       return TOKEN(TO_PLUS);
+"-"                       return TOKEN(TO_MINUS);
+"*"                       return TOKEN(TO_MUL);
+"/"                       return TOKEN(TO_DIV);
+"^"                       return TOKEN(TO_POW);
+"."                       return TOKEN(TO_DOT);
+","                       return TOKEN(TO_COMMA);
+"("                       return TOKEN(TS_POPEN);
+")"                       return TOKEN(TS_PCLOSE);
+.                         printf("Unknown token: %s\n", metayytext); yyterminate();
 
 %%

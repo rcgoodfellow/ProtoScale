@@ -8,6 +8,7 @@ if exists("b:current_syntax")
 endif
 
 syn keyword pmmKeyword module node link info alias interlate
+syn keyword pmmType real complex
 syn match pmmTypedVar '\h\a*\:\s*\h\a*' contains=pmmSpecial
 " syn match pmmConnect '\(\h\a*\)(\h\a*\:\s*\h\a*,\s*\h\a*\:\s*\h\a*)\:*' contains=pmmTypedVar,pmmSpecial
 syn match pmmMathOp '+\|-\|\*\|/\|=\|,'
@@ -19,4 +20,5 @@ hi link pmmConnect Function
 hi link pmmSpecial Special
 hi link pmmComment Comment
 hi link pmmMathOp Operator
+hi link pmmType Type
 

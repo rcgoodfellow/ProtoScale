@@ -5,7 +5,7 @@
 #include "MetaScanner.hpp"
 #include "MetaASTPrinter.hpp"
 
-extern ASTNode *mm;
+extern Module *mm;
 
 FileSet BuildASTCommand::operator()() const
 {
@@ -26,8 +26,8 @@ FileSet BuildASTCommand::operator()() const
     }
     MetaASTPrinter pp;
     std::cout << "AST for " + s << std::endl;
-    std::string ast = pp.print(mm);
-    std::cout << ast;
+    //std::string ast = pp.print(mm);
+    //std::cout << ast;
   }
 
 

@@ -3,6 +3,7 @@
 using std::string;
 using std::endl;
 
+/*
 string
 MetaASTPrinter::print(const ASTNode *n)
 {
@@ -19,7 +20,7 @@ MetaASTPrinter::print(const ASTNode *n)
 void
 MetaASTPrinter::print(const Ident *id)
 {
-  print("[Ident] name=" + id->name);
+  print("[Ident] " + id->name);
 }
 
 void 
@@ -111,4 +112,5 @@ MetaASTPrinter::print(string s)
 {
   ss << string(indent.pos(), ' ') << s << endl;
 }
+*/
 
