@@ -1,6 +1,6 @@
 %{
   #include "MetaAST.hpp"
-  Module *mm;
+  ASTNode *mm;
   extern int yylex();
 %}
 
@@ -38,7 +38,7 @@
 %{
   void yyerror(const char *s) 
   { 
-    printf("ERROR[%d]: %s\n", yylloc.first_line, s); 
+    printf("error[%d]: %s\n", yylloc.first_line, s); 
   }
 %}
 

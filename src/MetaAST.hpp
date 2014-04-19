@@ -7,6 +7,7 @@
 class ASTNode
 {
   public:
+    //TODO: Refactor this to be hierarchical
     enum class Kind
     {
       Decl,
@@ -31,7 +32,7 @@ class ASTNode
     ASTNode(Kind k) : k{k} {}
     virtual ~ASTNode() {}
 
-    Kind kind() { return k; }
+    Kind kind() const { return k; }
   private:
     Kind k;
 };

@@ -5,31 +5,31 @@
 #include "MetaScanner.hpp"
 #include "MetaASTPrinter.hpp"
 
-extern Module *mm;
+extern ASTNode *mm;
 
 FileSet BuildASTCommand::operator()() const
 {
   FileSet fs;
 
+#ifdef DEBUG
   std::cout << "I am AST Builder hear me roar!" << std::endl;
+#endif
 
-  std::vector<std::string> input_files;
   for(const std::string &s : *args)
   {
-    input_files.push_back(readFile(s)); 
-  }
-
-  MetaASTPrinter pp;
-  for(const std::string &s : input_files)
-  {
-    metayy_scan_string(s.c_str());
+    std::string source = readFile(s); 
+    metayy_scan_string(source.c_str());
     metayyparse();
     if(mm == NULL)
     {
-      throw std::runtime_error("compilation failed");
+      throw std::runtime_error("compilation failed for "+s);
     }
+    MetaASTPrinter pp;
+    std::cout << "AST for " + s << std::endl;
+    std::string ast = pp.print(mm);
+    std::cout << ast << std::endl;
   }
-  //pp.print(
+
 
   return fs;
 }
