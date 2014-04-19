@@ -3,7 +3,7 @@
 //extern int cmdyyparse();
 //extern int metayyparse();
 //extern FILE *cmdyyin;
-extern Commands *cm;
+extern CommandBase *cm;
 
 Driver::Driver(int argc, char **argv)
 {
@@ -22,13 +22,49 @@ void Driver::globCommands(int argc, char **argv)
 void Driver::run()
 {
 #ifdef DEBUG
-  std::cout << "executing command: '" << cmd << "'" << std::endl;
+  std::cout << "received command: '" << cmd << "'" << std::endl;
 #endif
   cmdyy_scan_string(cmd.c_str());
   cmdyyparse();
   if(cm == NULL) 
   {
-    std::cerr << "Failed to parse commands" << std::endl;
+    std::cerr << "Failed to parse command" << std::endl;
+  }
+  else
+  {
+#ifdef DEBUG
+    std::cout << "executing" << std::endl;
+#endif
+   
+    switch(cm->kind())
+    {
+      case CommandBase::Kind::astBuild :
+      {
+#ifdef DEBUG
+        std::cout << "creating AST" << std::endl;
+#endif
+        auto *tcm = static_cast<BuildASTCommand*>(cm);
+        tcm->operator()();
+        break;
+      }
+
+      case CommandBase::Kind::unknown :
+      {
+#ifdef DEBUG
+        std::cout << "command type unkown" << std::endl;
+#endif
+        break;
+      }
+
+      defualt :
+      {
+#ifdef DEBUG
+        std::cout << "strange command type ..." << std::endl;
+#endif
+        break;
+      }
+    }
+
   }
 }
 

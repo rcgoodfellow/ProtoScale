@@ -17,9 +17,9 @@ LIB_PARSE_OBJS=MetaParser.o    MetaScanner.o \
 							 CommandParser.o CommandScanner.o \
 							 CommandAST.o
 
-LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp
+LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
 
-libprotoscale_parse.so : $(LIB_PARSE_OBJS) $(LIB_PARS_HDR)
+libprotoscale_parse.so : $(LIB_PARSE_OBJS) $(LIB_PARSE_HDR)
 	$(CXX) -shared -o $@ $(LIB_PARSE_OBJS)
 
 # MetaModel Language ----------------------------------------------------------

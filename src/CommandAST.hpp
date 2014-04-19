@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 using Arg = std::string;
 using Args = std::vector<std::string>;
@@ -10,9 +11,21 @@ using Args = std::vector<std::string>;
 class CommandBase
 {
   public:
-    CommandBase(Args *args) : args{args} {}
+    enum class Kind
+    {
+      unknown,
+      astBuild,
+    };
+    using ResultType = void;
+    CommandBase(Args *args, Kind k) : args{args}, _kind{k} {}
+    Kind kind() { return _kind; }
+
+
   protected:
     const Args *args;
+
+  private:
+    Kind _kind;
 };
 using Commands = std::vector<CommandBase*>;
 
@@ -25,12 +38,13 @@ class Command : public CommandBase
     virtual Result operator()() const = 0;
 };
 
-using FileSet = std::vector<std::string>;
+struct File { std::string name; std::string content; };
+using FileSet = std::vector<File>;
 
 class BuildASTCommand : public Command<FileSet>
 {
   public:
-    using Command<FileSet>::Command;
+    BuildASTCommand(Args *args) : Command{args, Kind::astBuild} {}
     FileSet operator()() const;
 };
 
