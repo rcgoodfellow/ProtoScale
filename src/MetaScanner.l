@@ -4,7 +4,7 @@
 #include "MetaParser.hpp"
 #define SAVE_TOKEN metayylval.string = new std::string(metayytext, metayyleng)
 #define TOKEN(t) (metayylval.token = t)
-#define METAYY_USER_ACTION metayylloc.first_line = metayylloc.last_line = metayylineno;
+#define YY_USER_ACTION metayylloc.first_line = metayylloc.last_line = metayylineno;
 %}
 
 %option yylineno

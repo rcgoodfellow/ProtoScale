@@ -4,7 +4,7 @@
 #include "CommandParser.hpp"
 #define SAVE_TOKEN cmdyylval.arg = new std::string(cmdyytext, cmdyyleng)
 #define TOKEN(t) (cmdyylval.token = t)
-#define CMDYY_USER_ACTION cmdyylloc.first_line = cmdyylloc.last_line = cmdyylineno;
+#define YY_USER_ACTION cmdyylloc.first_line = cmdyylloc.last_line = cmdyylineno;
 %}
 
 %option yylineno

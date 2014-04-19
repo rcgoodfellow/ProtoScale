@@ -38,7 +38,7 @@
 %{
   void yyerror(const char *s) 
   { 
-    printf("error[%d]: %s\n", yylloc.first_line, s); 
+    printf("error[%d]: %s\n", metayylloc.first_line, s); 
   }
 %}
 

@@ -6,7 +6,7 @@ using std::ifstream;
 
 string readFile(string filename)
 {
-  std::ifstream in(filename, std::ios::in);
+  std::ifstream in(filename, std::ios::in | std::ios::binary);
   if(in)
   {
     string contents;
