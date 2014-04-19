@@ -44,7 +44,14 @@ void Driver::run()
         std::cout << "creating AST" << std::endl;
 #endif
         auto *tcm = static_cast<BuildASTCommand*>(cm);
-        tcm->operator()();
+        try 
+        {
+          tcm->operator()();
+        }
+        catch (std::exception &e)
+        {
+          std::cerr << "Error: " << e.what() << std::endl;
+        }
         break;
       }
 

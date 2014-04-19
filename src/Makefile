@@ -15,7 +15,9 @@ proto: Driver.cpp Driver.hpp libprotoscale_parse.so
 
 LIB_PARSE_OBJS=MetaParser.o    MetaScanner.o \
 							 CommandParser.o CommandScanner.o \
-							 CommandAST.o
+							 CommandAST.o \
+							 MetaASTPrinter.o \
+							 FileUtil.o
 
 LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
 
@@ -23,6 +25,9 @@ libprotoscale_parse.so : $(LIB_PARSE_OBJS) $(LIB_PARSE_HDR)
 	$(CXX) -shared -o $@ $(LIB_PARSE_OBJS)
 
 # MetaModel Language ----------------------------------------------------------
+
+FileUtil.o : FileUtil.cpp FileUtil.hpp
+	$(CXX) $(CSSFLAGS) -fpic -c $< -o $@
 
 MetaParser.o : MetaParser.cpp MetaParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
@@ -43,6 +48,9 @@ MetaScanner.hpp: MetaScanner.cpp
 	#^^
 
 # Command Language ------------------------------------------------------------
+
+MetaASTPrinter.o : MetaASTPrinter.cpp MetaASTPrinter.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 CommandAST.o : CommandAST.cpp CommandAST.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@

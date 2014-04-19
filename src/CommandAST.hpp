@@ -1,9 +1,12 @@
 #ifndef _PS_COMMANDAST_
 #define _PS_COMMANDAST_
 
+#include "FileUtil.hpp"
+
 #include <vector>
 #include <string>
 #include <iostream>
+#include <stdexcept>
 
 using Arg = std::string;
 using Args = std::vector<std::string>;
