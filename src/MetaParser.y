@@ -101,7 +101,7 @@ sym_array : syms { $$ = new Array($1); }
           ;
 
 syms : ident { $$ = new Stmts(); $$->push_back($1); }
-     | syms TCOMMA ident { $$ = new Stmts(); $$->push_back($3); }
+     | syms TCOMMA ident { $1->push_back($3); }
      ;
 
 aliases : alias { $$ = new Assignments(); $$->push_back($1); }

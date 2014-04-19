@@ -12,8 +12,6 @@ node Bus:
     g = ym*sin(ya),  `admittance`
     b = ym*cos(ya)   `susceptance`
 
-  barf:
-
   interlate:
     bus(ij::Line, j::Bus):
       ym += ym_ij,

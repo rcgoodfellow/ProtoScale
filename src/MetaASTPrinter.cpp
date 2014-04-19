@@ -55,6 +55,41 @@ MetaASTPrinter::print(const NodeDecl *n)
   indent++;
 
   print(n->id);
+  print(n->info); 
+
+  indent--;
+}
+
+void
+MetaASTPrinter::print(const Assignment *a)
+{
+  print("[Assignment]");
+  indent++;
+
+  print(a->l);
+  print(a->r);
+
+  indent--;
+}
+
+void
+MetaASTPrinter::print(const Stmt *s)
+{
+  using K = ASTNode::Kind;
+  switch(s->kind())
+  {
+    case K::Ident: print(as<const Ident>(s)); break;
+    case K::Array: print(as<const Array>(s)); break;
+  }
+}
+
+void
+MetaASTPrinter::print(const Array *a)
+{
+  print("[Array]");
+  indent++;
+
+  for(Stmt *s : *(a->elems)) { print(s); }
 
   indent--;
 }
@@ -69,6 +104,7 @@ MetaASTPrinter::print(const LinkDecl *n)
 
   indent--;
 }
+
 
 void 
 MetaASTPrinter::print(string s)

@@ -27,7 +27,7 @@ FileSet BuildASTCommand::operator()() const
     MetaASTPrinter pp;
     std::cout << "AST for " + s << std::endl;
     std::string ast = pp.print(mm);
-    std::cout << ast << std::endl;
+    std::cout << ast;
   }
 
 

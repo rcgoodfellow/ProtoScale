@@ -37,6 +37,9 @@ class MetaASTPrinter
     void print(const Decl*);
     void print(const NodeDecl*);
     void print(const LinkDecl*);
+    void print(const Assignment*);
+    void print(const Stmt*);
+    void print(const Array*);
 
 };
 
