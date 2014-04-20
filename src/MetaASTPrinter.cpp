@@ -50,7 +50,11 @@ MetaASTPrinter::print(const Alias *a)
 void
 MetaASTPrinter::print(const Expr *e)
 {
-  print("[Expr] ");
+  std::string opstr = "";
+  if(e->op == TO_PLUS){ opstr = "+"; }
+  if(e->op == TO_MINUS){ opstr = "-"; }
+
+  print("[Expr] " + opstr);
   indent++;
 
   print(e->l);
@@ -62,7 +66,11 @@ MetaASTPrinter::print(const Expr *e)
 void
 MetaASTPrinter::print(const Term *t)
 {
-  print("[Term] ");
+  std::string opstr = "";
+  if(t->op == TO_MUL){ opstr = "*"; }
+  if(t->op == TO_DIV){ opstr = "/"; }
+
+  print("[Term] " + opstr);
   indent++;
 
   print(t->l);

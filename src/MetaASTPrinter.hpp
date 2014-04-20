@@ -2,6 +2,7 @@
 #define _PS_METAASTPRINTER_
 
 #include "MetaAST.hpp"
+#include "MetaParser.hpp"
 #include <sstream>
 #include <string>
 
