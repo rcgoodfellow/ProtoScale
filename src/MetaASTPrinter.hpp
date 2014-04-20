@@ -27,12 +27,24 @@ class MetaASTPrinter
 {
   public:
     //std::string print(const ASTNode *n); 
+    std::string print(const Module*);
 
   private:
-    /*
     Indentation indent{};
     std::stringstream ss{};
     void print(std::string);
+    void print(const Node*);
+    void print(const Variable*);
+    void print(const Alias*);
+    void print(const Expr*);
+    void print(const Term*);
+    void print(const Factor*);
+    void print(const Atom*);
+    void print(const Real*);
+    void print(const Symbol*);
+    void print(const ExprAtom*);
+    void print(const FuncallAtom*);
+    /*
     void print(const Ident*);
     void print(const Module*);
     void print(const Decl*);
