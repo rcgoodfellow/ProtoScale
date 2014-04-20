@@ -13,6 +13,8 @@ node Bus:
     y += y.ij
     p += g*v^2 + v*v.i*y.ij*cos(t.ij + d.j - d) 
     q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d)
+  
+  
 
 link Line:
   Y complex

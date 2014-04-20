@@ -35,7 +35,7 @@ struct Node : public Element
 {
   std::string name;
   Variables vars;
-  Node(std::string n, Variables v) : name{n}, vars{v} {}
+  Node(std::string n) : name{n} {}
 
 };
 

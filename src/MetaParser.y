@@ -60,11 +60,17 @@ elements: node {$$ = new Elements(); $$->push_back($1); }
         | elements link { $1->push_back($2); }
         ;
 
-node: TK_NODE TL_IDENT TO_SEMI
-        var_decl_groups
-        aliases   
-        interlates { $$ = new Node(*$2, *$4); }
+node: TK_NODE TL_IDENT TO_SEMI node_elements { $$ = new Node(*$2); }
     ;
+
+node_elements: node_element
+             | node_elements node_element
+             ;
+
+node_element: var_decl_group
+            | alias
+            | interlate
+            ;
 
 var_decl_groups: var_decl_group
                | var_decl_groups var_decl_group
@@ -96,10 +102,6 @@ aliases: alias
 
 alias: var_names TO_ASSIGN stmts 
        ;
-
-interlates: interlate
-          | interlates interlate
-          ;
 
 interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_SEMI
          | eqtns
