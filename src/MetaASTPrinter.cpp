@@ -32,6 +32,33 @@ MetaASTPrinter::print(const Node *n)
   
   for(Variable *v : n->vars) { print(v); }
   for(Alias *a : n->aliases) { print(a); }
+  for(Interlate *i : n->interlates) { print(i); }
+
+  indent--;
+}
+
+void
+MetaASTPrinter::print(const Interlate *i)
+{
+  print("[Interlate] " + i->name);
+  indent++;
+
+  for(Variable *v : i->params) { print(v); }
+  for(Eqtn *e : i->eqtns) { print(e); }
+
+  indent--;
+}
+
+void
+MetaASTPrinter::print(const Eqtn *e)
+{
+  std::string linkopstr{""};
+  if(e->linkop == TO_PLEQ) { linkopstr = "+="; }
+  if(e->linkop == TO_MUEQ) { linkopstr = "*="; }
+  print("[Eqtn] " + e->tgt + " " + linkopstr);
+  indent++;
+
+  print(e->expr);
 
   indent--;
 }
@@ -39,7 +66,7 @@ MetaASTPrinter::print(const Node *n)
 void
 MetaASTPrinter::print(const Alias *a)
 {
-  print("[Alias] name=" + a->name);
+  print("[Alias] " + a->name);
   indent++;
 
   print(a->expr);
@@ -173,7 +200,7 @@ MetaASTPrinter::print(const Funcall *f)
 void 
 MetaASTPrinter::print(const Variable *v)
 {
-  print("[Variable] name=" + v->name + " type=" + v->type);
+  print("[Variable] " + v->name + " " + v->type);
 }
 
 void 

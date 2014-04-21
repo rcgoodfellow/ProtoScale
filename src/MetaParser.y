@@ -29,6 +29,8 @@
   Atom *atom;
   Atoms *atoms;
   Funcall *funcall;
+  Eqtn *eqtn;
+  Eqtns *eqtns;
   int token;
 };
 
@@ -61,10 +63,12 @@
 %type <expr> expr
 %type <exprs> stmts
 %type <term> term
-%type <token> addop mulop
+%type <token> addop mulop linkop
 %type <factor> factor
 %type <atom> atom
 %type <funcall> funcall
+%type <eqtns> eqtns
+%type <eqtn> eqtn
 
 %left TO_PLUS TO_MINUS
 %left TO_MUL TO_DIV
@@ -94,6 +98,10 @@ node: TK_NODE TL_IDENT TO_SEMI node_elements
                         if(v->kind() == NodeElement::Kind::Alias)
                         {
                           n->aliases.push_back(dynamic_cast<Alias*>(v));
+                        }
+                        if(v->kind() == NodeElement::Kind::Interlate)
+                        {
+                          n->interlates.push_back(dynamic_cast<Interlate*>(v));
                         }
                       }
                       $$ = n;
@@ -156,19 +164,26 @@ alias: var_names TO_ASSIGN stmts
        }
      ;
 
-interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_SEMI
-            eqtns { $$ = new Interlate(); }
+interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_SEMI eqtns 
+         { Interlate *i = new Interlate(*$1); 
+           for(NodeElement *e : *$3)
+           {
+             i->params.push_back(dynamic_cast<Variable*>(e));
+           }
+           i->eqtns = *$6;
+           $$ = i; 
+         }
          ;
 
-eqtn: TL_IDENT linkop expr
+eqtn: TL_IDENT linkop expr { $$ = new Eqtn(*$1, $2, $3); }
     ;
 
-eqtns: eqtn
-     | eqtns eqtn
+eqtns: eqtn { $$ = new Eqtns(); $$->push_back($1); }
+     | eqtns eqtn { $1->push_back($2); }
      ;
 
-linkop: TO_PLEQ
-      | TO_MUEQ
+linkop: TO_PLEQ { $$ = $1; }
+      | TO_MUEQ { $$ = $1; }
       ;
 
 stmts: expr { $$ = new Exprs(); $$->push_back($1); }

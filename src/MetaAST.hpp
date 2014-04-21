@@ -122,9 +122,22 @@ struct Alias : public NodeElement
 };
 using Aliases = std::vector<Alias*>;
 
+struct Eqtn
+{
+  std::string tgt;
+  int linkop;
+  Expr *expr;
+  Eqtn(std::string t, int l, Expr *e) : tgt{t}, linkop{l}, expr{e} {}
+};
+using Eqtns = std::vector<Eqtn*>;
+
 struct Interlate : public NodeElement
 {
-  Interlate() : NodeElement{Kind::Interlate} {}
+  std::string name;
+  Variables params;
+  Eqtns eqtns;
+  Interlate(std::string n) 
+    : NodeElement{Kind::Interlate}, name{n} {}
 };
 using Interlates = std::vector<Interlate*>;
 
@@ -133,6 +146,7 @@ struct Node : public Element
   std::string name;
   Variables vars;
   Aliases aliases;
+  Interlates interlates;
   Node(std::string n) : Element{Kind::Node}, name{n} {}
 
 };
