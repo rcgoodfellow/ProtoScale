@@ -99,27 +99,9 @@ MetaASTPrinter::print(const Expr *e)
     case K::Real: print(as<const Real>(e)); break;
     case K::Symbol: print(as<const Symbol>(e)); break;
     case K::Funcall: print(as<const FuncallAtom>(e)); break;
+    case K::Expr: break; //abstract node - nothing reasonable to print
+    case K::Atom: break; // ""
   }
-  /*
-  bool print_this{false};
-  std::string opstr = "";
-  if(e->op == TO_PLUS){ opstr = "+"; print_this = true; }
-  if(e->op == TO_MINUS){ opstr = "-"; print_this = true; }
-
-  if(print_this)
-  {
-    print("[Expr] " + opstr);
-    indent++;
-  }
-
-  print(e->l);
-  if(e->r){ print(e->r); }
-
-  if(print_this)
-  {
-    indent--;
-  }
-  */
 }
 
 void
@@ -165,50 +147,6 @@ MetaASTPrinter::print(const ExpOp *e)
   indent--;
 }
 
-
-/*
-void
-MetaASTPrinter::print(const Term *t)
-{
-  std::string opstr = "";
-  bool print_this{false};
-  if(t->op == TO_MUL){ opstr = "*"; print_this = true; }
-  if(t->op == TO_DIV){ opstr = "/"; print_this = true;}
-
-  if(print_this)
-  {
-    print("[Term] " + opstr);
-    indent++;
-  }
-
-  print(t->l);
-  if(t->r){ print(t->r); }
-
-  if(print_this)
-  {
-    indent--;
-  }
-}
-
-void
-MetaASTPrinter::print(const Factor *f)
-{
-  //only print the whole shabang if there is an exponent
-  if(f->exp)
-  {
-    print("[Factor] ");
-    indent++;
-  }
-
-  print(f->atom);
-
-  if(f->exp)
-  { 
-    print(f->exp); 
-    indent--;
-  }
-}
-*/
 
 void
 MetaASTPrinter::print(const Atom *a)

@@ -116,10 +116,13 @@ node_element: var_decl_group { $$ = $1; }
             ;
 
 
-var_decl_groups_cs: var_decl_group { $$ = new NodeElements();
-                                     $$->insert($$->end(), $1->begin(), $1->end()); }
+var_decl_groups_cs: var_decl_group 
+                    { 
+                      $$ = new NodeElements();
+                      $$->insert($$->end(), $1->begin(), $1->end()); 
+                    }
                   | var_decl_groups_cs TO_COMMA var_decl_group
-                                   { $1->insert($1->end(), $3->begin(), $3->end()); }
+                    { $1->insert($1->end(), $3->begin(), $3->end()); }
                   ;
 
 var_decl_group: var_names typename 

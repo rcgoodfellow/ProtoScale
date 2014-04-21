@@ -27,7 +27,6 @@ class Indentation
 class MetaASTPrinter
 {
   public:
-    //std::string print(const ASTNode *n); 
     std::string print(const Module*);
 
   private:
