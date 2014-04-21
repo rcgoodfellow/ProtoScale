@@ -34,3 +34,5 @@ link Line:
   y, t := mag(Y), angle(Y);
 ::
 
+:: `End of Power Module`
+

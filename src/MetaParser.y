@@ -73,7 +73,8 @@
 
 %%
 
-module: TK_MODULE TL_IDENT TO_COLON elements { mm = new Module(*$2, *$4); }
+module: TK_MODULE TL_IDENT TO_COLON elements TO_COLON TO_COLON 
+        { mm = new Module(*$2, *$4); }
       ;
 
 elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
