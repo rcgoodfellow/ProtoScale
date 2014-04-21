@@ -45,7 +45,12 @@ node Generator:
 
 node Load:
   S complex;
+  f real;
   p, q := re(S), im(S);
+
+  bus(ij Line, j Bus):
+    S = f*V.j; 
+  ::
 ::
 
 link Line:
