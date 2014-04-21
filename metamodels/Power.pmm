@@ -14,23 +14,23 @@ node Bus:
     y += y.ij;
     p += g*v^2 + v*v.i*y.ij*cos(t.ij + d.j - d);
     q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d);
-  ;;
+  ::
 
   `how this bus interacts with generators via transmission line`
   gen(ij Line, j Gen):
     v = v.j;
-  ;;
-;; 
+  ::
+:: 
  
 node Generator:
   V complex;
   v, d := mag(V), angle(V);
 
   d' = sin(t);
-;;
+::
 
 link Line:
   Y complex;
   y, t := mag(Y), angle(Y);
-;;
+::
 

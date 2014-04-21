@@ -82,7 +82,7 @@ elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
         | elements TK_LINK link { $1->push_back($3); }
         ;
 
-node: TL_IDENT TO_COLON node_elements TO_SEMI TO_SEMI 
+node: TL_IDENT TO_COLON node_elements TO_COLON TO_COLON 
                     { 
                       auto *n = new Node(*$1); 
                       for(NodeElement *v : *$3) 
@@ -118,7 +118,7 @@ node_element: var_decl_group TO_SEMI{ $$ = $1; }
             | alias TO_SEMI { $$ = $1; }
             | diffrel TO_SEMI 
                 { $$ = new NodeElements(); $$->push_back($1); }
-            | interlate TO_SEMI TO_SEMI 
+            | interlate TO_COLON TO_COLON
                 { $$ = new NodeElements(); $$->push_back($1); }
             ;
 
@@ -223,7 +223,7 @@ atom: TL_REAL { $$ = new Real(stod(*$1)); }
 
 funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3); }
 
-link: TL_IDENT TO_COLON link_elements TO_SEMI TO_SEMI
+link: TL_IDENT TO_COLON link_elements TO_COLON TO_COLON
         { 
           auto *l = new Link(*$1); 
           for(NodeElement *v : *$3)
