@@ -13,10 +13,10 @@ class Indentation
 
   public:
     Indentation(size_t width=2) : _width{width} {}
-    Indentation & operator ++()    { _at += _width; return *this; }
-    Indentation & operator ++(int) { _at += _width; return *this; }
-    Indentation & operator --()    { _at -= _width; return *this; }
-    Indentation & operator --(int) { _at -= _width; return *this; }
+    Indentation & operator ++()    { ++_at; return *this; }
+    Indentation & operator ++(int) { _at++; return *this; }
+    Indentation & operator --()    { --_at; return *this; }
+    Indentation & operator --(int) { _at--; return *this; }
 
     size_t width() { return _width; }
     size_t at() { return _at; }
@@ -38,8 +38,14 @@ class MetaASTPrinter
     void print(const Variable*);
     void print(const Alias*);
     void print(const Expr*);
-    void print(const Term*);
-    void print(const Factor*);
+    //void print(const Term*);
+    //void print(const Factor*);
+    
+    void print(const AddOp*);
+    void print(const MulOp*);
+    void print(const ExpOp*);
+
+
     void print(const Atom*);
     void print(const Real*);
     void print(const Symbol*);

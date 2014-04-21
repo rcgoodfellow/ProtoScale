@@ -77,6 +77,17 @@ MetaASTPrinter::print(const Alias *a)
 void
 MetaASTPrinter::print(const Expr *e)
 {
+  using K = Expr::Kind;
+  switch(e->kind())
+  {
+    case K::AddOp: print(as<const AddOp>(e)); break;
+    case K::MulOp: print(as<const MulOp>(e)); break;
+    case K::ExpOp: print(as<const ExpOp>(e)); break;
+    case K::Real: print(as<const Real>(e)); break;
+    case K::Symbol: print(as<const Symbol>(e)); break;
+    case K::Funcall: print(as<const FuncallAtom>(e)); break;
+  }
+  /*
   bool print_this{false};
   std::string opstr = "";
   if(e->op == TO_PLUS){ opstr = "+"; print_this = true; }
@@ -95,8 +106,54 @@ MetaASTPrinter::print(const Expr *e)
   {
     indent--;
   }
+  */
 }
 
+void
+MetaASTPrinter::print(const AddOp *a)
+{
+  std::string opstr = "";
+  if(a->op == TO_PLUS){ opstr = "+"; }
+  if(a->op == TO_MINUS){ opstr = "-"; }
+  print("["+opstr+"]");
+  indent++;
+
+  print(as<const Expr>(a->l));
+  print(as<const Expr>(a->r));
+
+  indent--;
+
+};
+
+void
+MetaASTPrinter::print(const MulOp *m)
+{
+  std::string opstr = "";
+  if(m->op == TO_MUL){ opstr = "*"; }
+  if(m->op == TO_DIV){ opstr = "/"; }
+  print("["+opstr+"]");
+  indent++;
+
+  print(as<const Expr>(m->l));
+  print(as<const Expr>(m->r));
+
+  indent--;
+}
+
+void
+MetaASTPrinter::print(const ExpOp *e)
+{
+  print("[^]");
+  indent++;
+
+  print(as<const Expr>(e->l));
+  print(as<const Expr>(e->r));
+
+  indent--;
+}
+
+
+/*
 void
 MetaASTPrinter::print(const Term *t)
 {
@@ -138,6 +195,7 @@ MetaASTPrinter::print(const Factor *f)
     indent--;
   }
 }
+*/
 
 void
 MetaASTPrinter::print(const Atom *a)

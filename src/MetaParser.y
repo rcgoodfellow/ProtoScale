@@ -20,17 +20,20 @@
   std::string *string;
   Node *node;
   Link *link;
-  Term *term;
-  Terms *terms;
+//  Term *term;
+//  Terms *terms;
   NodeElement *node_element;
   NodeElements *node_elements;
-  Factor *factor;
-  Factors *factors;
+//  Factor *factor;
+//  Factors *factors;
   Atom *atom;
   Atoms *atoms;
   Funcall *funcall;
   Eqtn *eqtn;
   Eqtns *eqtns;
+  AddOp *addop;
+  MulOp *mulop;
+  ExpOp *expop;
   int token;
 };
 
@@ -60,12 +63,9 @@
 %type <string> typename
 %type <node_element> interlate
 %type <node_elements> node_element node_elements var_decl_group var_decl_groups var_decl_groups_cs alias
-%type <expr> expr
+%type <expr> expr sum product exponential atom
 %type <exprs> stmts
-%type <term> term
 %type <token> addop mulop linkop
-%type <factor> factor
-%type <atom> atom
 %type <funcall> funcall
 %type <eqtns> eqtns
 %type <eqtn> eqtn
@@ -165,14 +165,14 @@ alias: var_names TO_ASSIGN stmts
      ;
 
 interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_SEMI eqtns 
-         { Interlate *i = new Interlate(*$1); 
-           for(NodeElement *e : *$3)
-           {
-             i->params.push_back(dynamic_cast<Variable*>(e));
+           { Interlate *i = new Interlate(*$1); 
+             for(NodeElement *e : *$3)
+             {
+               i->params.push_back(dynamic_cast<Variable*>(e));
+             }
+             i->eqtns = *$6;
+             $$ = i; 
            }
-           i->eqtns = *$6;
-           $$ = i; 
-         }
          ;
 
 eqtn: TL_IDENT linkop expr { $$ = new Eqtn(*$1, $2, $3); }
@@ -190,25 +190,34 @@ stmts: expr { $$ = new Exprs(); $$->push_back($1); }
      | stmts TO_COMMA expr { $1->push_back($3); }
      ;
 
-expr: term { $$ = new Expr($1); }
-    | expr addop term { $1->op = $2; $1->r = $3; }
+expr: sum
     ;
 
-addop: TO_PLUS
-     | TO_MINUS
+sum: product { $$ = $1; }
+   | sum addop sum { $$ = new AddOp($<addop>1, $<addop>3, $2); }
+/*   | sum addop product { $$ = new AddOp($1, $3, $2); } */
+   ;
+
+product: exponential { $$ = $1; }
+       | product mulop product { $$ = new MulOp($<mulop>1, $<mulop>3, $2); }
+/*       | product mulop exponential { $$ = new MulOp($1, $3, $2); } */
+       ;
+
+exponential: atom { $$ = $1; }
+           | exponential TO_POW exponential 
+              { $$ = new ExpOp($<expop>1, $<expop>3, TO_POW); }
+/*           | exponential TO_POW atom */
+           ;
+      
+
+
+addop: TO_PLUS { $$ = $1; }
+     | TO_MINUS { $$ = $1; }
      ;
 
-mulop: TO_MUL
-     | TO_DIV
+mulop: TO_MUL { $$ = $1; }
+     | TO_DIV { $$ = $1; }
      ;
-
-term: factor { $$ = new Term($1); }
-    | term mulop factor { $1->op = $2; $1->r = $3; }
-    ;
-
-factor: atom { $$ = new Factor($1); }
-      | atom TO_POW atom { $$ = new Factor($1, $3); }
-      ;
 
 atom: TL_REAL { $$ = new Real(stod(*$1)); }
     | TL_IDENT { $$ = new Symbol(*$1); }

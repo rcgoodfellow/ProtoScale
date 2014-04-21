@@ -7,8 +7,10 @@
 struct Module;
 struct Element;
 using Elements = std::vector<Element*>;
-struct Expr;
 struct Funcall;
+struct AddOp;
+struct Expr;
+using Exprs = std::vector<Expr*>;
 
 struct Module
 {
@@ -46,72 +48,6 @@ struct Variable : public NodeElement
     : NodeElement{Kind::Variable}, name{n}, type{t} {}
 };
 using Variables = std::vector<Variable*>;
-
-struct Atom
-{
-  enum class Kind { Real, Symbol, Expr, Funcall};
-  Atom(Kind k) : _kind{k} {}
-  virtual ~Atom() {} 
-  Kind kind() const { return _kind; }
-  private:
-    Kind _kind;
-};
-using Atoms = std::vector<Atom*>;
-
-struct Real : public Atom
-{
-  double value;
-  Real(double v) : Atom{Kind::Real}, value{v} {}
-};
-
-struct Symbol : public Atom
-{
-  std::string value;
-  Symbol(std::string v) : Atom{Kind::Symbol}, value{v} {}
-};
-
-struct ExprAtom : public Atom
-{
-  const Expr *value;
-  ExprAtom(const Expr *v) : Atom{Kind::Symbol}, value{v} {}
-};
-
-struct FuncallAtom : public Atom
-{
-  const Funcall *value;
-  FuncallAtom(const Funcall *f) 
-    : Atom{Kind::Funcall}, value{f} {}
-};
-
-struct Factor
-{
-  Atom *atom, *exp;
-  Factor(Atom *a, Atom *e=nullptr) : atom{a}, exp{e} {}
-};
-using Factors = std::vector<Factor*>;
-
-struct Term 
-{ 
-  Factor *l, *r;
-  int op;
-  Term(Factor *l, Factor *r=nullptr) : l{l}, r{r} {}
-};
-using Terms = std::vector<Term*>;
-
-struct Expr 
-{ 
-  Term *l, *r;
-  int op;
-  Expr(Term *l, Term *r=nullptr) : l{l}, r{r} {}
-};
-using Exprs = std::vector<Expr*>;
-
-struct Funcall
-{
-  std::string name;
-  Exprs args;
-  Funcall(std::string n, Exprs a) : name{n}, args{a} {}
-};
 
 struct Alias : public NodeElement
 {
@@ -156,5 +92,117 @@ struct Link : public Element
   std::string name;
   Link(std::string n) : Element{Kind::Link}, name{n} {}
 };
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+struct Expr 
+{
+  enum class Kind 
+  { 
+    Expr, 
+    AddOp, 
+    MulOp, 
+    ExpOp, 
+    Atom, 
+    Real, 
+    Symbol,
+    Funcall
+  };
+
+  Expr(Kind k) : _kind{k} {}
+  virtual ~Expr() {}
+
+  Kind kind() const { return _kind; }
+  private:
+    Kind _kind;
+};
+
+struct AddOp : public Expr
+{
+  struct AddOp *l, *r;
+  int op;
+  AddOp(AddOp *l, AddOp *r=nullptr, int o=0, Kind k=Kind::AddOp) 
+    : Expr{k}, l{l}, r{r}, op{o} {}
+};
+
+struct MulOp : public AddOp
+{
+  MulOp(MulOp *l, MulOp *r=nullptr, int o=0, Kind k=Kind::MulOp) 
+    : AddOp{l, r, o, k} {}
+};
+
+struct ExpOp : public MulOp
+{
+  ExpOp(ExpOp *l, ExpOp *r=nullptr, int o=0) 
+    : MulOp{l, r, o, Kind::ExpOp} {}
+};
+
+struct Atom : public Expr
+{
+  Atom(Kind k) : Expr{k} {}
+  virtual ~Atom() {} 
+};
+using Atoms = std::vector<Atom*>;
+
+struct Real : public Atom
+{
+  double value;
+  Real(double v) : Atom{Kind::Real}, value{v} {}
+};
+
+struct Symbol : public Atom
+{
+  std::string value;
+  Symbol(std::string v) : Atom{Kind::Symbol}, value{v} {}
+};
+
+struct ExprAtom : public Atom
+{
+  const Expr *value;
+  ExprAtom(const Expr *v) : Atom{Kind::Symbol}, value{v} {}
+};
+
+struct FuncallAtom : public Atom
+{
+  const Funcall *value;
+  FuncallAtom(const Funcall *f) 
+    : Atom{Kind::Funcall}, value{f} {}
+};
+
+/*
+struct Factor 
+{
+  Atom *atom, *exp;
+  Factor(Atom *a, Atom *e=nullptr) : atom{a}, exp{e} {}
+};*/
+//using Factors = std::vector<Factor*>;
+
+/*
+struct Term : public Factor
+{ 
+  Term *l; 
+  Factor *r;
+  int op;
+  Term(Term *l, Factor *r=nullptr) : l{l}, r{r} {}
+};*/
+//using Terms = std::vector<Term*>;
+
+/*
+struct Expr 
+{ 
+  Term *l, *r;
+  int op;
+  Expr(Term *l, Term *r=nullptr) : l{l}, r{r} {}
+};*/
+//using Exprs = std::vector<Expr*>;
+
+
+struct Funcall
+{
+  std::string name;
+  Exprs args;
+  Funcall(std::string n, Exprs a) : name{n}, args{a} {}
+};
+
 
 #endif
