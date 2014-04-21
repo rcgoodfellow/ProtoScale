@@ -153,7 +153,21 @@ MetaASTPrinter::print(const ExprAtom *s)
 void
 MetaASTPrinter::print(const FuncallAtom *f)
 {
-  print("[Funcall] ");
+  print(f->value);
+}
+
+void
+MetaASTPrinter::print(const Funcall *f)
+{
+  print("[Funcall] " + f->name);
+  indent++;
+  
+  for(Expr *e : f->args)
+  {
+    print(e);
+  }
+
+  indent--;
 }
 
 void 

@@ -45,6 +45,7 @@ class MetaASTPrinter
     void print(const Symbol*);
     void print(const ExprAtom*);
     void print(const FuncallAtom*);
+    void print(const Funcall*);
     /*
     void print(const Ident*);
     void print(const Module*);

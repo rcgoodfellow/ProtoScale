@@ -201,7 +201,7 @@ atom: TL_REAL { $$ = new Real(stod(*$1)); }
     | funcall { $$ = new FuncallAtom($1); }
     ;
 
-funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(); }
+funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3); }
 
 link: TK_LINK TL_IDENT TO_SEMI 
         var_decl_groups 

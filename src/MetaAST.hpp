@@ -83,11 +83,6 @@ struct FuncallAtom : public Atom
     : Atom{Kind::Funcall}, value{f} {}
 };
 
-struct Funcall
-{
-
-};
-
 struct Factor
 {
   Atom *atom, *exp;
@@ -110,6 +105,13 @@ struct Expr
   Expr(Term *l, Term *r=nullptr) : l{l}, r{r} {}
 };
 using Exprs = std::vector<Expr*>;
+
+struct Funcall
+{
+  std::string name;
+  Exprs args;
+  Funcall(std::string n, Exprs a) : name{n}, args{a} {}
+};
 
 struct Alias : public NodeElement
 {
