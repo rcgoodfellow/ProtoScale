@@ -5,7 +5,7 @@ module Power:
 node Bus:
   S, V, Y complex          `power, voltage, admittance`
   p, q := re(Y), im(Y)     `real, reactive power`
-  v, d := angle(V) + 6*x, mag(V) `voltage magnitude and angle`
+  v, d := angle(V), mag(V) `voltage magnitude and angle`
   y, t := angle(Y), mag(Y) `admittance magnitude angle`
   g, b := re(Y), im(Y)     `conductance susceptance`
 

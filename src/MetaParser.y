@@ -54,13 +54,12 @@
 %type <module> module
 %type <element> link node
 %type <elements> elements
-%type <variables> var_decl_groups var_decl_groups_cs
 %type <strings> var_names
 %type <string> typename
 %type <node_element> interlate
-%type <node_elements> node_element node_elements var_decl_group alias
+%type <node_elements> node_element node_elements var_decl_group var_decl_groups var_decl_groups_cs alias
 %type <expr> expr
-%type <exprs> exprs stmts
+%type <exprs> stmts
 %type <term> term
 %type <token> addop mulop
 %type <factor> factor
@@ -112,12 +111,16 @@ node_element: var_decl_group { $$ = $1; }
             | interlate  { $$ = new NodeElements(); $$->push_back($1); }
             ;
 
-var_decl_groups: var_decl_group
+var_decl_groups: var_decl_group { $$ = new NodeElements();
+                                  $$->insert($$->end(), $1->begin(), $1->end()); }
                | var_decl_groups var_decl_group
+                                { $1->insert($1->end(), $2->begin(), $2->end()); }
                ;
 
-var_decl_groups_cs: var_decl_group
-                  | var_decl_groups TO_COMMA var_decl_group
+var_decl_groups_cs: var_decl_group { $$ = new NodeElements();
+                                     $$->insert($$->end(), $1->begin(), $1->end()); }
+                  | var_decl_groups_cs TO_COMMA var_decl_group
+                                   { $1->insert($1->end(), $3->begin(), $3->end()); }
                   ;
 
 var_decl_group: var_names typename 

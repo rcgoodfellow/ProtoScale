@@ -50,52 +50,75 @@ MetaASTPrinter::print(const Alias *a)
 void
 MetaASTPrinter::print(const Expr *e)
 {
+  bool print_this{false};
   std::string opstr = "";
-  if(e->op == TO_PLUS){ opstr = "+"; }
-  if(e->op == TO_MINUS){ opstr = "-"; }
+  if(e->op == TO_PLUS){ opstr = "+"; print_this = true; }
+  if(e->op == TO_MINUS){ opstr = "-"; print_this = true; }
 
-  print("[Expr] " + opstr);
-  indent++;
+  if(print_this)
+  {
+    print("[Expr] " + opstr);
+    indent++;
+  }
 
   print(e->l);
   if(e->r){ print(e->r); }
 
-  indent--;
+  if(print_this)
+  {
+    indent--;
+  }
 }
 
 void
 MetaASTPrinter::print(const Term *t)
 {
   std::string opstr = "";
-  if(t->op == TO_MUL){ opstr = "*"; }
-  if(t->op == TO_DIV){ opstr = "/"; }
+  bool print_this{false};
+  if(t->op == TO_MUL){ opstr = "*"; print_this = true; }
+  if(t->op == TO_DIV){ opstr = "/"; print_this = true;}
 
-  print("[Term] " + opstr);
-  indent++;
+  if(print_this)
+  {
+    print("[Term] " + opstr);
+    indent++;
+  }
 
   print(t->l);
   if(t->r){ print(t->r); }
 
-  indent--;
+  if(print_this)
+  {
+    indent--;
+  }
 }
 
 void
 MetaASTPrinter::print(const Factor *f)
 {
-  print("[Factor] ");
-  indent++;
+  //only print the whole shabang if there is an exponent
+  if(f->exp)
+  {
+    print("[Factor] ");
+    indent++;
+  }
 
   print(f->atom);
-  if(f->exp){ print(f->exp); }
 
-  indent--;
+  if(f->exp)
+  { 
+    print(f->exp); 
+    indent--;
+  }
 }
 
 void
 MetaASTPrinter::print(const Atom *a)
 {
-  print("[Atom] ");
-  indent++;
+  // Thus far it is not really usefull to print this in the AST printout
+  // as it does not add any additional information
+  //print("[Atom] ");
+  //indent++;
 
   using K = Atom::Kind;
   switch(a->kind())
@@ -106,7 +129,7 @@ MetaASTPrinter::print(const Atom *a)
     case K::Funcall: print(as<const FuncallAtom>(a)); break;
   }
 
-  indent--;
+  //indent--;
 }
 
 void
