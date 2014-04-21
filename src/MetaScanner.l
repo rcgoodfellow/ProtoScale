@@ -25,7 +25,8 @@
 
 
 ":="                      return TOKEN(TO_ASSIGN);
-":"                       return TOKEN(TO_SEMI);
+":"                       return TOKEN(TO_COLON);
+";"                       return TOKEN(TO_SEMI);
 "+="                      return TOKEN(TO_PLEQ);
 "*="                      return TOKEN(TO_MUEQ);
 "="                       return TOKEN(TO_EQ);
@@ -38,6 +39,7 @@
 ","                       return TOKEN(TO_COMMA);
 "("                       return TOKEN(TS_POPEN);
 ")"                       return TOKEN(TS_PCLOSE);
+"'"                       return TOKEN(TO_PRIME);
 .                         printf("Unknown token: %s\n", metayytext); yyterminate();
 
 %%

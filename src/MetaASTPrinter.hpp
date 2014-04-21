@@ -52,6 +52,7 @@ class MetaASTPrinter
     void print(const Funcall*);
     void print(const Interlate*);
     void print(const Eqtn*);
+    void print(const DiffRel*);
 
 };
 

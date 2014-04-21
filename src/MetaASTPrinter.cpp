@@ -34,6 +34,7 @@ MetaASTPrinter::print(const Node *n)
   for(Variable *v : n->vars) { print(v); }
   for(Alias *a : n->aliases) { print(a); }
   for(Interlate *i : n->interlates) { print(i); }
+  for(DiffRel *d : n->diffrels) { print(d); }
 
   indent--;
 }
@@ -83,6 +84,17 @@ MetaASTPrinter::print(const Alias *a)
   indent++;
 
   print(a->expr);
+
+  indent--;
+}
+
+void
+MetaASTPrinter::print(const DiffRel *d)
+{
+  print("[DiffRel] " + d->tgt);
+  indent++;
+
+  print(d->expr);
 
   indent--;
 }

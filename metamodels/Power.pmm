@@ -3,20 +3,34 @@
 module Power:
 
 node Bus:
-  S, V, Y complex          `power, voltage, admittance`
-  p, q := re(S), im(S)     `real, reactive power`
-  v, d := mag(V), angle(V) `voltage magnitude and angle`
-  y, t := mag(Y), angle(Y) `admittance magnitude angle`
-  g, b := re(Y), im(Y)     `conductance susceptance`
+  S, V, Y complex;          `power, voltage, admittance`
+  p, q := re(S), im(S);     `real, reactive power`
+  v, d := mag(V), angle(V); `voltage magnitude and angle`
+  y, t := mag(Y), angle(Y); `admittance magnitude angle`
+  g, b := re(Y), im(Y);     `conductance susceptance`
 
+  `how this bus interacts with other buses via transmission line`
   bus(ij Line, j Bus):
-    y += y.ij
-    p += g*v^2 + v*v.i*y.ij*cos(t.ij + d.j - d) 
-    q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d)
-  
-  
+    y += y.ij;
+    p += g*v^2 + v*v.i*y.ij*cos(t.ij + d.j - d);
+    q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d);
+  ;;
+
+  `how this bus interacts with generators via transmission line`
+  gen(ij Line, j Gen):
+    v = v.j;
+  ;;
+;; 
+ 
+node Generator:
+  V complex;
+  v, d := mag(V), angle(V);
+
+  d' = sin(t);
+;;
 
 link Line:
-  Y complex
-  y, t := mag(Y), angle(Y)
+  Y complex;
+  y, t := mag(Y), angle(Y);
+;;
 

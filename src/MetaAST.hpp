@@ -31,7 +31,7 @@ struct Element
 
 struct NodeElement 
 { 
-  enum class Kind { Variable, Alias, Interlate };
+  enum class Kind { Variable, Alias, DiffRel, Interlate };
   NodeElement(Kind k) : _kind{k} {}
   virtual ~NodeElement() {}
   Kind kind() { return _kind; }
@@ -58,6 +58,15 @@ struct Alias : public NodeElement
 };
 using Aliases = std::vector<Alias*>;
 
+struct DiffRel : public NodeElement
+{
+  std::string tgt;
+  Expr *expr;
+  DiffRel(std::string t, Expr *e)
+    : NodeElement{Kind::DiffRel}, tgt{t}, expr{e} {}
+};
+using DiffRels = std::vector<DiffRel*>;
+
 struct Eqtn
 {
   std::string tgt;
@@ -83,6 +92,7 @@ struct Node : public Element
   Variables vars;
   Aliases aliases;
   Interlates interlates;
+  DiffRels diffrels;
   Node(std::string n) : Element{Kind::Node}, name{n} {}
 
 };

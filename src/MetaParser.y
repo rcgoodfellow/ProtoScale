@@ -47,7 +47,7 @@
 /* Built-In Types */
 %token <token> TT_REAL TT_COMPLEX
 /* Operators */
-%token <token> TO_SEMI TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ
+%token <token> TO_COLON TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ TO_SEMI TO_PRIME
 %token <token> TO_MUEQ TO_POW TO_DOT TO_COMMA
 /* Sepcial Symbols */
 %token <token> TS_POPEN TS_PCLOSE
@@ -57,7 +57,7 @@
 %type <elements> elements
 %type <strings> var_names
 %type <string> typename
-%type <node_element> interlate
+%type <node_element> interlate diffrel
 %type <node_elements> node_element node_elements var_decl_group var_decl_groups_cs alias link_elements link_element
 %type <expr> expr sum product exponential atom
 %type <exprs> stmts
@@ -73,7 +73,7 @@
 
 %%
 
-module: TK_MODULE TL_IDENT TO_SEMI elements { mm = new Module(*$2, *$4); }
+module: TK_MODULE TL_IDENT TO_COLON elements { mm = new Module(*$2, *$4); }
       ;
 
 elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
@@ -82,7 +82,7 @@ elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
         | elements TK_LINK link { $1->push_back($3); }
         ;
 
-node: TL_IDENT TO_SEMI node_elements 
+node: TL_IDENT TO_COLON node_elements TO_SEMI TO_SEMI 
                     { 
                       auto *n = new Node(*$1); 
                       for(NodeElement *v : *$3) 
@@ -94,6 +94,10 @@ node: TL_IDENT TO_SEMI node_elements
                         if(v->kind() == NodeElement::Kind::Alias)
                         {
                           n->aliases.push_back(dynamic_cast<Alias*>(v));
+                        }
+                        if(v->kind() == NodeElement::Kind::DiffRel)
+                        {
+                          n->diffrels.push_back(dynamic_cast<DiffRel*>(v));
                         }
                         if(v->kind() == NodeElement::Kind::Interlate)
                         {
@@ -110,11 +114,15 @@ node_elements: node_element { $$ = new NodeElements();
                             { $1->insert($1->end(), $2->begin(), $2->end()); }
              ;
 
-node_element: var_decl_group { $$ = $1; }
-            | alias { $$ = $1; }
-            | interlate  { $$ = new NodeElements(); $$->push_back($1); }
+node_element: var_decl_group TO_SEMI{ $$ = $1; }
+            | alias TO_SEMI { $$ = $1; }
+            | diffrel TO_SEMI 
+                { $$ = new NodeElements(); $$->push_back($1); }
+            | interlate TO_SEMI TO_SEMI 
+                { $$ = new NodeElements(); $$->push_back($1); }
             ;
 
+diffrel: TL_IDENT TO_PRIME TO_EQ expr { $$ = new DiffRel(*$1, $4); }
 
 var_decl_groups_cs: var_decl_group 
                     { 
@@ -125,7 +133,7 @@ var_decl_groups_cs: var_decl_group
                     { $1->insert($1->end(), $3->begin(), $3->end()); }
                   ;
 
-var_decl_group: var_names typename 
+var_decl_group: var_names typename
               { $$ = new NodeElements();
                 for(std::string *v : *$1)
                 {
@@ -143,7 +151,7 @@ typename: TT_COMPLEX { $$ = new std::string("complex"); }
         | TL_IDENT { $$ = $1; }
         ;
 
-alias: var_names TO_ASSIGN stmts 
+alias: var_names TO_ASSIGN stmts
        { 
          $$ = new NodeElements();  
          for(size_t i=0; i<$1->size(); ++i)
@@ -155,7 +163,8 @@ alias: var_names TO_ASSIGN stmts
        }
      ;
 
-interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_SEMI eqtns 
+interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_COLON
+           eqtns
            { Interlate *i = new Interlate(*$1); 
              for(NodeElement *e : *$3)
              {
@@ -166,7 +175,7 @@ interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_SEMI eqtns
            }
          ;
 
-eqtn: TL_IDENT linkop expr { $$ = new Eqtn(*$1, $2, $3); }
+eqtn: TL_IDENT linkop expr TO_SEMI { $$ = new Eqtn(*$1, $2, $3); }
     ;
 
 eqtns: eqtn { $$ = new Eqtns(); $$->push_back($1); }
@@ -175,6 +184,7 @@ eqtns: eqtn { $$ = new Eqtns(); $$->push_back($1); }
 
 linkop: TO_PLEQ { $$ = $1; }
       | TO_MUEQ { $$ = $1; }
+      | TO_EQ { $$ = $1; }
       ;
 
 stmts: expr { $$ = new Exprs(); $$->push_back($1); }
@@ -213,7 +223,7 @@ atom: TL_REAL { $$ = new Real(stod(*$1)); }
 
 funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3); }
 
-link: TL_IDENT TO_SEMI link_elements
+link: TL_IDENT TO_COLON link_elements TO_SEMI TO_SEMI
         { 
           auto *l = new Link(*$1); 
           for(NodeElement *v : *$3)
@@ -238,8 +248,8 @@ link_elements: link_element { $$ = new NodeElements();
              ;
 
 
-link_element: var_decl_group { $$ = $1; }
-            | alias { $$ = $1; }
+link_element: var_decl_group TO_SEMI { $$ = $1; }
+            | alias TO_SEMI { $$ = $1; }
             ;
 
 
