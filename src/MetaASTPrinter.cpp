@@ -66,10 +66,15 @@ MetaASTPrinter::print(const Interlate *i)
 void
 MetaASTPrinter::print(const Eqtn *e)
 {
-  std::string linkopstr{""};
-  if(e->linkop == TO_PLEQ) { linkopstr = "+="; }
-  if(e->linkop == TO_MUEQ) { linkopstr = "*="; }
-  print("[Eqtn] " + e->tgt + " " + linkopstr);
+  std::string linkopstr{" ="};
+  if(e->linkop == TO_PLEQ) { linkopstr = " +="; }
+  if(e->linkop == TO_MUEQ) { linkopstr = " *="; }
+  std::string diffstr{""};
+  if(e->differential)
+  {
+    diffstr += "'(" + e->time_unit + ")";
+  }
+  print("[Eqtn] " + e->tgt + diffstr + linkopstr);
   indent++;
 
   print(e->expr);

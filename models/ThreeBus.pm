@@ -3,9 +3,16 @@
 import Power
 
 create Bus:
-  b0, b1, b4
+  b0, b1, b4;
 
-create Generator {v=1}:
+create Source:
+  s0{f=5}, s1{f=2};
+
+create Generator:
+  g0, g1;
+
+create Load:
+  l0{f=7}
   
 
 create Line [ym, ya]: 

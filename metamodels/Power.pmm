@@ -9,31 +9,43 @@ node Bus:
   y, t := mag(Y), angle(Y); `admittance magnitude angle`
   g, b := re(Y), im(Y);     `conductance susceptance`
 
-  `how this bus interacts with other buses via transmission line`
+  `how a bus interacts with other buses via transmission line`
   bus(ij Line, j Bus):
     y += y.ij;
     p += g*v^2 + v*v.i*y.ij*cos(t.ij + d.j - d);
     q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d);
   ::
 
-  `how this bus interacts with generators via transmission line`
+  `how a bus interacts with generators via transmission line`
   gen(ij Line, j Gen):
     v = v.j;
   ::
-:: 
+
+  load(ij Line, j Load):
+    S += S.j;
+  ::
+::
 
 node Source:
-  f, p real;
-  i := gaussian(p, 0.05);
+  f, p real; `f = force, p = target operating point`
+  i := gaussian(p, 0.05); `simulated actual operating point`
 
-  f'/s = f + 0.03*(p - i);
+  f'/t = f + 0.03*(p - i); `diff eqtn (of time t) describing evolution of force`
 ::
 
 node Generator:
-  V complex;
-  v, d := mag(V), angle(V);
+  S complex;
+  p, q := re(S), im(S);
 
-  d'/s = 60*2*Pi;
+  src(ij Line, i Force):
+    p = f.i * cos(t);
+    q = f.i * sin(t);
+  ::
+::
+
+node Load:
+  S complex;
+  p, q := re(S), im(S);
 ::
 
 link Line:

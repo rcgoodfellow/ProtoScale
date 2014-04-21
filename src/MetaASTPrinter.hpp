@@ -43,7 +43,6 @@ class MetaASTPrinter
     void print(const MulOp*);
     void print(const ExpOp*);
 
-
     void print(const Atom*);
     void print(const Real*);
     void print(const Symbol*);

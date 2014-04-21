@@ -71,9 +71,12 @@ using DiffRels = std::vector<DiffRel*>;
 struct Eqtn
 {
   std::string tgt;
+  bool differential;
+  std::string time_unit;
   int linkop;
   Expr *expr;
-  Eqtn(std::string t, int l, Expr *e) : tgt{t}, linkop{l}, expr{e} {}
+  Eqtn(std::string t, int l, Expr *e, bool d=false, std::string i="") 
+    : tgt{t}, linkop{l}, expr{e}, differential{d}, time_unit{i} {}
 };
 using Eqtns = std::vector<Eqtn*>;
 

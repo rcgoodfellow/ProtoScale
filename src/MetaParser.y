@@ -179,6 +179,8 @@ interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_COLON
          ;
 
 eqtn: TL_IDENT linkop expr TO_SEMI { $$ = new Eqtn(*$1, $2, $3); }
+    | TL_IDENT TO_PRIME TO_DIV TL_IDENT linkop expr TO_SEMI 
+              { $$ = new Eqtn(*$1, $5, $6, true, *$4); }
     ;
 
 eqtns: eqtn { $$ = new Eqtns(); $$->push_back($1); }
