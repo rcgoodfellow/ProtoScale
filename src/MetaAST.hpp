@@ -62,8 +62,9 @@ struct DiffRel : public NodeElement
 {
   std::string tgt;
   Expr *expr;
-  DiffRel(std::string t, Expr *e)
-    : NodeElement{Kind::DiffRel}, tgt{t}, expr{e} {}
+  std::string time_unit;
+  DiffRel(std::string t, Expr *e, std::string i)
+    : NodeElement{Kind::DiffRel}, tgt{t}, expr{e}, time_unit{i} {}
 };
 using DiffRels = std::vector<DiffRel*>;
 

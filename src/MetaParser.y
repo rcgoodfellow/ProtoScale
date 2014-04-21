@@ -123,7 +123,9 @@ node_element: var_decl_group TO_SEMI{ $$ = $1; }
                 { $$ = new NodeElements(); $$->push_back($1); }
             ;
 
-diffrel: TL_IDENT TO_PRIME TO_EQ expr { $$ = new DiffRel(*$1, $4); }
+diffrel: TL_IDENT TO_PRIME TO_DIV TL_IDENT TO_EQ expr 
+          { $$ = new DiffRel(*$1, $6, *$4); }
+       ;
 
 var_decl_groups_cs: var_decl_group 
                     { 

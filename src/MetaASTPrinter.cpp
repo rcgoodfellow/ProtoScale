@@ -91,7 +91,7 @@ MetaASTPrinter::print(const Alias *a)
 void
 MetaASTPrinter::print(const DiffRel *d)
 {
-  print("[DiffRel] " + d->tgt);
+  print("[DiffRel] " + d->tgt + " (" + d->time_unit + ")");
   indent++;
 
   print(d->expr);

@@ -26,7 +26,7 @@ node Generator:
   V complex;
   v, d := mag(V), angle(V);
 
-  d' = sin(t);
+  d'/s = 60*2*Pi;
 ::
 
 link Line:
