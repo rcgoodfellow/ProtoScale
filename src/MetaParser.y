@@ -47,7 +47,7 @@
 /* Built-In Types */
 %token <token> TT_REAL TT_COMPLEX
 /* Operators */
-%token <token> TO_COLON TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ TO_SEMI TO_PRIME
+%token <token> TO_COLON TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ TO_SEMI TO_PRIME TO_GETS
 %token <token> TO_MUEQ TO_POW TO_DOT TO_COMMA
 /* Sepcial Symbols */
 %token <token> TS_POPEN TS_PCLOSE
@@ -61,7 +61,7 @@
 %type <node_elements> node_element node_elements var_decl_group var_decl_groups_cs alias link_elements link_element
 %type <expr> expr sum product exponential atom
 %type <exprs> stmts
-%type <token> addop mulop linkop
+%type <token> addop mulop linkop alias_oper
 %type <funcall> funcall
 %type <eqtns> eqtns
 %type <eqtn> eqtn
@@ -154,17 +154,20 @@ typename: TT_COMPLEX { $$ = new std::string("complex"); }
         | TL_IDENT { $$ = $1; }
         ;
 
-alias: var_names TO_ASSIGN stmts
+alias: var_names alias_oper stmts
        { 
          $$ = new NodeElements();  
          for(size_t i=0; i<$1->size(); ++i)
          {
             std::string s = *((*$1)[i]);
             Expr *e = (*$3)[i];
-            $$->push_back(new Alias(s, e));
+            $$->push_back(new Alias(s, e, $2));
          }
        }
      ;
+
+alias_oper: TO_ASSIGN { $$ = $1; }
+          | TO_GETS { $$ = $1; }
 
 interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_COLON
            eqtns

@@ -53,8 +53,9 @@ struct Alias : public NodeElement
 {
   std::string name;
   Expr *expr;
-  Alias(std::string n, Expr *e) 
-    : NodeElement{Kind::Alias}, name{n}, expr{e} {}
+  int oper;
+  Alias(std::string n, Expr *e, int o) 
+    : NodeElement{Kind::Alias}, name{n}, expr{e}, oper{o} {}
 };
 using Aliases = std::vector<Alias*>;
 

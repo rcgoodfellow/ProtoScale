@@ -12,7 +12,7 @@ syn keyword pmmType real complex
 syn match pmmTypedVar '\h\a*\:\s*\h\a*' contains=pmmSpecial
 " syn match pmmConnect '\(\h\a*\)(\h\a*\:\s*\h\a*,\s*\h\a*\:\s*\h\a*)\:*' contains=pmmTypedVar,pmmSpecial
 syn match pmmMathOp '+\|-\|\*\|/\|=\|,\|\''
-syn match pmmSpecial '->\|\:=\|\:\|\[\|\]\|{\|}\|;'
+syn match pmmSpecial '<-\|->\|\:=\|\:\|\[\|\]\|{\|}\|;'
 syn match pmmComment '`.*`'
 
 hi link pmmKeyword Keyword

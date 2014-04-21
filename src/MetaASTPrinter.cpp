@@ -85,7 +85,10 @@ MetaASTPrinter::print(const Eqtn *e)
 void
 MetaASTPrinter::print(const Alias *a)
 {
-  print("[Alias] " + a->name);
+  std::string op;
+  if(a->oper == TO_ASSIGN){op = " :=";}
+  if(a->oper == TO_GETS){op = " <-";}
+  print("[Alias] " + a->name + op);
   indent++;
 
   print(a->expr);

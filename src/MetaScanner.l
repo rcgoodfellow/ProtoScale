@@ -25,6 +25,7 @@
 
 
 ":="                      return TOKEN(TO_ASSIGN);
+"<-"                      return TOKEN(TO_GETS);
 ":"                       return TOKEN(TO_COLON);
 ";"                       return TOKEN(TO_SEMI);
 "+="                      return TOKEN(TO_PLEQ);

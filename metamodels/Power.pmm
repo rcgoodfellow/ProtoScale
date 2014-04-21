@@ -16,31 +16,31 @@ node Bus:
     q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d);
   ::
 
-  `how a bus interacts with generators via transmission line`
-  gen(ij Line, j Gen):
-    v = v.j;
-  ::
-
-  load(ij Line, j Load):
-    S += S.j;
-  ::
-::
-
-node Source:
-  f, p real; `f = force, p = target operating point`
-  i := gaussian(p, 0.05); `simulated actual operating point`
-
-  f'/t = f + 0.03*(p - i); `diff eqtn (of time t) describing evolution of force`
+  `how a bus interacts with generators and loads via transmission line`
+  gen(ij Line, j Gen):   S += S.j; ::
+  load(ij Line, j Load): S += S.j; ::
 ::
 
 node Generator:
   S complex;
   p, q := re(S), im(S);
 
+  `a generator must be connected to a source (prime mover) to generate power`
+  `note: this model is oversimplified and not realistic`
   src(ij Line, i Force):
-    p = f.i * cos(t);
+    p = f.i * cos(t); 
     q = f.i * sin(t);
   ::
+::
+
+node Source:
+  f, p real; `f = force, p = target operating point`
+
+  `simulated operating point, gaussian distribution centered at p with alpha=0.5`
+  i <- gaussian(p, 0.05); 
+
+  `diff eqtn (of time t) describing evolution of force`
+  f'/t = f + 0.03*(p - i); 
 ::
 
 node Load:
@@ -48,9 +48,7 @@ node Load:
   f real;
   p, q := re(S), im(S);
 
-  bus(ij Line, j Bus):
-    S = f*V.j; 
-  ::
+  bus(ij Line, j Bus): S = f*V.j; ::
 ::
 
 link Line:
