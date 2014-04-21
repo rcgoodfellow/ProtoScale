@@ -119,7 +119,8 @@ struct Expr
     Atom, 
     Real, 
     Symbol,
-    Funcall
+    Funcall,
+    ExprAtom
   };
 
   Expr(Kind k) : _kind{k} {}
@@ -132,21 +133,21 @@ struct Expr
 
 struct AddOp : public Expr
 {
-  struct AddOp *l, *r;
+  struct Expr *l, *r;
   int op;
-  AddOp(AddOp *l, AddOp *r=nullptr, int o=0, Kind k=Kind::AddOp) 
+  AddOp(Expr *l, Expr *r=nullptr, int o=0, Kind k=Kind::AddOp) 
     : Expr{k}, l{l}, r{r}, op{o} {}
 };
 
 struct MulOp : public AddOp
 {
-  MulOp(MulOp *l, MulOp *r=nullptr, int o=0, Kind k=Kind::MulOp) 
+  MulOp(Expr *l, Expr *r=nullptr, int o=0, Kind k=Kind::MulOp) 
     : AddOp{l, r, o, k} {}
 };
 
 struct ExpOp : public MulOp
 {
-  ExpOp(ExpOp *l, ExpOp *r=nullptr, int o=0) 
+  ExpOp(Expr *l, Expr *r=nullptr, int o=0) 
     : MulOp{l, r, o, Kind::ExpOp} {}
 };
 
@@ -172,7 +173,7 @@ struct Symbol : public Atom
 struct ExprAtom : public Atom
 {
   const Expr *value;
-  ExprAtom(const Expr *v) : Atom{Kind::Symbol}, value{v} {}
+  ExprAtom(const Expr *v) : Atom{Kind::ExprAtom}, value{v} {}
 };
 
 struct FuncallAtom : public Atom

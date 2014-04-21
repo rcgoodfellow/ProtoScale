@@ -21,7 +21,14 @@ node Bus:
     v = v.j;
   ::
 :: 
- 
+
+node Source:
+  f, p real;
+  i := gaussian(p, 0.05);
+
+  f'/s = f + 0.03*(p - i);
+::
+
 node Generator:
   V complex;
   v, d := mag(V), angle(V);

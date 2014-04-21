@@ -111,6 +111,7 @@ MetaASTPrinter::print(const Expr *e)
     case K::Real: print(as<const Real>(e)); break;
     case K::Symbol: print(as<const Symbol>(e)); break;
     case K::Funcall: print(as<const FuncallAtom>(e)); break;
+    case K::ExprAtom: print(as<const ExprAtom>(e)); break;
     case K::Expr: break; //abstract node - nothing reasonable to print
     case K::Atom: break; // ""
   }
@@ -173,8 +174,9 @@ MetaASTPrinter::print(const Atom *a)
   {
     case K::Real: print(as<const Real>(a)); break;
     case K::Symbol: print(as<const Symbol>(a)); break;
-    case K::Expr: print(as<const ExprAtom>(a)); break;
+//    case K::Expr: print(as<const ExprAtom>(a)); break;
     case K::Funcall: print(as<const FuncallAtom>(a)); break;
+    case K::ExprAtom: print(as<const ExprAtom>(a)); break;
   }
 
   //indent--;
