@@ -35,11 +35,10 @@ class MetaASTPrinter
     std::stringstream ss{};
     void print(std::string);
     void print(const Node*);
+    void print(const Link*);
     void print(const Variable*);
     void print(const Alias*);
     void print(const Expr*);
-    //void print(const Term*);
-    //void print(const Factor*);
     
     void print(const AddOp*);
     void print(const MulOp*);
@@ -55,16 +54,6 @@ class MetaASTPrinter
     void print(const Interlate*);
     void print(const Eqtn*);
 
-    /*
-    void print(const Ident*);
-    void print(const Module*);
-    void print(const Decl*);
-    void print(const NodeDecl*);
-    void print(const LinkDecl*);
-    void print(const Assignment*);
-    void print(const Stmt*);
-    void print(const Array*);
-    */
 };
 
 template <class To, class From>

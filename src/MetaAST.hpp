@@ -90,6 +90,8 @@ struct Node : public Element
 struct Link : public Element
 {
   std::string name;
+  Variables vars;
+  Aliases aliases;
   Link(std::string n) : Element{Kind::Link}, name{n} {}
 };
 
@@ -169,40 +171,11 @@ struct FuncallAtom : public Atom
     : Atom{Kind::Funcall}, value{f} {}
 };
 
-/*
-struct Factor 
-{
-  Atom *atom, *exp;
-  Factor(Atom *a, Atom *e=nullptr) : atom{a}, exp{e} {}
-};*/
-//using Factors = std::vector<Factor*>;
-
-/*
-struct Term : public Factor
-{ 
-  Term *l; 
-  Factor *r;
-  int op;
-  Term(Term *l, Factor *r=nullptr) : l{l}, r{r} {}
-};*/
-//using Terms = std::vector<Term*>;
-
-/*
-struct Expr 
-{ 
-  Term *l, *r;
-  int op;
-  Expr(Term *l, Term *r=nullptr) : l{l}, r{r} {}
-};*/
-//using Exprs = std::vector<Expr*>;
-
-
 struct Funcall
 {
   std::string name;
   Exprs args;
   Funcall(std::string n, Exprs a) : name{n}, args{a} {}
 };
-
 
 #endif

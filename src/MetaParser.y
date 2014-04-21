@@ -20,12 +20,8 @@
   std::string *string;
   Node *node;
   Link *link;
-//  Term *term;
-//  Terms *terms;
   NodeElement *node_element;
   NodeElements *node_elements;
-//  Factor *factor;
-//  Factors *factors;
   Atom *atom;
   Atoms *atoms;
   Funcall *funcall;
@@ -57,12 +53,12 @@
 %token <token> TS_POPEN TS_PCLOSE
 
 %type <module> module
-%type <element> link node
+%type <element> node link
 %type <elements> elements
 %type <strings> var_names
 %type <string> typename
 %type <node_element> interlate
-%type <node_elements> node_element node_elements var_decl_group var_decl_groups var_decl_groups_cs alias
+%type <node_elements> node_element node_elements var_decl_group var_decl_groups_cs alias link_elements link_element
 %type <expr> expr sum product exponential atom
 %type <exprs> stmts
 %type <token> addop mulop linkop
@@ -80,16 +76,16 @@
 module: TK_MODULE TL_IDENT TO_SEMI elements { mm = new Module(*$2, *$4); }
       ;
 
-elements: node {$$ = new Elements(); $$->push_back($1); }
-        | link {$$ = new Elements(); $$->push_back($1); }
-        | elements node { $1->push_back($2); }
-        | elements link { $1->push_back($2); }
+elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
+        | TK_LINK link {$$ = new Elements(); $$->push_back($2); }
+        | elements TK_NODE node { $1->push_back($3); }
+        | elements TK_LINK link { $1->push_back($3); }
         ;
 
-node: TK_NODE TL_IDENT TO_SEMI node_elements 
+node: TL_IDENT TO_SEMI node_elements 
                     { 
-                      auto *n = new Node(*$2); 
-                      for(NodeElement *v : *$4) 
+                      auto *n = new Node(*$1); 
+                      for(NodeElement *v : *$3) 
                       { 
                         if(v->kind() == NodeElement::Kind::Variable)
                         {
@@ -119,11 +115,6 @@ node_element: var_decl_group { $$ = $1; }
             | interlate  { $$ = new NodeElements(); $$->push_back($1); }
             ;
 
-var_decl_groups: var_decl_group { $$ = new NodeElements();
-                                  $$->insert($$->end(), $1->begin(), $1->end()); }
-               | var_decl_groups var_decl_group
-                                { $1->insert($1->end(), $2->begin(), $2->end()); }
-               ;
 
 var_decl_groups_cs: var_decl_group { $$ = new NodeElements();
                                      $$->insert($$->end(), $1->begin(), $1->end()); }
@@ -148,9 +139,6 @@ typename: TT_COMPLEX { $$ = new std::string("complex"); }
         | TT_REAL { $$ = new std::string("real"); }
         | TL_IDENT { $$ = $1; }
         ;
-
-aliases: alias
-       | aliases alias
 
 alias: var_names TO_ASSIGN stmts 
        { 
@@ -195,21 +183,16 @@ expr: sum
 
 sum: product { $$ = $1; }
    | sum addop sum { $$ = new AddOp($<addop>1, $<addop>3, $2); }
-/*   | sum addop product { $$ = new AddOp($1, $3, $2); } */
    ;
 
 product: exponential { $$ = $1; }
        | product mulop product { $$ = new MulOp($<mulop>1, $<mulop>3, $2); }
-/*       | product mulop exponential { $$ = new MulOp($1, $3, $2); } */
        ;
 
 exponential: atom { $$ = $1; }
            | exponential TO_POW exponential 
               { $$ = new ExpOp($<expop>1, $<expop>3, TO_POW); }
-/*           | exponential TO_POW atom */
            ;
-      
-
 
 addop: TO_PLUS { $$ = $1; }
      | TO_MINUS { $$ = $1; }
@@ -227,9 +210,35 @@ atom: TL_REAL { $$ = new Real(stod(*$1)); }
 
 funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3); }
 
-link: TK_LINK TL_IDENT TO_SEMI 
-        var_decl_groups 
-        aliases { $$ = new Link(*$2); }
+link: TL_IDENT TO_SEMI link_elements
+        { 
+          auto *l = new Link(*$1); 
+          for(NodeElement *v : *$3)
+          {
+            if(v->kind() == NodeElement::Kind::Variable)
+            {
+              l->vars.push_back(dynamic_cast<Variable*>(v)); 
+            }
+            if(v->kind() == NodeElement::Kind::Alias)
+            {
+              l->aliases.push_back(dynamic_cast<Alias*>(v));
+            }
+          }
+          $$ = l;
+        }
     ;
+
+link_elements: link_element { $$ = new NodeElements(); 
+                              $$->insert($$->end(), $1->begin(), $1->end()); }
+             | link_elements link_element 
+                            { $1->insert($1->end(), $2->begin(), $2->end()); }
+             ;
+
+
+link_element: var_decl_group { $$ = $1; }
+            | alias { $$ = $1; }
+            ;
+
+
 
 %%
