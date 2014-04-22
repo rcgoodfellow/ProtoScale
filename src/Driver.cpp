@@ -42,22 +42,27 @@ void Driver::run()
    
     switch(cm->kind())
     {
-      case CommandBase::Kind::astBuild :
+      case CommandBase::Kind::astBuild:
       {
-#ifdef DEBUG
-        std::cout << "creating AST" << std::endl;
-#endif
         auto *tcm = static_cast<BuildASTCommand*>(cm);
-        try 
-        {
-          tcm->operator()();
-        }
-        catch (std::exception &e)
-        {
+        try { tcm->operator()(); }
+        catch (std::exception &e){
           std::cerr << "error: " << e.what() << std::endl;
         }
         break;
       }
+
+      case CommandBase::Kind::pkgBuild:
+      {
+        auto *tcm = static_cast<BuildPKGCommand*>(cm);
+        try { tcm->operator()(); }
+        catch (std::exception &e) {
+          std::cerr << "error: " << e.what() << std::endl;
+        }
+        break;
+      }
+
+
 
       case CommandBase::Kind::unknown :
       {

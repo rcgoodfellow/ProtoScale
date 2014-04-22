@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <stdexcept>
+#include <fstream>
 
 
 namespace ps { namespace cmd {
@@ -21,11 +22,11 @@ class CommandBase
     {
       unknown,
       astBuild,
+      pkgBuild
     };
     using ResultType = void;
     CommandBase(Args *args, Kind k) : args{args}, _kind{k} {}
     Kind kind() { return _kind; }
-
 
   protected:
     const Args *args;
@@ -44,13 +45,20 @@ class Command : public CommandBase
     virtual Result operator()() const = 0;
 };
 
-struct File { std::string name; std::string content; };
-using FileSet = std::vector<File>;
+using FileName = std::string;
+using FileSet = std::vector<FileName>;
 
 class BuildASTCommand : public Command<FileSet>
 {
   public:
     BuildASTCommand(Args *args) : Command{args, Kind::astBuild} {}
+    FileSet operator()() const;
+};
+
+class BuildPKGCommand : public Command<FileSet>
+{
+  public:
+    BuildPKGCommand(Args *args) : Command{args, Kind::pkgBuild} {}
     FileSet operator()() const;
 };
 

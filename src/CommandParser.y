@@ -36,8 +36,7 @@ command : build { cm = $1; }
         ;
 
 build : C_BUILD CB_AST CB_FROM sources { $$ = new BuildASTCommand{$4}; }
-/*    | C_BUILD CB_PKG CB_FROM srouces
-      | C_BUILD CB_CODE CB_FROM srouces   */
+      | C_BUILD CB_PKG CB_FROM sources { $$ = new BuildPKGCommand{$4}; }
       ;
 
 sources : ARG { $$ = new Args; $$->push_back(*$1); }

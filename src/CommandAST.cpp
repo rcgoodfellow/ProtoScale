@@ -12,6 +12,10 @@ extern meta::Module *mm;
 
 FileSet BuildASTCommand::operator()() const
 {
+#ifdef DEBUG
+  std::cout << "Building Package" << std::endl;
+#endif
+
   FileSet fs;
 
   for(const std::string &s : *args)
@@ -24,11 +28,26 @@ FileSet BuildASTCommand::operator()() const
       throw std::runtime_error("compilation failed for "+s);
     }
     meta::ASTPrinter pp;
-    std::cout << "AST for " + s << std::endl;
+    std::string out_fn = s + ".psast";
+    std::ofstream out(out_fn);
+    std::cout << "AST for " << s << " saved to " << out_fn << std::endl;
+
     std::string ast = pp.print(mm);
-    std::cout << ast;
+    fs.push_back(out_fn);
+    out << ast;
+    out.close();
   }
 
+  return fs;
+}
+
+FileSet BuildPKGCommand::operator()() const
+{
+#ifdef DEBUG
+  std::cout << "Building Package" << std::endl;
+#endif
+
+  FileSet fs;
 
   return fs;
 }
