@@ -17,6 +17,7 @@ LIB_PARSE_OBJS=MetaParser.o    MetaScanner.o \
 							 CommandParser.o CommandScanner.o \
 							 CommandAST.o \
 							 MetaASTPrinter.o \
+							 MetaSema.o \
 							 FileUtil.o
 
 LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
@@ -30,6 +31,9 @@ FileUtil.o : FileUtil.cpp FileUtil.hpp
 	$(CXX) $(CSSFLAGS) -fpic -c $< -o $@
 
 MetaParser.o : MetaParser.cpp MetaParser.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
+
+MetaSema.o : MetaSema.cpp MetaSema.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 MetaParser.cpp: MetaParser.y

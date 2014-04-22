@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+namespace ps { namespace meta {
+
 struct Module;
 struct Element;
 using Elements = std::vector<Element*>;
@@ -193,5 +195,7 @@ struct Funcall
   Exprs args;
   Funcall(std::string n, Exprs a) : name{n}, args{a} {}
 };
+
+}} //ps::meta
 
 #endif

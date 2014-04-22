@@ -1,35 +1,36 @@
 %{
   #include "MetaAST.hpp"
   #include <iostream>
-  Module *mm;
+  ps::meta::Module *mm;
   extern int yylex();
+  using namespace ps::meta;
 %}
 
 %locations
 %error-verbose
 
 %union {
-  Module *module;
-  Element *element;
-  Elements *elements;
-  Expr *expr;
-  Exprs *exprs;
-  Variable *variable;
-  Variables *variables;
+  ps::meta::Module *module;
+  ps::meta::Element *element;
+  ps::meta::Elements *elements;
+  ps::meta::Expr *expr;
+  ps::meta::Exprs *exprs;
+  ps::meta::Variable *variable;
+  ps::meta::Variables *variables;
   std::vector<std::string*> *strings;
   std::string *string;
-  Node *node;
-  Link *link;
-  NodeElement *node_element;
-  NodeElements *node_elements;
-  Atom *atom;
-  Atoms *atoms;
-  Funcall *funcall;
-  Eqtn *eqtn;
-  Eqtns *eqtns;
-  AddOp *addop;
-  MulOp *mulop;
-  ExpOp *expop;
+  ps::meta::Node *node;
+  ps::meta::Link *link;
+  ps::meta::NodeElement *node_element;
+  ps::meta::NodeElements *node_elements;
+  ps::meta::Atom *atom;
+  ps::meta::Atoms *atoms;
+  ps::meta::Funcall *funcall;
+  ps::meta::Eqtn *eqtn;
+  ps::meta::Eqtns *eqtns;
+  ps::meta::AddOp *addop;
+  ps::meta::MulOp *mulop;
+  ps::meta::ExpOp *expop;
   int token;
 };
 

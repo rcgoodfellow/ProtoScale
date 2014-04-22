@@ -3,6 +3,10 @@
 //extern int cmdyyparse();
 //extern int metayyparse();
 //extern FILE *cmdyyin;
+
+using namespace ps;
+using namespace ps::cmd;
+
 extern CommandBase *cm;
 
 Driver::Driver(int argc, char **argv)

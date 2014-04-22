@@ -8,6 +8,9 @@
 #include <iostream>
 #include <stdexcept>
 
+
+namespace ps { namespace cmd {
+
 using Arg = std::string;
 using Args = std::vector<std::string>;
 
@@ -50,5 +53,7 @@ class BuildASTCommand : public Command<FileSet>
     BuildASTCommand(Args *args) : Command{args, Kind::astBuild} {}
     FileSet operator()() const;
 };
+
+}} //ps:cmd
 
 #endif

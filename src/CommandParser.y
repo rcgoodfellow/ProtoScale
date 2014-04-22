@@ -1,6 +1,7 @@
 %{
   #include "CommandAST.hpp"
-  CommandBase *cm;
+  ps::cmd::CommandBase *cm;
+  using namespace ps::cmd;
   extern int yylex();
 %}
 
@@ -8,9 +9,9 @@
 %error-verbose
 
 %union {
-  CommandBase *cmd;
-  Arg *arg;
-  Args *args;
+  ps::cmd::CommandBase *cmd;
+  ps::cmd::Arg *arg;
+  ps::cmd::Args *args;
   int token;
 }
 

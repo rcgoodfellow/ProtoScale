@@ -6,6 +6,8 @@
 #include <sstream>
 #include <string>
 
+namespace ps { namespace meta {
+
 class Indentation
 {
   size_t _at{0};  
@@ -24,7 +26,7 @@ class Indentation
 
 };
 
-class MetaASTPrinter
+class ASTPrinter
 {
   public:
     std::string print(const Module*);
@@ -60,5 +62,7 @@ To* as(From *p)
 {
   return dynamic_cast<To*>(p);
 }
+
+}} //ps::meta
 
 #endif

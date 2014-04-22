@@ -3,8 +3,10 @@
 using std::string;
 using std::endl;
 
+using namespace ps::meta;
+
 string
-MetaASTPrinter::print(const Module *m)
+ASTPrinter::print(const Module *m)
 {
   using K = Element::Kind;
 
@@ -26,7 +28,7 @@ MetaASTPrinter::print(const Module *m)
 }
 
 void
-MetaASTPrinter::print(const Node *n)
+ASTPrinter::print(const Node *n)
 {
   print("[Node] " + n->name);
   indent++;
@@ -40,7 +42,7 @@ MetaASTPrinter::print(const Node *n)
 }
 
 void
-MetaASTPrinter::print(const Link *l)
+ASTPrinter::print(const Link *l)
 {
   print("[Link] " + l->name);
   indent++;
@@ -52,7 +54,7 @@ MetaASTPrinter::print(const Link *l)
 }
 
 void
-MetaASTPrinter::print(const Interlate *i)
+ASTPrinter::print(const Interlate *i)
 {
   print("[Interlate] " + i->name);
   indent++;
@@ -64,7 +66,7 @@ MetaASTPrinter::print(const Interlate *i)
 }
 
 void
-MetaASTPrinter::print(const Eqtn *e)
+ASTPrinter::print(const Eqtn *e)
 {
   std::string linkopstr{" ="};
   if(e->linkop == TO_PLEQ) { linkopstr = " +="; }
@@ -83,7 +85,7 @@ MetaASTPrinter::print(const Eqtn *e)
 }
 
 void
-MetaASTPrinter::print(const Alias *a)
+ASTPrinter::print(const Alias *a)
 {
   std::string op;
   if(a->oper == TO_ASSIGN){op = " :=";}
@@ -97,7 +99,7 @@ MetaASTPrinter::print(const Alias *a)
 }
 
 void
-MetaASTPrinter::print(const DiffRel *d)
+ASTPrinter::print(const DiffRel *d)
 {
   print("[DiffRel] " + d->tgt + " (" + d->time_unit + ")");
   indent++;
@@ -108,7 +110,7 @@ MetaASTPrinter::print(const DiffRel *d)
 }
 
 void
-MetaASTPrinter::print(const Expr *e)
+ASTPrinter::print(const Expr *e)
 {
   using K = Expr::Kind;
   switch(e->kind())
@@ -126,7 +128,7 @@ MetaASTPrinter::print(const Expr *e)
 }
 
 void
-MetaASTPrinter::print(const AddOp *a)
+ASTPrinter::print(const AddOp *a)
 {
   std::string opstr = "";
   if(a->op == TO_PLUS){ opstr = "+"; }
@@ -142,7 +144,7 @@ MetaASTPrinter::print(const AddOp *a)
 };
 
 void
-MetaASTPrinter::print(const MulOp *m)
+ASTPrinter::print(const MulOp *m)
 {
   std::string opstr = "";
   if(m->op == TO_MUL){ opstr = "*"; }
@@ -157,7 +159,7 @@ MetaASTPrinter::print(const MulOp *m)
 }
 
 void
-MetaASTPrinter::print(const ExpOp *e)
+ASTPrinter::print(const ExpOp *e)
 {
   print("[^]");
   indent++;
@@ -170,7 +172,7 @@ MetaASTPrinter::print(const ExpOp *e)
 
 
 void
-MetaASTPrinter::print(const Atom *a)
+ASTPrinter::print(const Atom *a)
 {
   // Thus far it is not really usefull to print this in the AST printout
   // as it does not add any additional information
@@ -191,31 +193,31 @@ MetaASTPrinter::print(const Atom *a)
 }
 
 void
-MetaASTPrinter::print(const Real *r)
+ASTPrinter::print(const Real *r)
 {
   print("[Real] " + std::to_string(r->value));
 }
 
 void
-MetaASTPrinter::print(const Symbol *s)
+ASTPrinter::print(const Symbol *s)
 {
   print("[Symbol] " + s->value);
 }
 
 void
-MetaASTPrinter::print(const ExprAtom *s)
+ASTPrinter::print(const ExprAtom *s)
 {
   print(s->value);
 }
 
 void
-MetaASTPrinter::print(const FuncallAtom *f)
+ASTPrinter::print(const FuncallAtom *f)
 {
   print(f->value);
 }
 
 void
-MetaASTPrinter::print(const Funcall *f)
+ASTPrinter::print(const Funcall *f)
 {
   print("[Funcall] " + f->name);
   indent++;
@@ -229,13 +231,13 @@ MetaASTPrinter::print(const Funcall *f)
 }
 
 void 
-MetaASTPrinter::print(const Variable *v)
+ASTPrinter::print(const Variable *v)
 {
   print("[Variable] " + v->name + " " + v->type);
 }
 
 void 
-MetaASTPrinter::print(string s)
+ASTPrinter::print(string s)
 {
   ss << string(indent.pos(), ' ') << s << endl;
 }
