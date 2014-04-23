@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <unordered_set>
+#include <iostream>
 
 namespace ps { namespace meta {
 
@@ -13,6 +15,16 @@ struct Funcall;
 struct AddOp;
 struct Expr;
 using Exprs = std::vector<Expr*>;
+
+//TODO: Everything must inherit from this!
+struct Lexeme
+{
+  Lexeme(size_t l) : _line_no{l} {}
+  size_t line_no() const { return _line_no; }
+  
+  private:
+    size_t _line_no;
+};
 
 struct Module
 {
@@ -42,12 +54,32 @@ struct NodeElement
 };
 using NodeElements = std::vector<NodeElement*>;
 
+
 struct Variable : public NodeElement
 { 
   std::string name; 
   std::string type; 
   Variable(std::string n, std::string t) 
     : NodeElement{Kind::Variable}, name{n}, type{t} {}
+};
+
+struct VariableHash
+{
+  size_t operator()(Variable *v) 
+  { 
+    std::hash<std::string> hasher;
+    size_t h = hasher(v->name);
+    std::cout << "Hash for " << v->name << " is " << h << std::endl;
+    return h;
+  }
+};
+struct VariableEq
+{
+  bool operator()(Variable *a, Variable *b)
+  {
+    VariableHash h;
+    return h(a) == h(b);
+  };
 };
 using Variables = std::vector<Variable*>;
 

@@ -62,8 +62,6 @@ void Driver::run()
         break;
       }
 
-
-
       case CommandBase::Kind::unknown :
       {
 #ifdef DEBUG

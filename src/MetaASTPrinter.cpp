@@ -184,9 +184,10 @@ ASTPrinter::print(const Atom *a)
   {
     case K::Real: print(as<const Real>(a)); break;
     case K::Symbol: print(as<const Symbol>(a)); break;
-//    case K::Expr: print(as<const ExprAtom>(a)); break;
     case K::Funcall: print(as<const FuncallAtom>(a)); break;
     case K::ExprAtom: print(as<const ExprAtom>(a)); break;
+    //Becase *a is an atom, we only need to worry about atom subtypes
+    default: break;
   }
 
   //indent--;
