@@ -25,6 +25,7 @@ struct Lexeme
     size_t _line_no;
 };
 
+
 struct Module : public Lexeme
 {
   std::string name;
@@ -135,6 +136,8 @@ struct Node : public Element, public Lexeme
   DiffRels diffrels;
   Node(std::string n, size_t line_no) 
     : Lexeme{line_no}, Element{Kind::Node}, name{n} {}
+
+  const Variable* getVar(const std::string &s) const;
 
 };
 

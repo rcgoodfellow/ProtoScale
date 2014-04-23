@@ -49,6 +49,7 @@ void
 Sema::check(const Node* n)
 {
   checkFor_DuplicateVarNames(n->vars);
+  checkFor_InvalidReferences(n);
 }
 
 void
@@ -70,4 +71,57 @@ Sema::checkFor_DuplicateVarNames(const Variables &v)
     throw compilation_error{ diagnostics };
   }
 
+}
+
+void
+Sema::checkFor_InvalidReferences(const Node *n)
+{
+  using K = Expr::Kind;
+  for(const Alias *a : n->aliases)
+  {
+    switch(a->expr->kind())
+    {
+      case K::Funcall: checkFor_InvalidReferences(
+                           dynamic_cast<FuncallAtom*>(a->expr), n);
+                       break;
+      default:  ;
+    }
+  }
+}
+
+void
+Sema::checkFor_InvalidReferences(const Funcall *f, const Node *n)
+{
+  for(const Expr *e : f->args) { checkFor_InvalidReferences(e, n); }
+}
+
+void
+Sema::checkFor_InvalidReferences(const Expr *e, const Node *n)
+{
+  using K = Expr::Kind;
+  switch(e->kind())
+  {
+    case K::Symbol: checkFor_InvalidReferences(
+                        dynamic_cast<const Symbol*>(e), n);
+                    break;
+  }
+}
+
+void
+Sema::checkFor_InvalidReferences(const Symbol *s, const Node *n)
+{
+  const Variable *v = n->getVar(s->value);
+  if(!v)
+  {
+    size_t line = s->line_no();
+    string msg = "undefined variable name " + s->value;
+    diagnostics.push_back(Diagnostic{curr_file, line, msg});
+    throw compilation_error{ diagnostics };
+  }
+}
+
+void
+Sema::checkFor_InvalidReferences(const FuncallAtom *f, const Node *n)
+{
+  checkFor_InvalidReferences(f->value, n);
 }
