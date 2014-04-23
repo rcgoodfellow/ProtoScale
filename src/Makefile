@@ -10,7 +10,7 @@ all: proto
 debug: CXXFLAGS+=-DDEBUG
 debug: all
 
-proto: Driver.cpp Driver.hpp libprotoscale_parse.so
+proto: Driver.cpp Driver.hpp libprotoscale_parse.so CompilationException.hpp
 	$(CXX) $(CXXFLAGS) -o $@ $< -L . -l protoscale_parse
 
 LIB_PARSE_OBJS=MetaParser.o    MetaScanner.o \
@@ -33,10 +33,10 @@ FileUtil.o : FileUtil.cpp FileUtil.hpp
 MetaParser.o : MetaParser.cpp MetaParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-MetaSema.o : MetaSema.cpp MetaSema.hpp
+MetaSema.o : MetaSema.cpp MetaSema.hpp CompilationException.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-MetaParser.cpp: MetaParser.y
+MetaParser.cpp: MetaParser.y MetaAST.hpp
 	$(BISON) -p metayy -d -o $@ $<
 
 MetaParser.hpp: MetaParser.cpp
@@ -45,7 +45,7 @@ MetaParser.hpp: MetaParser.cpp
 MetaScanner.o : MetaScanner.cpp MetaScanner.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-MetaScanner.cpp: MetaScanner.l
+MetaScanner.cpp: MetaScanner.l MetaAST.hpp
 	$(FLEX) -P metayy --header-file=MetaScanner.hpp -o $@ $<
 
 MetaScanner.hpp: MetaScanner.cpp
@@ -62,7 +62,7 @@ CommandAST.o : CommandAST.cpp CommandAST.hpp
 CommandParser.o : CommandParser.cpp CommandParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-CommandParser.cpp : CommandParser.y
+CommandParser.cpp : CommandParser.y CommandAST.hpp MetaAST.hpp
 	$(BISON) -p cmdyy -d -o CommandParser.cpp $<
 
 CommandParser.hpp : CommandParser.cpp
@@ -71,7 +71,7 @@ CommandParser.hpp : CommandParser.cpp
 CommandScanner.o : CommandScanner.cpp CommandScanner.hpp CommandParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-CommandScanner.cpp : CommandScanner.l
+CommandScanner.cpp : CommandScanner.l CommandAST.hpp MetaAST.hpp
 	$(FLEX) -P cmdyy --header-file=CommandScanner.hpp -o $@ $<
 
 CommandScanner.hpp : CommandScanner.cpp

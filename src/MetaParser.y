@@ -4,6 +4,7 @@
   ps::meta::Module *mm;
   extern int yylex();
   using namespace ps::meta;
+  #define CURRLINE metayylloc.first_line
 %}
 
 %locations
@@ -75,7 +76,7 @@
 %%
 
 module: TK_MODULE TL_IDENT TO_COLON elements TO_COLON TO_COLON 
-        { mm = new Module(*$2, *$4); }
+        { mm = new Module(*$2, *$4, CURRLINE); }
       ;
 
 elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
@@ -86,7 +87,7 @@ elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
 
 node: TL_IDENT TO_COLON node_elements TO_COLON TO_COLON 
                     { 
-                      auto *n = new Node(*$1); 
+                      auto *n = new Node(*$1, CURRLINE); 
                       for(NodeElement *v : *$3) 
                       { 
                         if(v->kind() == NodeElement::Kind::Variable)
@@ -125,7 +126,7 @@ node_element: var_decl_group TO_SEMI{ $$ = $1; }
             ;
 
 diffrel: TL_IDENT TO_PRIME TO_DIV TL_IDENT TO_EQ expr 
-          { $$ = new DiffRel(*$1, $6, *$4); }
+          { $$ = new DiffRel(*$1, $6, *$4, CURRLINE); }
        ;
 
 var_decl_groups_cs: var_decl_group 
@@ -141,7 +142,7 @@ var_decl_group: var_names typename
               { $$ = new NodeElements();
                 for(std::string *v : *$1)
                 {
-                  $$->push_back(new Variable(*v, *$2));
+                  $$->push_back(new Variable(*v, *$2, CURRLINE));
                 }
               }
          ;
@@ -162,7 +163,7 @@ alias: var_names alias_oper stmts
          {
             std::string s = *((*$1)[i]);
             Expr *e = (*$3)[i];
-            $$->push_back(new Alias(s, e, $2));
+            $$->push_back(new Alias(s, e, $2, CURRLINE));
          }
        }
      ;
@@ -172,7 +173,7 @@ alias_oper: TO_ASSIGN { $$ = $1; }
 
 interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_COLON
            eqtns
-           { Interlate *i = new Interlate(*$1); 
+           { Interlate *i = new Interlate(*$1, CURRLINE); 
              for(NodeElement *e : *$3)
              {
                i->params.push_back(dynamic_cast<Variable*>(e));
@@ -182,9 +183,9 @@ interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_COLON
            }
          ;
 
-eqtn: TL_IDENT linkop expr TO_SEMI { $$ = new Eqtn(*$1, $2, $3); }
+eqtn: TL_IDENT linkop expr TO_SEMI { $$ = new Eqtn(*$1, $2, $3, CURRLINE); }
     | TL_IDENT TO_PRIME TO_DIV TL_IDENT linkop expr TO_SEMI 
-              { $$ = new Eqtn(*$1, $5, $6, true, *$4); }
+              { $$ = new Eqtn(*$1, $5, $6, CURRLINE, true, *$4); }
     ;
 
 eqtns: eqtn { $$ = new Eqtns(); $$->push_back($1); }
@@ -204,16 +205,17 @@ expr: sum
     ;
 
 sum: product { $$ = $1; }
-   | sum addop sum { $$ = new AddOp($<addop>1, $<addop>3, $2); }
+   | sum addop sum { $$ = new AddOp($<addop>1, CURRLINE, $<addop>3, $2); }
    ;
 
 product: exponential { $$ = $1; }
-       | product mulop product { $$ = new MulOp($<mulop>1, $<mulop>3, $2); }
+       | product mulop product 
+         { $$ = new MulOp($<mulop>1, CURRLINE, $<mulop>3, $2); }
        ;
 
 exponential: atom { $$ = $1; }
            | exponential TO_POW exponential 
-              { $$ = new ExpOp($<expop>1, $<expop>3, TO_POW); }
+              { $$ = new ExpOp($<expop>1, CURRLINE, $<expop>3, TO_POW); }
            ;
 
 addop: TO_PLUS { $$ = $1; }
@@ -224,17 +226,17 @@ mulop: TO_MUL { $$ = $1; }
      | TO_DIV { $$ = $1; }
      ;
 
-atom: TL_REAL { $$ = new Real(stod(*$1)); }
-    | TL_IDENT { $$ = new Symbol(*$1); }
-    | TS_POPEN expr TS_PCLOSE { $$ = new ExprAtom($2); }
-    | funcall { $$ = new FuncallAtom($1); }
+atom: TL_REAL { $$ = new Real(stod(*$1), CURRLINE); }
+    | TL_IDENT { $$ = new Symbol(*$1, CURRLINE); }
+    | TS_POPEN expr TS_PCLOSE { $$ = new ExprAtom($2, CURRLINE); }
+    | funcall { $$ = new FuncallAtom($1, CURRLINE); }
     ;
 
-funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3); }
+funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3, CURRLINE); }
 
 link: TL_IDENT TO_COLON link_elements TO_COLON TO_COLON
         { 
-          auto *l = new Link(*$1); 
+          auto *l = new Link(*$1, CURRLINE); 
           for(NodeElement *v : *$3)
           {
             if(v->kind() == NodeElement::Kind::Variable)

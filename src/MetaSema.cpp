@@ -1,9 +1,35 @@
 #include "MetaSema.hpp"
+#include "MetaParser.hpp"
+#include "MetaScanner.hpp"
 
 using namespace ps::meta;
 
 using std::string;
 using std::vector;
+
+void 
+Sema::buildAst(const string &src)
+{
+  mm = nullptr;
+  std::string source = readFile(src); 
+  metayy_scan_string(source.c_str());
+  metayyparse();
+  if(mm == nullptr)
+  {
+    throw std::runtime_error("compilation failed for "+src);
+  }
+}
+
+void
+Sema::check()
+{
+  for(const string &src_file : source_files)
+  {
+    curr_file = src_file;
+    buildAst(src_file);
+    check(mm);
+  }
+}
 
 void
 Sema::check(const Module* m)
@@ -38,9 +64,10 @@ Sema::checkFor_DuplicateVarNames(const Variables &v)
 
   if(duplicate != vc.end())
   {
-    throw std::runtime_error{
-      "duplicate variable name " + (*duplicate)->name
-    };
+    size_t line = (*duplicate)->line_no();
+    string msg = "duplicate variable name " + (*duplicate)->name;
+    diagnostics.push_back(Diagnostic{curr_file, line, msg});
+    throw compilation_error{ diagnostics };
   }
 
 }

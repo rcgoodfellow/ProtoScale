@@ -16,7 +16,6 @@ struct AddOp;
 struct Expr;
 using Exprs = std::vector<Expr*>;
 
-//TODO: Everything must inherit from this!
 struct Lexeme
 {
   Lexeme(size_t l) : _line_no{l} {}
@@ -26,11 +25,12 @@ struct Lexeme
     size_t _line_no;
 };
 
-struct Module
+struct Module : public Lexeme
 {
   std::string name;
   Elements elements; 
-  Module(std::string n, Elements e) : name{n}, elements{e} {}
+  Module(std::string n, Elements e, size_t line) 
+    : Lexeme{line}, name{n}, elements{e} {}
 };
 
 struct Element
@@ -55,12 +55,12 @@ struct NodeElement
 using NodeElements = std::vector<NodeElement*>;
 
 
-struct Variable : public NodeElement
+struct Variable : public NodeElement, public Lexeme
 { 
   std::string name; 
   std::string type; 
-  Variable(std::string n, std::string t) 
-    : NodeElement{Kind::Variable}, name{n}, type{t} {}
+  Variable(std::string n, std::string t, size_t line_no) 
+    : NodeElement{Kind::Variable}, Lexeme{line_no}, name{n}, type{t} {}
 };
 
 struct VariableHash
@@ -83,65 +83,68 @@ struct VariableEq
 };
 using Variables = std::vector<Variable*>;
 
-struct Alias : public NodeElement
+struct Alias : public NodeElement, public Lexeme
 {
   std::string name;
   Expr *expr;
   int oper;
-  Alias(std::string n, Expr *e, int o) 
-    : NodeElement{Kind::Alias}, name{n}, expr{e}, oper{o} {}
+  Alias(std::string n, Expr *e, int o, size_t line_no) 
+    : Lexeme{line_no}, NodeElement{Kind::Alias}, name{n}, expr{e}, oper{o} {}
 };
 using Aliases = std::vector<Alias*>;
 
-struct DiffRel : public NodeElement
+struct DiffRel : public NodeElement, public Lexeme
 {
   std::string tgt;
   Expr *expr;
   std::string time_unit;
-  DiffRel(std::string t, Expr *e, std::string i)
-    : NodeElement{Kind::DiffRel}, tgt{t}, expr{e}, time_unit{i} {}
+  DiffRel(std::string t, Expr *e, std::string i, size_t line_no)
+    : Lexeme{line_no}, NodeElement{Kind::DiffRel}, tgt{t}, expr{e}, time_unit{i} {}
 };
 using DiffRels = std::vector<DiffRel*>;
 
-struct Eqtn
+struct Eqtn : public Lexeme
 {
   std::string tgt;
   bool differential;
   std::string time_unit;
   int linkop;
   Expr *expr;
-  Eqtn(std::string t, int l, Expr *e, bool d=false, std::string i="") 
-    : tgt{t}, linkop{l}, expr{e}, differential{d}, time_unit{i} {}
+  Eqtn(std::string t, int l, Expr *e, size_t line_no, bool d=false, 
+       std::string i="") 
+    : Lexeme{line_no}, tgt{t}, linkop{l}, expr{e}, differential{d}, time_unit{i} {}
 };
 using Eqtns = std::vector<Eqtn*>;
 
-struct Interlate : public NodeElement
+struct Interlate : public NodeElement, public Lexeme
 {
   std::string name;
   Variables params;
   Eqtns eqtns;
-  Interlate(std::string n) 
-    : NodeElement{Kind::Interlate}, name{n} {}
+  Interlate(std::string n, size_t line_no) 
+    : Lexeme{line_no}, NodeElement{Kind::Interlate}, name{n} {}
 };
 using Interlates = std::vector<Interlate*>;
 
-struct Node : public Element
+struct Node : public Element, public Lexeme
 {
   std::string name;
   Variables vars;
   Aliases aliases;
   Interlates interlates;
   DiffRels diffrels;
-  Node(std::string n) : Element{Kind::Node}, name{n} {}
+  Node(std::string n, size_t line_no) 
+    : Lexeme{line_no}, Element{Kind::Node}, name{n} {}
 
 };
 
-struct Link : public Element
+struct Link : public Element, public Lexeme
 {
   std::string name;
   Variables vars;
   Aliases aliases;
-  Link(std::string n) : Element{Kind::Link}, name{n} {}
+  Link(std::string n, size_t line_no) 
+    : Lexeme{line_no}, Element{Kind::Link}, name{n} {}
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -169,24 +172,24 @@ struct Expr
     Kind _kind;
 };
 
-struct AddOp : public Expr
+struct AddOp : public Expr, public Lexeme
 {
   struct Expr *l, *r;
   int op;
-  AddOp(Expr *l, Expr *r=nullptr, int o=0, Kind k=Kind::AddOp) 
-    : Expr{k}, l{l}, r{r}, op{o} {}
+  AddOp(Expr *l, size_t line_no, Expr *r=nullptr, int o=0, Kind k=Kind::AddOp) 
+    : Lexeme{line_no}, Expr{k}, l{l}, r{r}, op{o} {}
 };
 
 struct MulOp : public AddOp
 {
-  MulOp(Expr *l, Expr *r=nullptr, int o=0, Kind k=Kind::MulOp) 
-    : AddOp{l, r, o, k} {}
+  MulOp(Expr *l, size_t line_no, Expr *r=nullptr, int o=0, Kind k=Kind::MulOp) 
+    : AddOp{l, line_no, r, o, k} {}
 };
 
 struct ExpOp : public MulOp
 {
-  ExpOp(Expr *l, Expr *r=nullptr, int o=0) 
-    : MulOp{l, r, o, Kind::ExpOp} {}
+  ExpOp(Expr *l, size_t line_no, Expr *r=nullptr, int o=0) 
+    : MulOp{l, line_no, r, o, Kind::ExpOp} {}
 };
 
 struct Atom : public Expr
@@ -196,36 +199,40 @@ struct Atom : public Expr
 };
 using Atoms = std::vector<Atom*>;
 
-struct Real : public Atom
+struct Real : public Atom, public Lexeme
 {
   double value;
-  Real(double v) : Atom{Kind::Real}, value{v} {}
+  Real(double v, size_t line_no) 
+    : Lexeme{line_no}, Atom{Kind::Real}, value{v} {}
 };
 
-struct Symbol : public Atom
+struct Symbol : public Atom, public Lexeme
 {
   std::string value;
-  Symbol(std::string v) : Atom{Kind::Symbol}, value{v} {}
+  Symbol(std::string v, size_t line_no) 
+    : Lexeme{line_no}, Atom{Kind::Symbol}, value{v} {}
 };
 
-struct ExprAtom : public Atom
+struct ExprAtom : public Atom, public Lexeme
 {
   const Expr *value;
-  ExprAtom(const Expr *v) : Atom{Kind::ExprAtom}, value{v} {}
+  ExprAtom(const Expr *v, size_t line_no) 
+    : Lexeme{line_no}, Atom{Kind::ExprAtom}, value{v} {}
 };
 
-struct FuncallAtom : public Atom
+struct FuncallAtom : public Atom, public Lexeme
 {
   const Funcall *value;
-  FuncallAtom(const Funcall *f) 
-    : Atom{Kind::Funcall}, value{f} {}
+  FuncallAtom(const Funcall *f, size_t line_no) 
+    : Lexeme{line_no}, Atom{Kind::Funcall}, value{f} {}
 };
 
-struct Funcall
+struct Funcall : public Lexeme
 {
   std::string name;
   Exprs args;
-  Funcall(std::string n, Exprs a) : name{n}, args{a} {}
+  Funcall(std::string n, Exprs a, size_t line_no) 
+    : Lexeme{line_no}, name{n}, args{a} {}
 };
 
 }} //ps::meta

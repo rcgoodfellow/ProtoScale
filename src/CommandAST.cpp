@@ -56,13 +56,9 @@ FileSet BuildPKGCommand::operator()() const
 #endif
 
   FileSet fs;
-  meta::Sema semanticChecker;
 
-  for(const std::string &s : *args)
-  {
-    doBuildAST(s);
-    semanticChecker.check(mm);
-  }
+  meta::Sema semanticChecker(*args);
+  semanticChecker.check();
 
   return fs;
 }
