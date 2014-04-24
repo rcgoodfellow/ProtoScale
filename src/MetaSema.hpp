@@ -36,8 +36,11 @@ class Sema
     void checkFor_InvalidReferences(const Funcall*, const Node*);
     void checkFor_InvalidReferences(const Expr*, const Node*);
     void checkFor_InvalidReferences(const Symbol*, const Node*);
+    void checkFor_InvalidReferences(const Accessor*, const Node*);
 
     void check(const Link*);
+
+    void undefined_Var(const std::string&, const Lexeme*);
 };
 
 }} //ps::meta

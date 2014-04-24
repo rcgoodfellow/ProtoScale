@@ -39,7 +39,9 @@ class ASTPrinter
     void print(const Link*);
     void print(const Variable*);
     void print(const Alias*);
+    void print(const LazyVar*);
     void print(const Expr*);
+    void print (const Accessor*);
     
     void print(const AddOp*);
     void print(const MulOp*);

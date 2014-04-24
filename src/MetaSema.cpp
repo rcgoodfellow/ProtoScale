@@ -79,13 +79,7 @@ Sema::checkFor_InvalidReferences(const Node *n)
   using K = Expr::Kind;
   for(const Alias *a : n->aliases)
   {
-    switch(a->expr->kind())
-    {
-      case K::Funcall: checkFor_InvalidReferences(
-                           dynamic_cast<FuncallAtom*>(a->expr), n);
-                       break;
-      default:  ;
-    }
+    checkFor_InvalidReferences(a->accessor, n);
   }
 }
 
@@ -108,16 +102,27 @@ Sema::checkFor_InvalidReferences(const Expr *e, const Node *n)
 }
 
 void
+Sema::undefined_Var(const std::string &s, const Lexeme *l)
+{
+  size_t line = l->line_no();
+  string msg = "undefined variable name " + s;
+  diagnostics.push_back(Diagnostic{curr_file, line, msg});
+  throw compilation_error{ diagnostics };
+
+}
+
+void
 Sema::checkFor_InvalidReferences(const Symbol *s, const Node *n)
 {
   const Variable *v = n->getVar(s->value);
-  if(!v)
-  {
-    size_t line = s->line_no();
-    string msg = "undefined variable name " + s->value;
-    diagnostics.push_back(Diagnostic{curr_file, line, msg});
-    throw compilation_error{ diagnostics };
-  }
+  if(!v) { undefined_Var(s->value, s); }
+}
+
+void
+Sema::checkFor_InvalidReferences(const Accessor *a, const Node *n)
+{
+  const Variable *v = n->getVar(a->target);
+  if(!v) { undefined_Var(a->target, a); }
 }
 
 void

@@ -32,6 +32,8 @@
   ps::meta::AddOp *addop;
   ps::meta::MulOp *mulop;
   ps::meta::ExpOp *expop;
+  ps::meta::Accessor *accessor;
+  ps::meta::Accessors *accessors;
   int token;
 };
 
@@ -60,13 +62,15 @@
 %type <strings> var_names
 %type <string> typename
 %type <node_element> interlate diffrel
-%type <node_elements> node_element node_elements var_decl_group var_decl_groups_cs alias link_elements link_element
+%type <node_elements> node_element node_elements var_decl_group var_decl_groups_cs alias link_elements link_element lazy_var
 %type <expr> expr sum product exponential atom
 %type <exprs> stmts
-%type <token> addop mulop linkop alias_oper
+%type <token> addop mulop linkop
 %type <funcall> funcall
 %type <eqtns> eqtns
 %type <eqtn> eqtn
+%type <accessor> accessor
+%type <accessors> accessors
 
 %left TO_PLUS TO_MINUS
 %left TO_MUL TO_DIV
@@ -98,6 +102,10 @@ node: TL_IDENT TO_COLON node_elements TO_COLON TO_COLON
                         {
                           n->aliases.push_back(dynamic_cast<Alias*>(v));
                         }
+                        if(v->kind() == NodeElement::Kind::LazyVar)
+                        {
+                          n->lazy_vars.push_back(dynamic_cast<LazyVar*>(v));
+                        }
                         if(v->kind() == NodeElement::Kind::DiffRel)
                         {
                           n->diffrels.push_back(dynamic_cast<DiffRel*>(v));
@@ -119,6 +127,7 @@ node_elements: node_element { $$ = new NodeElements();
 
 node_element: var_decl_group TO_SEMI{ $$ = $1; }
             | alias TO_SEMI { $$ = $1; }
+            | lazy_var TO_SEMI { $$ = $1; }
             | diffrel TO_SEMI 
                 { $$ = new NodeElements(); $$->push_back($1); }
             | interlate TO_COLON TO_COLON
@@ -156,20 +165,37 @@ typename: TT_COMPLEX { $$ = new std::string("complex"); }
         | TL_IDENT { $$ = $1; }
         ;
 
-alias: var_names alias_oper stmts
+alias: var_names TO_ASSIGN accessors
        { 
          $$ = new NodeElements();  
          for(size_t i=0; i<$1->size(); ++i)
          {
             std::string s = *((*$1)[i]);
-            Expr *e = (*$3)[i];
-            $$->push_back(new Alias(s, e, $2, CURRLINE));
+            Accessor *a = (*$3)[i];
+            $$->push_back(new Alias(s, a, CURRLINE));
          }
        }
      ;
 
-alias_oper: TO_ASSIGN { $$ = $1; }
-          | TO_GETS { $$ = $1; }
+lazy_var: var_names TO_GETS stmts
+          {
+            $$ = new NodeElements();
+            for(size_t i=0; i<$1->size(); ++i)
+            {
+              std::string s = *((*$1)[i]);
+              Expr *e = (*$3)[i];
+              $$->push_back(new LazyVar(s, e, CURRLINE));
+            }
+          }
+        ;
+
+accessor: TL_IDENT TS_POPEN TL_IDENT TS_PCLOSE 
+          { $$ = new Accessor(*$1, *$3, CURRLINE); }
+        ;
+
+accessors: accessor { $$ = new Accessors(); $$->push_back($1); }
+         | accessors TO_COMMA accessor {$1->push_back($3); }
+         ;
 
 interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_COLON
            eqtns

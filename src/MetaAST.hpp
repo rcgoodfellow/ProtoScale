@@ -46,7 +46,7 @@ struct Element
 
 struct NodeElement 
 { 
-  enum class Kind { Variable, Alias, DiffRel, Interlate };
+  enum class Kind { Variable, LazyVar, Alias, DiffRel, Interlate };
   NodeElement(Kind k) : _kind{k} {}
   virtual ~NodeElement() {}
   Kind kind() { return _kind; }
@@ -84,15 +84,35 @@ struct VariableEq
 };
 using Variables = std::vector<Variable*>;
 
+struct Accessor : public Lexeme
+{
+  std::string name, target;
+  Accessor(std::string n, std::string t, size_t line_no)
+    : Lexeme{line_no}, name{n}, target{t} {}
+};
+using Accessors = std::vector<Accessor*>;
+
 struct Alias : public NodeElement, public Lexeme
 {
   std::string name;
-  Expr *expr;
-  int oper;
-  Alias(std::string n, Expr *e, int o, size_t line_no) 
-    : Lexeme{line_no}, NodeElement{Kind::Alias}, name{n}, expr{e}, oper{o} {}
+  const Accessor *accessor;
+//  Expr *expr;
+//  int oper;
+//  Alias(std::string n, Expr *e, int o, size_t line_no) 
+//    : Lexeme{line_no}, NodeElement{Kind::Alias}, name{n}, expr{e}, oper{o} {}
+  Alias(std::string n, const Accessor *a, size_t line_no)
+    : Lexeme{line_no}, NodeElement{Kind::Alias}, accessor{a} {}
 };
 using Aliases = std::vector<Alias*>;
+
+struct LazyVar : public NodeElement, public Lexeme
+{
+  std::string name;
+  const Expr *expr;
+  LazyVar(std::string n, const Expr *e, size_t line_no)
+    : Lexeme{line_no}, NodeElement{Kind::LazyVar}, name{n}, expr{e} {}
+};
+using LazyVars = std::vector<LazyVar*>;
 
 struct DiffRel : public NodeElement, public Lexeme
 {
@@ -132,6 +152,7 @@ struct Node : public Element, public Lexeme
   std::string name;
   Variables vars;
   Aliases aliases;
+  LazyVars lazy_vars;
   Interlates interlates;
   DiffRels diffrels;
   Node(std::string n, size_t line_no) 

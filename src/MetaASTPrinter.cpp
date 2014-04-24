@@ -35,6 +35,7 @@ ASTPrinter::print(const Node *n)
   
   for(Variable *v : n->vars) { print(v); }
   for(Alias *a : n->aliases) { print(a); }
+  for(LazyVar *v : n->lazy_vars) { print(v); }
   for(Interlate *i : n->interlates) { print(i); }
   for(DiffRel *d : n->diffrels) { print(d); }
 
@@ -87,15 +88,29 @@ ASTPrinter::print(const Eqtn *e)
 void
 ASTPrinter::print(const Alias *a)
 {
-  std::string op;
-  if(a->oper == TO_ASSIGN){op = " :=";}
-  if(a->oper == TO_GETS){op = " <-";}
-  print("[Alias] " + a->name + op);
+  print("[Alias] " + a->name);
   indent++;
 
-  print(a->expr);
+  print(a->accessor);
 
   indent--;
+}
+
+void
+ASTPrinter::print(const LazyVar *l)
+{
+  print("[LazyVar] " + l->name);
+  indent++;
+
+  print(l->expr);
+
+  indent--;
+}
+
+void
+ASTPrinter::print(const Accessor *a)
+{
+  print("[Accessor] " + a->name + " tgt = " + a->target);
 }
 
 void
