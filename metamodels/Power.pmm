@@ -17,7 +17,7 @@ node Bus:
   ::
 
   `how a bus interacts with generators and loads via transmission line`
-  gen(ij Line, j Gen):   S += S.j; ::
+  gen(ij Line, j Generator):   S += S.j; ::
   load(ij Line, j Load): S += S.j; ::
 ::
 
@@ -27,7 +27,7 @@ node Generator:
 
   `a generator must be connected to a source (prime mover) to generate power`
   `note: this model is oversimplified and not realistic`
-  src(ij Line, i Force):
+  src(ij Line, i Source):
     p = f.i * cos(t); 
     q = f.i * sin(t);
   ::

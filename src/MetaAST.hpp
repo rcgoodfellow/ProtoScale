@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <iostream>
+#include <algorithm>
 
 namespace ps { namespace meta {
 
@@ -37,8 +38,8 @@ struct Module : public Lexeme
   Links links;
   Module(std::string n, size_t line) : Lexeme{line}, name{n} {}
 
-  Link* getLink(std::string);
-  Node* getNode(std::string);
+  Node* getNode(const std::string&) const;
+  Link* getLink(const std::string&) const;
 };
 
 struct Element

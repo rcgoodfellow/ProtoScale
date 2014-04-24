@@ -73,16 +73,36 @@ Sema::checkFor_InvalidReferences(const Node *n, const Module *m)
   {
     checkFor_InvalidReferences(a->accessor, n);
   }
+  for(const Interlate *i : n->interlates)
+  {
+    checkFor_InvalidReferences(i, n, m);
+  }
 }
 
 void
 Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n, 
                                  const Module *m)
 {
-  Variable *line = i->params[0],
+  Variable *link = i->params[0],
            *node = i->params[1];
+ 
+  //Find the link type from within the module
+  if(!m->getLink(link->type))
+  {
+    size_t line = link->line_no();
+    string msg = "undefined link type " + link->type;
+    diagnostics.push_back(Diagnostic{curr_file, line, msg});
+    throw compilation_error{ diagnostics };
+  }
 
-  
+  //Find the node neighbor type from within the module
+  if(!m->getNode(node->type))
+  {
+    size_t line = node->line_no();
+    string msg = "undefined node type " + node->type;
+    diagnostics.push_back(Diagnostic{curr_file, line, msg});
+    throw compilation_error{ diagnostics };
+  }
 }
 
 void
