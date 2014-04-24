@@ -35,21 +35,14 @@ void
 Sema::check(const Module* m)
 {
   using K = Element::Kind;
-  for(Element *e: m->elements)
-  {
-    switch(e->kind())
-    {
-      case K::Node: check(dynamic_cast<const Node*>(e)); break;
-      //case K::Link: check(dynamic_cast<const Link*>(e)); break;
-    }
-  }
+  for(Node *e: m->nodes) { check(dynamic_cast<const Node*>(e), m); }
 }
 
 void
-Sema::check(const Node* n)
+Sema::check(const Node* n, const Module* m)
 {
   checkFor_DuplicateVarNames(n->vars);
-  checkFor_InvalidReferences(n);
+  checkFor_InvalidReferences(n, m);
 }
 
 void
@@ -70,17 +63,26 @@ Sema::checkFor_DuplicateVarNames(const Variables &v)
     diagnostics.push_back(Diagnostic{curr_file, line, msg});
     throw compilation_error{ diagnostics };
   }
-
 }
 
 void
-Sema::checkFor_InvalidReferences(const Node *n)
+Sema::checkFor_InvalidReferences(const Node *n, const Module *m)
 {
   using K = Expr::Kind;
   for(const Alias *a : n->aliases)
   {
     checkFor_InvalidReferences(a->accessor, n);
   }
+}
+
+void
+Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n, 
+                                 const Module *m)
+{
+  Variable *line = i->params[0],
+           *node = i->params[1];
+
+  
 }
 
 void

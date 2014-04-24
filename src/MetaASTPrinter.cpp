@@ -13,14 +13,8 @@ ASTPrinter::print(const Module *m)
   print("[Module] " + m->name);
   indent++;
 
-  for(Element *e : m->elements)
-  {
-    switch(e->kind())
-    {
-      case K::Node: print(as<const Node>(e)); break;
-      case K::Link: print(as<const Link>(e)); break;
-    }
-  }
+  for(Node *e : m->nodes) { print(as<const Node>(e)); }
+  for(Link *e : m->links) { print(as<const Link>(e)); }
 
   indent--;
 

@@ -6,7 +6,7 @@ node Bus:
   S, V, Y  complex;         `power, voltage, admittance`
   p, q := re(S), im(S);     `real, reactive power`
   v, d := mag(V), angle(V); `voltage magnitude and angle`
-  y, t := mag(Y), angle(Y); `admittance magnitude angle`
+  y, t := mag(V), angle(Y); `admittance magnitude angle`
   g, b := re(Y), im(Y);     `conductance susceptance`
 
   `how a bus interacts with other buses via transmission line`

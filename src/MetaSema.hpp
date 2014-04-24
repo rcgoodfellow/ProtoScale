@@ -29,14 +29,15 @@ class Sema
     void check(const Module*);
 
     //Node checks
-    void check(const Node*);
+    void check(const Node*, const Module*);
     void checkFor_DuplicateVarNames(const Variables&);
-    void checkFor_InvalidReferences(const Node*);
+    void checkFor_InvalidReferences(const Node*, const Module*);
     void checkFor_InvalidReferences(const FuncallAtom*, const Node*);
     void checkFor_InvalidReferences(const Funcall*, const Node*);
     void checkFor_InvalidReferences(const Expr*, const Node*);
     void checkFor_InvalidReferences(const Symbol*, const Node*);
     void checkFor_InvalidReferences(const Accessor*, const Node*);
+    void checkFor_InvalidReferences(const Interlate*, const Node*, const Module*);
 
     void check(const Link*);
 

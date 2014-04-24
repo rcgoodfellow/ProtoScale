@@ -80,7 +80,20 @@
 %%
 
 module: TK_MODULE TL_IDENT TO_COLON elements TO_COLON TO_COLON 
-        { mm = new Module(*$2, *$4, CURRLINE); }
+        { 
+          mm = new Module(*$2, CURRLINE); 
+          for(Element *e : *$4)
+          {
+            if(e->kind() == Element::Kind::Node)
+            {
+              mm->nodes.push_back(dynamic_cast<Node*>(e));
+            }
+            if(e->kind() == Element::Kind::Link)
+            {
+              mm->links.push_back(dynamic_cast<Link*>(e));
+            }
+          }
+        }
       ;
 
 elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }

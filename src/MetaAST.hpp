@@ -15,6 +15,10 @@ struct Funcall;
 struct AddOp;
 struct Expr;
 using Exprs = std::vector<Expr*>;
+struct Node;
+struct Link;
+using Nodes = std::vector<Node*>;
+using Links = std::vector<Link*>;
 
 struct Lexeme
 {
@@ -29,9 +33,12 @@ struct Lexeme
 struct Module : public Lexeme
 {
   std::string name;
-  Elements elements; 
-  Module(std::string n, Elements e, size_t line) 
-    : Lexeme{line}, name{n}, elements{e} {}
+  Nodes nodes;
+  Links links;
+  Module(std::string n, size_t line) : Lexeme{line}, name{n} {}
+
+  Link* getLink(std::string);
+  Node* getNode(std::string);
 };
 
 struct Element
@@ -63,25 +70,6 @@ struct Variable : public NodeElement, public Lexeme
   Variable(std::string n, std::string t, size_t line_no) 
     : NodeElement{Kind::Variable}, Lexeme{line_no}, name{n}, type{t} {}
 };
-
-struct VariableHash
-{
-  size_t operator()(Variable *v) 
-  { 
-    std::hash<std::string> hasher;
-    size_t h = hasher(v->name);
-    std::cout << "Hash for " << v->name << " is " << h << std::endl;
-    return h;
-  }
-};
-struct VariableEq
-{
-  bool operator()(Variable *a, Variable *b)
-  {
-    VariableHash h;
-    return h(a) == h(b);
-  };
-};
 using Variables = std::vector<Variable*>;
 
 struct Accessor : public Lexeme
@@ -96,10 +84,6 @@ struct Alias : public NodeElement, public Lexeme
 {
   std::string name;
   const Accessor *accessor;
-//  Expr *expr;
-//  int oper;
-//  Alias(std::string n, Expr *e, int o, size_t line_no) 
-//    : Lexeme{line_no}, NodeElement{Kind::Alias}, name{n}, expr{e}, oper{o} {}
   Alias(std::string n, const Accessor *a, size_t line_no)
     : Lexeme{line_no}, NodeElement{Kind::Alias}, accessor{a} {}
 };
