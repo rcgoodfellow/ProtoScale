@@ -43,6 +43,7 @@ Sema::check(const Node* n, const Module* m)
 {
   checkFor_DuplicateVarNames(n->vars);
   checkFor_DuplicateAliasNames(n->aliases);
+  checkFor_DuplicateLazyVarNames(n->lazy_vars);
   checkFor_InvalidReferences(n, m);
 }
 
@@ -87,6 +88,26 @@ Sema::checkFor_DuplicateAliasNames(const Aliases &a)
 }
 
 void
+Sema::checkFor_DuplicateLazyVarNames(const LazyVars &l)
+{
+  auto lc = l;
+  std::sort(lc.begin(), lc.end(),
+      [](LazyVar *a, LazyVar *b) { return a->name < b->name; });
+
+  auto duplicate = 
+    std::adjacent_find(lc.begin(), lc.end(),
+        [](LazyVar *a, LazyVar *b) { return a->name == b->name; });
+
+  if(duplicate != lc.end())
+  {
+    size_t line = (*duplicate)->line_no();
+    string msg = "duplicate lazy variable name " + (*duplicate)->name;
+    diagnostics.push_back(Diagnostic{curr_file, line, msg});
+    throw compilation_error{ diagnostics };
+  }
+}
+
+void
 Sema::checkFor_InvalidReferences(const Node *n, const Module *m)
 {
   using K = Expr::Kind;
@@ -97,6 +118,10 @@ Sema::checkFor_InvalidReferences(const Node *n, const Module *m)
   for(const Interlate *i : n->interlates)
   {
     checkFor_InvalidReferences(i, n, m);
+  }
+  for(const LazyVar *v : n->lazy_vars)
+  {
+    checkFor_InvalidReferences(v, n);
   }
 }
 
@@ -322,4 +347,10 @@ void
 Sema::checkFor_InvalidReferences(const FuncallAtom *f, const Node *n)
 {
   checkFor_InvalidReferences(f->value, n);
+}
+
+void
+Sema::checkFor_InvalidReferences(const LazyVar *v, const Node *n)
+{
+  checkFor_InvalidReferences(v->expr, n, "", nullptr, "", nullptr);   
 }

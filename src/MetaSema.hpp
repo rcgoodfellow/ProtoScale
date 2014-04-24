@@ -32,6 +32,7 @@ class Sema
     void check(const Node*, const Module*);
     void checkFor_DuplicateVarNames(const Variables&);
     void checkFor_DuplicateAliasNames(const Aliases&);
+    void checkFor_DuplicateLazyVarNames(const LazyVars&);
 
     void checkFor_InvalidReferences(const Node*, const Module*);
     void checkFor_InvalidReferences(const FuncallAtom*, const Node*);
@@ -67,6 +68,7 @@ class Sema
     void checkFor_InvalidReferences(const Funcall*, const Node*, 
                                     const std::string&, const Link*, 
                                     const std::string&, const Node*);
+    void checkFor_InvalidReferences(const LazyVar*, const Node*);
 
     void check(const Link*);
 
