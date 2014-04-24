@@ -84,10 +84,11 @@ Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n,
                                  const Module *m)
 {
   Variable *link = i->params[0],
-           *node = i->params[1];
+           *remote = i->params[1];
  
   //Find the link type from within the module
-  if(!m->getLink(link->type))
+  Link *link_type = m->getLink(link->type);
+  if(!link_type)
   {
     size_t line = link->line_no();
     string msg = "undefined link type " + link->type;
@@ -96,10 +97,34 @@ Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n,
   }
 
   //Find the node neighbor type from within the module
-  if(!m->getNode(node->type))
+  Node *remote_type = m->getNode(remote->type);
+  if(!remote_type)
   {
-    size_t line = node->line_no();
-    string msg = "undefined node type " + node->type;
+    size_t line = remote->line_no();
+    string msg = "undefined node type " + remote->type;
+    diagnostics.push_back(Diagnostic{curr_file, line, msg});
+    throw compilation_error{ diagnostics };
+  }
+
+  for(const Eqtn *e : i->eqtns)
+  {
+    checkFor_InvalidReferences(e, n, 
+                               link->name, link_type, 
+                               remote->name, remote_type);
+  }
+}
+
+void
+Sema::checkFor_InvalidReferences(const Eqtn* e, const Node *n,
+                                 std::string ln, const Link *l, 
+                                 std::string rn, const Node *r)
+{
+  Variable *vtgt = n->getVar(e->tgt);
+  Alias *atgt = n->getAlias(e->tgt);
+  if(!vtgt && !atgt)
+  {
+    size_t line = e->line_no();
+    string msg = "undefined interlate target " + e->tgt;
     diagnostics.push_back(Diagnostic{curr_file, line, msg});
     throw compilation_error{ diagnostics };
   }

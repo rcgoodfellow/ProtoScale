@@ -86,7 +86,7 @@ struct Alias : public NodeElement, public Lexeme
   std::string name;
   const Accessor *accessor;
   Alias(std::string n, const Accessor *a, size_t line_no)
-    : Lexeme{line_no}, NodeElement{Kind::Alias}, accessor{a} {}
+    : Lexeme{line_no}, NodeElement{Kind::Alias}, name{n}, accessor{a} {}
 };
 using Aliases = std::vector<Alias*>;
 
@@ -143,7 +143,8 @@ struct Node : public Element, public Lexeme
   Node(std::string n, size_t line_no) 
     : Lexeme{line_no}, Element{Kind::Node}, name{n} {}
 
-  const Variable* getVar(const std::string &s) const;
+  Variable* getVar(const std::string &s) const;
+  Alias* getAlias(const std::string &s) const;
 
 };
 

@@ -3,7 +3,7 @@
 using namespace ps;
 using namespace ps::meta;
 
-const Variable*
+Variable*
 Node::getVar(const std::string &s) const
 {
   auto i = 
@@ -11,6 +11,16 @@ Node::getVar(const std::string &s) const
         [&s](const Variable *v){ return v->name == s; });
   
   return i == vars.end() ? nullptr : *i;
+}
+
+Alias*
+Node::getAlias(const std::string &s) const
+{
+  auto i = 
+    std::find_if(aliases.begin(), aliases.end(),
+        [&s](const Alias *a){ return a->name == s; });
+
+  return i == aliases.end() ? nullptr : *i;
 }
 
 Node*

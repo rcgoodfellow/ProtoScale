@@ -38,6 +38,9 @@ class Sema
     void checkFor_InvalidReferences(const Symbol*, const Node*);
     void checkFor_InvalidReferences(const Accessor*, const Node*);
     void checkFor_InvalidReferences(const Interlate*, const Node*, const Module*);
+    void checkFor_InvalidReferences(const Eqtn*, const Node*, 
+                                    std::string, const Link*, 
+                                    std::string, const Node*);
 
     void check(const Link*);
 
