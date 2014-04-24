@@ -31,6 +31,8 @@ class Sema
     //Node checks
     void check(const Node*, const Module*);
     void checkFor_DuplicateVarNames(const Variables&);
+    void checkFor_DuplicateAliasNames(const Aliases&);
+
     void checkFor_InvalidReferences(const Node*, const Module*);
     void checkFor_InvalidReferences(const FuncallAtom*, const Node*);
     void checkFor_InvalidReferences(const Funcall*, const Node*);
@@ -39,8 +41,32 @@ class Sema
     void checkFor_InvalidReferences(const Accessor*, const Node*);
     void checkFor_InvalidReferences(const Interlate*, const Node*, const Module*);
     void checkFor_InvalidReferences(const Eqtn*, const Node*, 
-                                    std::string, const Link*, 
-                                    std::string, const Node*);
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const Expr*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const AddOp*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const MulOp*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const ExpOp*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const Real*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const Symbol*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const FuncallAtom*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
+    void checkFor_InvalidReferences(const Funcall*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
 
     void check(const Link*);
 

@@ -5,15 +5,15 @@ module Power:
 node Bus:
   S, V, Y  complex;         `power, voltage, admittance`
   p, q := re(S), im(S);     `real, reactive power`
-  v, d := mag(V), angle(V); `voltage magnitude and angle`
-  y, t := mag(V), angle(Y); `admittance magnitude angle`
+  v, va := mag(V), angle(V); `voltage magnitude and angle`
+  y, ya := mag(V), angle(Y); `admittance magnitude angle`
   g, b := re(Y), im(Y);     `conductance susceptance`
 
   `how a bus interacts with other buses via transmission line`
   bus(ij Line, j Bus):
     y += y.ij;
-    p += g*v^2 + v*v.i*y.ij*cos(t.ij + d.j - d);
-    q += b*v^2 + v*v.i*y.ij*sin(t.ij + d.j - d);
+    p += g*v^2 + v*v.j*y.ij*cos(ya.ij + va.j - va);
+    q += b*v^2 + v*v.j*y.ij*sin(ya.ij + va.j - va);
   ::
 
   `how a bus interacts with generators and loads via transmission line`
@@ -53,7 +53,7 @@ node Load:
 
 link Line:
   Y complex;
-  y, t := mag(Y), angle(Y);
+  y, ya := mag(Y), angle(Y);
 ::
 
 :: `End of Power Module`

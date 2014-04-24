@@ -141,10 +141,16 @@ struct Node : public Element, public Lexeme
   Interlates interlates;
   DiffRels diffrels;
   Node(std::string n, size_t line_no) 
-    : Lexeme{line_no}, Element{Kind::Node}, name{n} {}
+    : Lexeme{line_no}, Element{Kind::Node}, name{n} 
+  {
+    //All elements have an implicit time variable
+    vars.push_back(new Variable("t", "time", 0));
+    aliases.push_back(new Alias{"t", new Accessor{"time", "t", 0}, 0});
+  }
 
   Variable* getVar(const std::string &s) const;
   Alias* getAlias(const std::string &s) const;
+  bool hasSymbol(const std::string &s) const;
 
 };
 
@@ -154,7 +160,14 @@ struct Link : public Element, public Lexeme
   Variables vars;
   Aliases aliases;
   Link(std::string n, size_t line_no) 
-    : Lexeme{line_no}, Element{Kind::Link}, name{n} {}
+    : Lexeme{line_no}, Element{Kind::Link}, name{n}
+  {
+    vars.push_back(new Variable("t", "time", 0));
+  }
+
+  Variable* getVar(const std::string &s) const;
+  Alias* getAlias(const std::string &s) const;
+  bool hasSymbol(const std::string &s) const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
