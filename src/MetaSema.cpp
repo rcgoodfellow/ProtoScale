@@ -123,6 +123,10 @@ Sema::checkFor_InvalidReferences(const Node *n, const Module *m)
   {
     checkFor_InvalidReferences(v, n);
   }
+  for(const DiffRel *d : n->diffrels)
+  {
+    checkFor_InvalidReferences(d, n);
+  }
 }
 
 void
@@ -196,6 +200,8 @@ Sema::checkFor_InvalidReferences(const Expr *e, const Node *n,
     case K::Symbol: checkFor_InvalidReferences(dynamic_cast<const Symbol*>(e),
                                               n, ln, l, rn, r); break;
     case K::Funcall: checkFor_InvalidReferences(dynamic_cast<const FuncallAtom*>(e),
+                                              n, ln, l, rn, r); break;
+    case K::ExprAtom: checkFor_InvalidReferences(dynamic_cast<const ExprAtom*>(e),
                                               n, ln, l, rn, r); break;
   }
 }
@@ -302,6 +308,14 @@ Sema::checkFor_InvalidReferences(const Funcall *e, const Node *n,
 }
 
 void
+Sema::checkFor_InvalidReferences(const ExprAtom *e, const Node *n,
+                                 const std::string &ln, const Link *l, 
+                                 const std::string &rn, const Node *r)
+{
+  checkFor_InvalidReferences(e->value, n, ln, l, rn, r);
+}
+
+void
 Sema::checkFor_InvalidReferences(const Funcall *f, const Node *n)
 {
   for(const Expr *e : f->args) { checkFor_InvalidReferences(e, n); }
@@ -353,4 +367,17 @@ void
 Sema::checkFor_InvalidReferences(const LazyVar *v, const Node *n)
 {
   checkFor_InvalidReferences(v->expr, n, "", nullptr, "", nullptr);   
+}
+
+void
+Sema::checkFor_InvalidReferences(const DiffRel *d, const Node *n)
+{  
+  if(!n->hasSymbol(d->tgt))
+  {
+    size_t line = d->line_no();
+    string msg = "undefined differential relation target " + d->tgt;
+    diagnostics.push_back(Diagnostic{curr_file, line, msg});
+    throw compilation_error{ diagnostics };
+  }
+  checkFor_InvalidReferences(d->expr, n, "", nullptr, "", nullptr);
 }

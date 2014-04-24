@@ -68,7 +68,11 @@ class Sema
     void checkFor_InvalidReferences(const Funcall*, const Node*, 
                                     const std::string&, const Link*, 
                                     const std::string&, const Node*);
+    void checkFor_InvalidReferences(const ExprAtom*, const Node*, 
+                                    const std::string&, const Link*, 
+                                    const std::string&, const Node*);
     void checkFor_InvalidReferences(const LazyVar*, const Node*);
+    void checkFor_InvalidReferences(const DiffRel*, const Node*);
 
     void check(const Link*);
 
