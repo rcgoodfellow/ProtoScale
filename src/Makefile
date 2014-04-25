@@ -10,12 +10,13 @@ all: proto
 debug: CXXFLAGS+=-DDEBUG
 debug: all
 
-proto: Driver.cpp Driver.hpp libprotoscale_parse.so CompilationException.hpp
+proto: Driver.cpp Driver.hpp libprotoscale_parse.so CompilationException.hpp\
+			 Sema.hpp
 	$(CXX) $(CXXFLAGS) -o $@ $< -L . -l protoscale_parse
 
 LIB_PARSE_OBJS=\
 FileUtil.o \
-MetaParser.o MetaScanner.o MetaAST.o MetaASTPrinter.o MetaSema.o \
+MetaParser.o MetaScanner.o MetaAST.o MetaASTPrinter.o Sema.o \
 CommandParser.o CommandScanner.o CommandAST.o \
 ShellParser.o ShellScanner.o ShellAST.o
 
@@ -35,7 +36,7 @@ FileUtil.o : FileUtil.cpp FileUtil.hpp
 MetaParser.o : MetaParser.cpp MetaParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-MetaSema.o : MetaSema.cpp MetaSema.hpp CompilationException.hpp
+Sema.o : Sema.cpp Sema.hpp CompilationException.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 MetaParser.cpp: MetaParser.y MetaAST.hpp

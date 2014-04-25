@@ -3,7 +3,7 @@
 #include "MetaParser.hpp"
 #include "MetaScanner.hpp"
 #include "MetaASTPrinter.hpp"
-#include "MetaSema.hpp"
+#include "Sema.hpp"
 
 using namespace ps;
 using namespace ps::cmd;
@@ -57,7 +57,7 @@ FileSet BuildPKGCommand::operator()() const
 
   FileSet fs;
 
-  meta::Sema semanticChecker(*args);
+  Sema semanticChecker(*args);
   semanticChecker.check();
 
   return fs;

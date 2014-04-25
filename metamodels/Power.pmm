@@ -15,6 +15,10 @@ node Bus:
     p += g*v^2 + v*v.j*y.ij*cos(ya.ij + va.j - va);
     q += b*v^2 + v*v.j*y.ij*sin(ya.ij + va.j - va);
   ::
+
+  `how a bus interacts with generators and loads via transmission line`
+   gen(ij Line, j Generator):   S += S.j; ::
+   load(ij Line, j Load): S += S.j; ::
 ::
 
 link Line:
