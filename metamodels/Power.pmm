@@ -73,7 +73,7 @@ node Generator:
 ` This node represents a source (prime mover) that drives a generator         `
 `                                                                             `
 `-----------------------------------------------------------------------------`
-node Source:
+node Source{p}:
   f, p real; `f = force, p = target operating point`
 
   `simulated operating point` 
@@ -93,9 +93,12 @@ node Source:
 ` This node represents a load within a power system                           `
 `                                                                             `
 `-----------------------------------------------------------------------------`
-node Load:
+node Load{fp}:
   S complex;
-  f real;
+  f, fp real;
+
+  f <- gaussian(fp, 2);
+
   p, q := re(S), im(S);
 
   bus(ij Line, j Bus): S = f*V.j; ::

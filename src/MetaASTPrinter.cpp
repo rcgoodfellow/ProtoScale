@@ -27,6 +27,7 @@ ASTPrinter::print(const Node *n)
   print("[Node] " + n->name);
   indent++;
   
+  for(string *p : *n->params) { print("[Param] " + *p); }
   for(Variable *v : n->vars) { print(v); }
   for(Alias *a : n->aliases) { print(a); }
   for(LazyVar *v : n->lazy_vars) { print(v); }
