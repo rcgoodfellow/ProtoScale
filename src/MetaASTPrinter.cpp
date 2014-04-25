@@ -42,6 +42,7 @@ ASTPrinter::print(const Link *l)
   print("[Link] " + l->name);
   indent++;
 
+  for(string *p : *l->params) { print("[Param] " + *p); }
   for(Variable *v : l->vars) { print(v); }
   for(Alias *a : l->aliases) { print(a); }
   for(LazyVar *v : l->lazy_vars) { print(v); }

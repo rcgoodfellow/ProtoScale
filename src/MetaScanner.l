@@ -40,6 +40,8 @@
 ","                       return TOKEN(TO_COMMA);
 "("                       return TOKEN(TS_POPEN);
 ")"                       return TOKEN(TS_PCLOSE);
+"{"                       return TOKEN(TS_BOPEN);
+"}"                       return TOKEN(TS_BCLOSE);
 "'"                       return TOKEN(TO_PRIME);
 .                         printf("Unknown token: %s\n", metayytext); yyterminate();
 

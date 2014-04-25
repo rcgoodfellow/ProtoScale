@@ -2,6 +2,13 @@
  
 module Power:
 
+`--------|--------------------------------------------------------------------`
+`Bus Node|                                                                    `
+`--------|                                                                    `
+`                                                                             `
+` This node represents a bus within a power system                            `
+`                                                                             `
+`-----------------------------------------------------------------------------`
 node Bus:
   S, V, Y complex;           `power, voltage, admittance`
   p, q  := re(S),  im(S);    `real, reactive power`
@@ -19,14 +26,32 @@ node Bus:
   `how a bus interacts with generators and loads via transmission line`
    gen(ij Line, j Generator): S += S.j; ::
    load(ij Line, j Load):     S += S.j; ::
-::
+::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
-link Line:
+
+
+`----------|------------------------------------------------------------------`
+`Line link |                                                                  `
+`----------|                                                                  `
+`                                                                             `
+` This link represents a transmission line within a power system              `
+`                                                                             `
+`-----------------------------------------------------------------------------`
+link Line{y, ya}:
   Y complex;
   y, ya := mag(Y), angle(Y);
-  metric <- y;
-::
+  metric <- 1/y;
+::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
+
+
+`---------------|-------------------------------------------------------------`
+`Generator Node |                                                             `
+`---------------|                                                             `
+`                                                                             `
+` This node represents a generator within a power system                      `
+`                                                                             `
+`-----------------------------------------------------------------------------`
 node Generator:
   S complex;
   p, q := re(S), im(S);
@@ -37,25 +62,44 @@ node Generator:
     p = f.i * cos(t); 
     q = f.i * sin(t);
   ::
-::
+::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
+
+
+`------------|----------------------------------------------------------------`
+`Source Node |                                                                `
+`------------|                                                                `
+`                                                                             `
+` This node represents a source (prime mover) that drives a generator         `
+`                                                                             `
+`-----------------------------------------------------------------------------`
 node Source:
   f, p real; `f = force, p = target operating point`
 
-  `simulated operating point, gaussian distribution centered at p with alpha=0.5`
+  `simulated operating point` 
+  `gaussian distribution centered at p with alpha=0.5`
   i <- gaussian(p, 0.05); 
 
   `diff eqtn (of time t) describing evolution of force`
   f'/t = f + 0.03*(p - i); 
-::
+::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
+
+
+`----------|------------------------------------------------------------------`
+`Load Node |                                                                  `
+`----------|                                                                  `
+`                                                                             `
+` This node represents a load within a power system                           `
+`                                                                             `
+`-----------------------------------------------------------------------------`
 node Load:
   S complex;
   f real;
   p, q := re(S), im(S);
 
   bus(ij Line, j Bus): S = f*V.j; ::
-::
+::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
 :: `End of Power Module`
 

@@ -54,12 +54,12 @@
 %token <token> TO_COLON TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ TO_SEMI TO_PRIME TO_GETS
 %token <token> TO_MUEQ TO_POW TO_DOT TO_COMMA
 /* Sepcial Symbols */
-%token <token> TS_POPEN TS_PCLOSE
+%token <token> TS_POPEN TS_PCLOSE TS_BOPEN TS_BCLOSE
 
 %type <module> module
 %type <element> node link
 %type <elements> elements
-%type <strings> var_names
+%type <strings> var_names params
 %type <string> typename
 %type <node_element> interlate diffrel
 %type <node_elements> node_element node_elements var_decl_group var_decl_groups_cs alias link_elements link_element lazy_var
@@ -102,10 +102,14 @@ elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
         | elements TK_LINK link { $1->push_back($3); }
         ;
 
-node: TL_IDENT TO_COLON node_elements TO_COLON TO_COLON 
+params: { $$ = new std::vector<std::string*>; }
+      | TS_BOPEN var_names TS_BCLOSE { $$ = $2; }
+      ;
+
+node: TL_IDENT params TO_COLON node_elements TO_COLON TO_COLON 
                     { 
-                      auto *n = new Node(*$1, CURRLINE); 
-                      for(NodeElement *v : *$3) 
+                      auto *n = new Node(*$1, $2, CURRLINE); 
+                      for(NodeElement *v : *$4) 
                       { 
                         if(v->kind() == NodeElement::Kind::Variable)
                         {
@@ -273,10 +277,10 @@ atom: TL_REAL { $$ = new Real(stod(*$1), CURRLINE); }
 
 funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3, CURRLINE); }
 
-link: TL_IDENT TO_COLON link_elements TO_COLON TO_COLON
+link: TL_IDENT params TO_COLON link_elements TO_COLON TO_COLON
         { 
-          auto *l = new Link(*$1, CURRLINE); 
-          for(NodeElement *v : *$3)
+          auto *l = new Link(*$1, $2, CURRLINE); 
+          for(NodeElement *v : *$4)
           {
             if(v->kind() == NodeElement::Kind::Variable)
             {

@@ -42,16 +42,6 @@ struct Module : public Lexeme
   Link* getLink(const std::string&) const;
 };
 
-struct Element
-{
-  enum class Kind { Node, Link };
-  Element(Kind k) : _kind{k} {}
-  virtual ~Element() {}
-  Kind kind() { return _kind; }
-  private:
-    Kind _kind;
-};
-
 struct NodeElement 
 { 
   enum class Kind { Variable, LazyVar, Alias, DiffRel, Interlate };
@@ -132,35 +122,38 @@ struct Interlate : public NodeElement, public Lexeme
 };
 using Interlates = std::vector<Interlate*>;
 
-struct Node : public Element, public Lexeme
+struct Element
 {
+  enum class Kind { Node, Link };
+  Element(Kind k, std::string name, std::vector<std::string*> *p); 
+  virtual ~Element() {}
+  Kind kind() { return _kind; }
+
+  std::vector<std::string*> *params;
   std::string name;
   Variables vars;
   Aliases aliases;
   LazyVars lazy_vars;
-  Interlates interlates;
-  DiffRels diffrels;
-  Node(std::string n, size_t line_no);
-
+  
   Variable* getVar(const std::string &s) const;
   Alias* getAlias(const std::string &s) const;
   LazyVar* getLazyVar(const std::string &s) const;
   bool hasSymbol(const std::string &s) const;
 
+  private:
+    Kind _kind;
+};
+
+struct Node : public Element, public Lexeme
+{
+  Interlates interlates;
+  DiffRels diffrels;
+  Node(std::string n, std::vector<std::string*> *p, size_t line_no);
 };
 
 struct Link : public Element, public Lexeme
 {
-  std::string name;
-  Variables vars;
-  Aliases aliases;
-  LazyVars lazy_vars;
-  Link(std::string n, size_t line_no);
-
-  Variable* getVar(const std::string &s) const;
-  Alias* getAlias(const std::string &s) const;
-  LazyVar* getLazyVar(const std::string &s) const;
-  bool hasSymbol(const std::string &s) const;
+  Link(std::string n, std::vector<std::string*> *p, size_t line_no);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
