@@ -37,7 +37,9 @@ struct compilation_error : std::runtime_error
         case K::Warning: _what += "warning: "; break;
         case K::Info: _what += "  info: "; break;
       }
-      _what += d.filename + "["+std::to_string(d.line_no)+"] " + d.msg + "\n";
+      std::string short_fn = d.filename.substr(d.filename.find_last_of("/")+1, 
+                                               d.filename.length());
+      _what += short_fn + "["+std::to_string(d.line_no)+"] " + d.msg + "\n";
     }
   }
 
