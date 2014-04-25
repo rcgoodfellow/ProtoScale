@@ -30,6 +30,12 @@ struct Lexeme
     size_t _line_no;
 };
 
+struct NamedLexeme : public Lexeme
+{
+  std::string name;
+  NamedLexeme(std::string n, size_t l) : Lexeme{l}, name{n} {}
+};
+
 
 struct Module : public Lexeme
 {
@@ -54,12 +60,11 @@ struct NodeElement
 using NodeElements = std::vector<NodeElement*>;
 
 
-struct Variable : public NodeElement, public Lexeme
+struct Variable : public NodeElement, public NamedLexeme
 { 
-  std::string name; 
   std::string type; 
   Variable(std::string n, std::string t, size_t line_no) 
-    : NodeElement{Kind::Variable}, Lexeme{line_no}, name{n}, type{t} {}
+    : NodeElement{Kind::Variable}, NamedLexeme{n, line_no}, type{t} {}
 };
 using Variables = std::vector<Variable*>;
 
@@ -71,21 +76,19 @@ struct Accessor : public Lexeme
 };
 using Accessors = std::vector<Accessor*>;
 
-struct Alias : public NodeElement, public Lexeme
+struct Alias : public NodeElement, public NamedLexeme
 {
-  std::string name;
   const Accessor *accessor;
   Alias(std::string n, const Accessor *a, size_t line_no)
-    : Lexeme{line_no}, NodeElement{Kind::Alias}, name{n}, accessor{a} {}
+    : NamedLexeme{n, line_no}, NodeElement{Kind::Alias}, accessor{a} {}
 };
 using Aliases = std::vector<Alias*>;
 
-struct LazyVar : public NodeElement, public Lexeme
+struct LazyVar : public NodeElement, public NamedLexeme
 {
-  std::string name;
   const Expr *expr;
   LazyVar(std::string n, const Expr *e, size_t line_no)
-    : Lexeme{line_no}, NodeElement{Kind::LazyVar}, name{n}, expr{e} {}
+    : NamedLexeme{n, line_no}, NodeElement{Kind::LazyVar}, expr{e} {}
 };
 using LazyVars = std::vector<LazyVar*>;
 

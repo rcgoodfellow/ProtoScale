@@ -10,8 +10,6 @@ Element::Element(Kind k, string n, vector<string*> *p)
   : _kind{k}, name{n}, params{p}
 {
   //All elements have an implicit time variable
-  vars.push_back(new Variable("t", "time", 0));
-  aliases.push_back(new Alias{"t", new Accessor{"time", "t", 0}, 0});
   lazy_vars.push_back(new LazyVar{"t", new Symbol{"t", 0}, 0});
 }
 

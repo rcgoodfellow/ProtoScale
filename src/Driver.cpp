@@ -47,7 +47,7 @@ void Driver::run()
         auto *tcm = static_cast<BuildASTCommand*>(cm);
         try { tcm->operator()(); }
         catch (std::exception &e){
-          std::cerr << "error: " << e.what() << std::endl;
+          std::cerr << e.what() << std::endl;
         }
         break;
       }
@@ -57,7 +57,7 @@ void Driver::run()
         auto *tcm = static_cast<BuildPKGCommand*>(cm);
         try { tcm->operator()(); }
         catch (std::exception &e) {
-          std::cerr << "error: " << e.what() << std::endl;
+          std::cerr << e.what() << std::endl;
         }
         break;
       }

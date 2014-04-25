@@ -67,68 +67,37 @@ Sema::check(const Module* m)
 void
 Sema::check(const Node* n, const Module* m)
 {
-  checkFor_DuplicateVarNames(n->vars);
-  checkFor_DuplicateAliasNames(n->aliases);
-  checkFor_DuplicateLazyVarNames(n->lazy_vars);
+  checkFor_DuplicateNames(n);
   checkFor_InvalidReferences(n, m);
 }
 
 void
-Sema::checkFor_DuplicateVarNames(const Variables &v)
+Sema::checkFor_DuplicateNames(const Node *n)
 {
-  auto vc = v;
-  std::sort(vc.begin(), vc.end(), 
-      [](Variable *a, Variable *b) { return a->name < b->name; });
+  vector<const NamedLexeme*> named_elements;
+  for(const Variable *v : n->vars){ named_elements.push_back(v); }
+  for(const Alias *a : n->aliases){ named_elements.push_back(a); }
+  for(const LazyVar *v : n->lazy_vars){ named_elements.push_back(v); }
 
-  auto duplicate =
-    std::adjacent_find(vc.begin(), vc.end(),
-        [](Variable *a, Variable *b) { return a->name == b->name; });
-
-  if(duplicate != vc.end())
-  {
-    size_t line = (*duplicate)->line_no();
-    string msg = "duplicate variable name " + (*duplicate)->name;
-    diagnostics.push_back(Diagnostic{curr_file, line, msg});
-    throw compilation_error{ diagnostics };
-  }
-}
-
-void
-Sema::checkFor_DuplicateAliasNames(const Aliases &a)
-{
-  auto ac = a;
-  std::sort(ac.begin(), ac.end(),
-      [](Alias *a, Alias *b) { return a->name < b->name; });
+  std::sort(named_elements.begin(), named_elements.end(),
+      [](const NamedLexeme *a, const NamedLexeme *b)
+      { return a->name < b->name; });
 
   auto duplicate = 
-    std::adjacent_find(ac.begin(), ac.end(),
-        [](Alias *a, Alias *b) { return a->name == b->name; });
+    std::adjacent_find(named_elements.begin(), named_elements.end(),
+        [](const NamedLexeme *a, const NamedLexeme *b)
+        { return a->name == b->name; });
 
-  if(duplicate != ac.end())
+  if(duplicate != named_elements.end())
   {
     size_t line = (*duplicate)->line_no();
-    string msg = "duplicate alias name " + (*duplicate)->name;
+    string msg = "duplicate name " + (*duplicate)->name;
     diagnostics.push_back(Diagnostic{curr_file, line, msg});
-    throw compilation_error{ diagnostics };
-  }
-}
+    string msg2 = "also declared here ";
+    size_t line2 = (*(duplicate + 1))->line_no();
+    diagnostics.push_back(Diagnostic{curr_file, line2, msg2, 
+                          Diagnostic::Kind::Info});
 
-void
-Sema::checkFor_DuplicateLazyVarNames(const LazyVars &l)
-{
-  auto lc = l;
-  std::sort(lc.begin(), lc.end(),
-      [](LazyVar *a, LazyVar *b) { return a->name < b->name; });
-
-  auto duplicate = 
-    std::adjacent_find(lc.begin(), lc.end(),
-        [](LazyVar *a, LazyVar *b) { return a->name == b->name; });
-
-  if(duplicate != lc.end())
-  {
-    size_t line = (*duplicate)->line_no();
-    string msg = "duplicate lazy variable name " + (*duplicate)->name;
-    diagnostics.push_back(Diagnostic{curr_file, line, msg});
     throw compilation_error{ diagnostics };
   }
 }

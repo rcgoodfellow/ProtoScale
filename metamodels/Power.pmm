@@ -74,7 +74,7 @@ node Generator:
 `                                                                             `
 `-----------------------------------------------------------------------------`
 node Source{p}:
-  f, p real; `f = force, p = target operating point`
+  f, p real; `force, target operating point`
 
   `simulated operating point` 
   `gaussian distribution centered at p with alpha=0.5`
@@ -95,9 +95,9 @@ node Source{p}:
 `-----------------------------------------------------------------------------`
 node Load{fp}:
   S complex;
-  f, fp real;
+  fp real;
 
-  f <- gaussian(fp, 2);
+  f <- gaussian(p, 2);
 
   p, q := re(S), im(S);
 

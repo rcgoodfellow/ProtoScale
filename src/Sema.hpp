@@ -33,9 +33,7 @@ class Sema
 
     //Node checks
     void check(const meta::Node*, const meta::Module*);
-    void checkFor_DuplicateVarNames(const meta::Variables&);
-    void checkFor_DuplicateAliasNames(const meta::Aliases&);
-    void checkFor_DuplicateLazyVarNames(const meta::LazyVars&);
+    void checkFor_DuplicateNames(const meta::Node*);
 
     void checkFor_InvalidReferences(const meta::Node*, 
                                     const meta::Module*);
