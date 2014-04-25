@@ -2,6 +2,7 @@
 #define _PS_METASEMA_
 
 #include "MetaAST.hpp"
+#include "ShellAST.hpp"
 #include "FileUtil.hpp"
 
 #include <vector>
@@ -9,6 +10,7 @@
 #include "CompilationException.hpp"
 
 extern ps::meta::Module *mm;
+extern ps::shell::Commands *sh_cmds;
 
 namespace ps { namespace meta {
 
@@ -24,7 +26,8 @@ class Sema
     std::string curr_file;
     std::vector<Diagnostic> diagnostics;
 
-    void buildAst(const std::string&);
+    void buildMetaAst(const std::string&);
+    void buildShellAst(const std::string&);
     
     void check(const Module*);
 

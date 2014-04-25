@@ -7,9 +7,9 @@ if exists("b:current_syntax")
   finish
 endif
 
-syn keyword pmKeyword create destroy import
-syn match pmComment '-- .*'
-syn match pmSpecial '\:=\|\:\|\[\|\]\|{\|}'
+syn keyword pmKeyword create destroy import connect
+syn match pmComment '`.*`'
+syn match pmSpecial '\:=\|\:\|\[\|\]\|{\|}\|(\|)\|;\|,'
 
 hi link pmKeyword Keyword
 hi link pmComment Comment

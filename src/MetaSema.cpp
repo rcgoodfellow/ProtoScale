@@ -2,13 +2,16 @@
 #include "MetaParser.hpp"
 #include "MetaScanner.hpp"
 
+#include "ShellParser.hpp"
+#include "ShellScanner.hpp"
+
 using namespace ps::meta;
 
 using std::string;
 using std::vector;
 
 void 
-Sema::buildAst(const string &src)
+Sema::buildMetaAst(const string &src)
 {
   mm = nullptr;
   std::string source = readFile(src); 
@@ -21,13 +24,35 @@ Sema::buildAst(const string &src)
 }
 
 void
+Sema::buildShellAst(const string &src)
+{
+  sh_cmds = nullptr;
+  std::string source = readFile(src);
+  shellyy_scan_string(source.c_str());
+  shellyyparse();
+  if(!sh_cmds)
+  {
+    throw std::runtime_error("compilation failed for "+src);
+  }
+}
+
+void
 Sema::check()
 {
   for(const string &src_file : source_files)
   {
     curr_file = src_file;
-    buildAst(src_file);
-    check(mm);
+
+    if(src_file.substr(src_file.length()-4, src_file.length()) == ".pmm")
+    {
+      buildMetaAst(src_file);
+      check(mm);
+    }
+    else if(src_file.substr(src_file.length()-3, src_file.length()) == ".pm")
+    {
+      buildShellAst(src_file);
+      //check(sh_cmd);
+    }
   }
 }
 

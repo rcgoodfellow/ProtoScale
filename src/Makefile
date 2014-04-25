@@ -13,12 +13,11 @@ debug: all
 proto: Driver.cpp Driver.hpp libprotoscale_parse.so CompilationException.hpp
 	$(CXX) $(CXXFLAGS) -o $@ $< -L . -l protoscale_parse
 
-LIB_PARSE_OBJS=MetaParser.o    MetaScanner.o \
-							 CommandParser.o CommandScanner.o \
-							 CommandAST.o MetaAST.o \
-							 MetaASTPrinter.o \
-							 MetaSema.o \
-							 FileUtil.o
+LIB_PARSE_OBJS=\
+FileUtil.o \
+MetaParser.o MetaScanner.o MetaAST.o MetaASTPrinter.o MetaSema.o \
+CommandParser.o CommandScanner.o CommandAST.o \
+ShellParser.o ShellScanner.o ShellAST.o
 
 LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
 
@@ -52,6 +51,29 @@ MetaScanner.cpp: MetaScanner.l MetaAST.hpp
 	$(FLEX) -P metayy --header-file=MetaScanner.hpp -o $@ $<
 
 MetaScanner.hpp: MetaScanner.cpp
+	#^^
+
+# Shell Language --------------------------------------------------------------
+
+ShellAST.o : ShellAST.cpp ShellAST.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
+
+ShellParser.o : ShellParser.cpp ShellParser.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
+
+ShellParser.cpp : ShellParser.y ShellAST.hpp
+	$(BISON) -p shellyy -d -o $@ $<
+
+ShellParser.hpp: ShellParser.cpp
+	#^^
+
+ShellScanner.o : ShellScanner.cpp ShellScanner.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
+
+ShellScanner.cpp: ShellScanner.l ShellAST.hpp
+	$(FLEX) -P shellyy --header-file=ShellScanner.hpp -o $@ $<
+
+ShellScanner.hpp: ShellScanner.cpp
 	#^^
 
 # Command Language ------------------------------------------------------------

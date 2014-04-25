@@ -15,9 +15,11 @@ body { font-family: HelveticaNeue-Light; color: #111; background-color: #cdcdcd;
 h1 { font-size: 30px; color:#1477c6; font-family: HelveticaNeue-Thin; font-weight: 200; }
 p { text-align: justify; }
 * { font-size: 1em; }
+.Operator { color: #444444; }
 .Statement { color: #1874cd; font-weight: bold; }
 .LineNr { color: #555555; background-color: #0d0d0d; padding-bottom: 1px; }
 .Comment { color: #008b00; font-style: italic; }
+.Type { color: #008b8b; font-weight: bold; }
 .Special { color: #009acd; }
 -->
 </style>
@@ -57,70 +59,65 @@ if ('onhashchange' in window) {
 In order to simulate a system, we must first be able to describe a system. This process is generally known as modeling. Modeling can be broken down into two distinct activities. The first is metamodeling. This is where we describe what the pieces of the model are and how they fit together. The second is concrete modeling (hereafter simply modeling). This where we actually build a representation of the system we are simulating according to the elements provided by the metamodel.
 </p>
 <p>
-In ProtoScale's view of the world, pieces of the model are called nodes. The way in which nodes fit together is defined in links. This stems from the fact that the purpose of ProtoScale is to simulate dynamical systems whose structure may be expressed in terms of a network. 
+In ProtoScale's view of the world, pieces of the model are called nodes. The way in which nodes fit together is defined by links. This stems from the fact that the purpose of ProtoScale is to simulate dynamical systems whose structure may be expressed in terms of a network. 
 </p>
 <p>
-The code segment below is an example of the metamodeling language. This model comes from the power systems domain and describes the basics of what one needs to simulate power flowing through a network of transmission lines. In what follows we explain this model line by line.
+The code segment below is an example of the metamodeling language. This model comes from the power systems domain and describes the basics of what one needs to simulate power flowing through a network of transmission lines. In what follows we explain the syntax and semantics of this model line by line as they pertain to understanding ProtoScale models. The domain specific aspects of the model will be covered in later sections. For now the point is to get a basic understanding or ProtoScale metamodeling.
 </p>
 <pre id='vimCodeElement'>
-<span id="L1" class="LineNr"> 1 </span><span class="Comment">-- ProtoScale Power System Metamodel</span>
+<span id="L1" class="LineNr"> 1 </span><span class="Comment">`ProtoScale Power System Metamodel`</span>
 <span id="L2" class="LineNr"> 2 </span>
-<span id="L3" class="LineNr"> 3 </span><span class="Statement">module</span> Power
+<span id="L3" class="LineNr"> 3 </span><span class="Statement">module</span> Power<span class="Special">:</span>
 <span id="L4" class="LineNr"> 4 </span>
-<span id="L5" class="LineNr"> 5 </span><span class="Statement">node</span> Bus
-<span id="L6" class="LineNr"> 6 </span>  info <span class="Special">:=</span> <span class="Special">[</span>p, q, vm, va, ym, ya<span class="Special">]</span>
-<span id="L7" class="LineNr"> 7 </span>  g <span class="Special">:=</span> ym sin ya
-<span id="L8" class="LineNr"> 8 </span>  b <span class="Special">:=</span> ym cos ya
-<span id="L9" class="LineNr"> 9 </span>
-<span id="L10" class="LineNr">10 </span>  bus ij<span class="Special">:</span>Line j<span class="Special">:</span>Bus <span class="Special">:=</span> <span class="Special">[</span>
-<span id="L11" class="LineNr">11 </span>    ym = ym_ij
-<span id="L12" class="LineNr">12 </span>    ya = ya_ij
-<span id="L13" class="LineNr">13 </span>    p = g vm^2 + vm vm_i ym_ij cos (ya_ij + va_j - va)
-<span id="L14" class="LineNr">14 </span>    q = b vm^2 + vm vm_i ym_ij sin (ya_ij + va_j - va)
-<span id="L15" class="LineNr">15 </span>  <span class="Special">]</span>
-<span id="L16" class="LineNr">16 </span>
-<span id="L17" class="LineNr">17 </span><span class="Statement">link</span> Line
-<span id="L18" class="LineNr">18 </span>  info <span class="Special">:=</span> <span class="Special">[</span>ym, ya<span class="Special">]</span>
+<span id="L5" class="LineNr"> 5 </span><span class="Statement">node</span> Bus<span class="Special">:</span>
+<span id="L6" class="LineNr"> 6 </span>  S<span class="Operator">,</span> V<span class="Operator">,</span> Y  <span class="Type">complex</span><span class="Special">;</span>          <span class="Comment">`power, voltage, admittance`</span>
+<span id="L7" class="LineNr"> 7 </span>  p<span class="Operator">,</span> q <span class="Special">:=</span> re(S)<span class="Operator">,</span> im(S)<span class="Special">;</span>      <span class="Comment">`real, reactive power`</span>
+<span id="L8" class="LineNr"> 8 </span>  v<span class="Operator">,</span> va <span class="Special">:=</span> mag(V)<span class="Operator">,</span> angle(V)<span class="Special">;</span> <span class="Comment">`voltage magnitude and angle`</span>
+<span id="L9" class="LineNr"> 9 </span>  y<span class="Operator">,</span> ya <span class="Special">:=</span> mag(V)<span class="Operator">,</span> angle(Y)<span class="Special">;</span> <span class="Comment">`admittance magnitude angle`</span>
+<span id="L10" class="LineNr">10 </span>  g<span class="Operator">,</span> b <span class="Special">:=</span> re(Y)<span class="Operator">,</span> im(Y)<span class="Special">;</span>      <span class="Comment">`conductance susceptance`</span>
+<span id="L11" class="LineNr">11 </span>
+<span id="L12" class="LineNr">12 </span>  <span class="Comment">`how a bus interacts with other buses via transmission line`</span>
+<span id="L13" class="LineNr">13 </span>  bus(ij Line<span class="Operator">,</span> j Bus)<span class="Special">:</span>
+<span id="L14" class="LineNr">14 </span>    y <span class="Operator">+=</span> y.ij<span class="Special">;</span>
+<span id="L15" class="LineNr">15 </span>    p <span class="Operator">+=</span> g<span class="Operator">*</span>v^2 <span class="Operator">+</span> v<span class="Operator">*</span>v.j<span class="Operator">*</span>y.ij<span class="Operator">*</span>cos(ya.ij <span class="Operator">+</span> va.j <span class="Operator">-</span> va)<span class="Special">;</span>
+<span id="L16" class="LineNr">16 </span>    q <span class="Operator">+=</span> b<span class="Operator">*</span>v^2 <span class="Operator">+</span> v<span class="Operator">*</span>v.j<span class="Operator">*</span>y.ij<span class="Operator">*</span>sin(ya.ij <span class="Operator">+</span> va.j <span class="Operator">-</span> va)<span class="Special">;</span>
+<span id="L17" class="LineNr">17 </span>  <span class="Special">::</span>
+<span id="L18" class="LineNr">18 </span><span class="Special">::</span>
 <span id="L19" class="LineNr">19 </span>
+<span id="L20" class="LineNr">20 </span><span class="Statement">link</span> Line<span class="Special">:</span>
+<span id="L21" class="LineNr">21 </span>  Y <span class="Type">complex</span><span class="Special">;</span>
+<span id="L22" class="LineNr">22 </span>  y<span class="Operator">,</span> ya <span class="Special">:=</span> mag(Y)<span class="Operator">,</span> angle(Y)<span class="Special">;</span>
+<span id="L23" class="LineNr">23 </span><span class="Special">::</span>
 </pre>
-</body>
-</html>
 
 <p>
 The first line is simply a comment, ala Haskell style comments, -- indicates a line comment.
 </p>
 <p>
-Line 3 sets the module we are working in, in this case power. This is just like any other basic module system, when elements within this model are referenced from outside the model, they must be prefixed with Power e.g., Power.Bus. This way if some other model has a Bus node and that model is used together with the power model, we have a mechanism by which to systematically resolve names.
+Line 3 sets the module we are working in, in this case power. This is just like any other basic module system, when elements within this model are referenced from outside the model, they must be prefixed with Power e.g., Bus.Power. This way if some other model has a Bus node and that model is used together with the power model, we have a mechanism by which to systematically resolve names.
 </p>
 <p>
-Line 5 is the declaration of a node e.g., the definition of a type of piece to go in the model. The language uses indentation as a scoping mechanism. The node 'Bus' begins at line 5 and ends at line 15.
+Line 5 is the declaration of a node e.g., the definition of a type of piece to go in the model. The language used colons as a block scoping mechanism. A single colon starts a block and a double colon ends a block. The node <code>Bus</code>begins at line 5 and ends at line 18.
 </p>
 <p>
-Line 6 defines the information held by the Bus node. This is an array of values, all of which are double precision floating point numbers. The := is the assignment operator and square brackets indicate array literals.
+Line 6 defines the information held by the Bus node. This is an array of values, all of which are double precision floating point complex numbers. All numbers are initialized to 0.
 </p>
 <p>
-Lines 7 and 8 are convenience aliases. The do not add any new information to the node, but they are useful in writing equations concisely.
+Lines 7 - 10 are convenience aliases. The do not add any new information to the node, but they are useful in writing equations concisely. The binding of these aliases is two way, when the alias is changed, this change propagates to the variable it is aliasing. Aliases are created by special functions called accessors. An alias may represent all or a part of a variable. As can be seen from line 7, the <code>p</code> variable references the real part of the complex variable <code>S</code>.
 </p>
 <p>
-Lines 10 - 15 describe an interaction relation e.g., how nodes fit together. The first word of the definition 'bus' is just the name of the relation.  The two parameters that follow in the format 'name:type' are type qualified parameters that indicate what type of node this relation is reference and the type of link used to make the connection. In this case we are referencing another Bus node type and give it the name 'j' and we are using the Line link type (described next) and give it the name 'ij'.
+Lines 13 - 17 describe an interaction relation e.g., how nodes fit together. The first word of the definition <code>bus</code> is just the name of the relation.  The two parameters that follow in the format '&lt;name&gt; &lt;type&gt;' are type qualified parameters that indicate what type of node this relation is reference to and the type of link used to make the connection. In this case we are referencing another Bus node type and give it the name <code>j</code> and we are using the Line link type (described next) and give it the name <code>ij</code>.
 </p>
 <p>
-At the end of the declaration the assignment operator is used in conjunction with the array literal notation to define the relation. More plainly a interaction relation is a function that returns an array. The elements of the array are equation expressions. Elements of an array can be separated by either a comma (line 6) a newline (lines 11-14). The elements of the array in lines 11-14 are equation literals. This set of 4 equations describes how one bus interacts with another when connected via a Line link type. 
+The names of the parameters are used as subscripts to resolve which from element a variable is being referenced. The first parameter is always some type of link and the second is always some type of node. The node which contains the relation will be referred to as the local node and the subscript parameterized node as the remote node. Consider line 15. The first 3 variables used; <code>p</code>, <code>g</code> and <code>v</code> do not use any subscript and thus belong to the local node. The variable <code>v.i</code> references the variable <code>v</code> which belongs to the remote bus which has been given the name <code>i</code>. The variable <code>y.ij</code> references the variable <code>y</code> belonging to the link connecting the local bus to the remote bus. The dot operator is called the name resolution operator.
 </p>
 <p>
-The names of the parameters are used a subscripts to resolve from which element a variable is being referenced. The first parameter is always some type of link and the second is always some type of bus. The bus which contains the relation will be referred to as the local bus and the parameterized bus as the remote bus. Consider line 13. The first 3 variables used; <i>p</i>, <i>g</i> and <i>vm</i> do not use any subscript and thus belong to local. The variable <i>vm_i</i> references the variable vm which belongs to the remote bus. The variable <i>ym_ij</i> references the variable ym belonging to the link connecting the local bus to the remote bus.
-</p>
-<p>
-The careful reader will note that the equations inside the interaction relation fall apart as written when a local node is connected to two remote nodes. In detail the value <i>p</i> is defined once in terms of variables that may have a high multiplicity. If the local bus is connected to two remote buses, then <i>vm_i</i> (and any other remote reference) has two values. The what is the value of <i>p</i>? We certainly cannot have high multiplicity local variables. The implicit rule that governs this is that equality is additive for interaction relations. So the equality operator essentially acts as a summation equality operator.
-</p>
-
-<p>
-Other notes on syntax, juxtaposition denotes multiplication as well as function application. Parenthesis are used strictly as a precedence grouping mechanism.
+The careful reader will note that the equations inside the interaction relation fall apart as written when a local node is connected to two remote nodes. In detail the value <code>p</code> is defined once in terms of variables that may have a high multiplicity. If the local bus is connected to two remote buses, then <code>v_i</code> (and any other remote reference) has two values. The what is the value of <code>p</code>? We certainly cannot have high multiplicity local variables. The rule that governs this is that equality is additive for interaction relations which use the <code>+=</code> operator and multiplicative for ones that use the <code>*=</code> operator.
 </p>
 
 <p>
 Lines 17-18 are a link definition. Links are like nodes without the interaction relations. This could obviously have been done the other way around, it is simply the authors preference to use a node centric model. Support for link centric models may come later down the road.
 </p>
 
-
-<!-- vim: set foldmethod=manual : -->
+</body>
+</html>
