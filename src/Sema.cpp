@@ -10,6 +10,7 @@ using namespace meta;
 
 using std::string;
 using std::vector;
+using std::unordered_map;
 
 void 
 Sema::buildMetaAst(const string &src)
@@ -74,32 +75,35 @@ Sema::check(const Node* n, const Module* m)
 void
 Sema::checkFor_DuplicateNames(const Node *n)
 {
-  vector<const NamedLexeme*> named_elements;
-  for(const Variable *v : n->vars){ named_elements.push_back(v); }
-  for(const Alias *a : n->aliases){ named_elements.push_back(a); }
-  for(const LazyVar *v : n->lazy_vars){ named_elements.push_back(v); }
+  unordered_map <string, vector<const NamedLexeme*>> names;
+  for(const Variable *v : n->vars){ names[v->name].push_back(v); }
+  for(const Alias *a : n->aliases){ names[a->name].push_back(a); }
+  for(const LazyVar *v : n->lazy_vars){ names[v->name].push_back(v); }
 
-  std::sort(named_elements.begin(), named_elements.end(),
-      [](const NamedLexeme *a, const NamedLexeme *b)
-      { return a->name < b->name; });
-
-  auto duplicate = 
-    std::adjacent_find(named_elements.begin(), named_elements.end(),
-        [](const NamedLexeme *a, const NamedLexeme *b)
-        { return a->name == b->name; });
-
-  if(duplicate != named_elements.end())
+  bool name_conflict{false};
+  for(auto &e : names)
   {
-    size_t line = (*duplicate)->line_no();
-    string msg = "duplicate name " + (*duplicate)->name;
-    diagnostics.push_back(Diagnostic{curr_file, line, msg});
-    string msg2 = "also declared here ";
-    size_t line2 = (*(duplicate + 1))->line_no();
-    diagnostics.push_back(Diagnostic{curr_file, line2, msg2, 
-                          Diagnostic::Kind::Info});
-
-    throw compilation_error{ diagnostics };
+    if(e.second.size() > 1)
+    {
+      name_conflict = true;
+      diagnostics.push_back(
+          Diagnostic{curr_file, 
+                     e.second[0]->line_no(),
+                     "duplicate name " + e.second[0]->name}
+      );
+      for(size_t i=1; i< e.second.size(); ++i)
+      {
+        diagnostics.push_back(
+            Diagnostic{curr_file,
+                       e.second[i]->line_no(),
+                       "also declared here",
+                       Diagnostic::Kind::Info}
+            );
+      }
+    }
   }
+  if(name_conflict) { throw compilation_error{ diagnostics }; }
+
 }
 
 void

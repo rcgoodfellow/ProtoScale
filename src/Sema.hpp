@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "CompilationException.hpp"
 
 extern ps::meta::Module *mm;
