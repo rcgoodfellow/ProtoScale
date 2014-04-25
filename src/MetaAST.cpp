@@ -15,6 +15,14 @@ Node::Node(string n, size_t line_no)
   lazy_vars.push_back(new LazyVar{"t", new Symbol{"t", 0}, 0});
 }
 
+Link::Link(string n, size_t line_no)
+  : Lexeme{line_no}, Element{Kind::Link}, name{n}
+{
+  vars.push_back(new Variable("t", "time", 0));
+  aliases.push_back(new Alias{"t", new Accessor{"time", "t", 0}, 0});
+  lazy_vars.push_back(new LazyVar{"t", new Symbol{"t", 0}, 0});
+}
+
 Variable*
 Node::getVar(const std::string &s) const
 {
@@ -74,12 +82,23 @@ Link::getAlias(const std::string &s) const
   return i == aliases.end() ? nullptr : *i;
 }
 
+LazyVar*
+Link::getLazyVar(const std::string &s) const
+{
+  auto i = 
+    std::find_if(lazy_vars.begin(), lazy_vars.end(),
+        [&s](const LazyVar *a){ return a->name == s; });
+
+  return i == lazy_vars.end() ? nullptr : *i;
+}
+
 bool
 Link::hasSymbol(const std::string &s) const
 {
   Variable *v = getVar(s);
   Alias *a = getAlias(s);
-  return v || a;
+  LazyVar *l = getLazyVar(s);
+  return v || a || l;
 }
 
 Node*

@@ -17,13 +17,14 @@ node Bus:
   ::
 
   `how a bus interacts with generators and loads via transmission line`
-   gen(ij Line, j Generator):   S += S.j; ::
-   load(ij Line, j Load): S += S.j; ::
+   gen(ij Line, j Generator): S += S.j; ::
+   load(ij Line, j Load):     S += S.j; ::
 ::
 
 link Line:
   Y complex;
   y, ya := mag(Y), angle(Y);
+  metric <- y;
 ::
 
 node Generator:

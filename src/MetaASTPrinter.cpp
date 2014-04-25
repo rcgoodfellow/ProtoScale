@@ -44,6 +44,7 @@ ASTPrinter::print(const Link *l)
 
   for(Variable *v : l->vars) { print(v); }
   for(Alias *a : l->aliases) { print(a); }
+  for(LazyVar *v : l->lazy_vars) { print(v); }
 
   indent--;
 }

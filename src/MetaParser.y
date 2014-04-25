@@ -138,7 +138,7 @@ node_elements: node_element { $$ = new NodeElements();
                             { $1->insert($1->end(), $2->begin(), $2->end()); }
              ;
 
-node_element: var_decl_group TO_SEMI{ $$ = $1; }
+node_element: var_decl_group TO_SEMI { $$ = $1; }
             | alias TO_SEMI { $$ = $1; }
             | lazy_var TO_SEMI { $$ = $1; }
             | diffrel TO_SEMI 
@@ -286,6 +286,10 @@ link: TL_IDENT TO_COLON link_elements TO_COLON TO_COLON
             {
               l->aliases.push_back(dynamic_cast<Alias*>(v));
             }
+            if(v->kind() == NodeElement::Kind::LazyVar)
+            {
+              l->lazy_vars.push_back(dynamic_cast<LazyVar*>(v));
+            }
           }
           $$ = l;
         }
@@ -300,6 +304,7 @@ link_elements: link_element { $$ = new NodeElements();
 
 link_element: var_decl_group TO_SEMI { $$ = $1; }
             | alias TO_SEMI { $$ = $1; }
+            | lazy_var TO_SEMI { $$ = $1; }
             ;
 
 
