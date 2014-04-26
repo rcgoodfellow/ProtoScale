@@ -115,13 +115,12 @@ struct Eqtn : public Lexeme
 };
 using Eqtns = std::vector<Eqtn*>;
 
-struct Interlate : public NodeElement, public Lexeme
+struct Interlate : public NodeElement, public NamedLexeme
 {
-  std::string name;
   Variables params;
   Eqtns eqtns;
   Interlate(std::string n, size_t line_no) 
-    : Lexeme{line_no}, NodeElement{Kind::Interlate}, name{n} {}
+    : NamedLexeme{n, line_no}, NodeElement{Kind::Interlate} {}
 };
 using Interlates = std::vector<Interlate*>;
 

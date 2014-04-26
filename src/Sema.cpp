@@ -82,6 +82,11 @@ Sema::checkFor_DuplicateNames(const Element *elem)
   for(const Variable *v : elem->vars){ names[v->name].push_back(v); }
   for(const Alias *a : elem->aliases){ names[a->name].push_back(a); }
   for(const LazyVar *v : elem->lazy_vars){ names[v->name].push_back(v); }
+  if(elem->kind() == Element::Kind::Node)
+  {
+    const Node *n = dynamic_cast<const Node*>(elem);
+    for(const Interlate *i : n->interlates){ names[i->name].push_back(i); }
+  }
 
   bool name_conflict{false};
   for(auto &e : names)
