@@ -131,6 +131,7 @@ class Sema
 
     void check_CreateParamsLegit(shell::Create*);
     void check_CreateRequiredParams(shell::Create*);
+    void check_CreateArgsParamList(shell::Create*);
     
 
     void undefined_Var(const std::string&, const meta::Lexeme*);

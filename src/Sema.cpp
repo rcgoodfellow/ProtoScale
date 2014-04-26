@@ -439,6 +439,7 @@ Sema::check_Create(shell::Create *c,
   check_CreateType(c, mfs);
   check_CreateParamsLegit(c);
   check_CreateRequiredParams(c);
+  check_CreateArgsParamList(c);
 }
 
 void 
@@ -524,3 +525,25 @@ Sema::check_CreateParamsLegit(shell::Create *c)
   }
 }
 
+void 
+Sema::check_CreateArgsParamList(shell::Create *c)
+{
+  bool err{false};
+
+  for(const shell::CreateTarget *t : *(c->tgts))
+  {
+    if(t->args->vals.size() != c->fmt->var_names->size())
+    {
+      err = true;
+      string msg = "the element type " + c->type_tgt
+                 + " requires " + std::to_string(c->fmt->var_names->size())
+                 + " parameters for creation";
+      diagnostics.push_back( Diagnostic{curr_file, c->line_no(), msg} );
+    }
+  }
+  
+  if(err)
+  {
+    throw compilation_error { diagnostics };
+  }
+}
