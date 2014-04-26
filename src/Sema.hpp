@@ -4,11 +4,12 @@
 #include "MetaAST.hpp"
 #include "ShellAST.hpp"
 #include "FileUtil.hpp"
+#include "CompilationException.hpp"
 
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "CompilationException.hpp"
+#include <stdexcept>
 
 extern ps::meta::Module *mm;
 extern ps::shell::Commands *sh_cmds;
@@ -120,6 +121,8 @@ class Sema
 
     //Shell command checks
     void check(const shell::Commands*);
+
+    std::vector<ModuleFragment> check_Import(const shell::Import*);
 
     void undefined_Var(const std::string&, const meta::Lexeme*);
 };

@@ -395,5 +395,28 @@ Sema::checkFor_InvalidReferences(const DiffRel *d, const Element *elem)
 void
 Sema::check(const shell::Commands *cs)
 {
+  using K = shell::Command::Kind;
+  for(const shell::Command* c : *cs)
+  {
+    switch(c->kind())
+    {
+      case K::Import: check_Import(dynamic_cast<const shell::Import*>(c)); 
+                      break;    
+    }
+  }
+}
 
+vector<ModuleFragment>
+Sema::check_Import(const shell::Import *i)
+{
+  try
+  {
+    return module_source_map.at(i->module_name);
+  }
+  catch(std::out_of_range &e)
+  {
+    string msg = "undefined module " + i->module_name;
+    diagnostics.push_back( Diagnostic{curr_file, i->line_no(), msg} );
+    throw compilation_error { diagnostics };
+  }
 }
