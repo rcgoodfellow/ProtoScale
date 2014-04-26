@@ -54,69 +54,69 @@ class Sema
     void check(const meta::Module*);
 
     //Node checks
-    void check(const meta::Node*, const meta::Module*);
-    void checkFor_DuplicateNames(const meta::Node*);
-    void checkFor_InvalidReferences(const meta::Node*, const meta::Module*);
+    void check(const meta::Element*, const meta::Module*);
+    void check(const meta::Link*);
 
-    //Invalid Reference checking
-    void checkFor_InvalidReferences(const meta::FuncallAtom*, 
-                                    const meta::Node*);
-
-    void checkFor_InvalidReferences(const meta::Funcall*, const meta::Node*);
-
-    void checkFor_InvalidReferences(const meta::Expr*, const meta::Node*);
+    void checkFor_DuplicateNames(const meta::Element*);
     
-    void checkFor_InvalidReferences(const meta::Symbol*, const meta::Node*);
+    //Invalid Reference checking
+    void checkFor_InvalidReferences(const meta::Element*, const meta::Module*);
+    void checkFor_InvalidReferences(const meta::LazyVar*, const meta::Element*);
+    void checkFor_InvalidReferences(const meta::DiffRel*, const meta::Element*);
+    void checkFor_InvalidReferences(const meta::Accessor*, const meta::Element*);
 
-    void checkFor_InvalidReferences(const meta::Accessor*, const meta::Node*);
+    void checkFor_InvalidReferences(const meta::FuncallAtom*, 
+                                    const meta::Element*);
+
+    void checkFor_InvalidReferences(const meta::Funcall*, const meta::Element*);
+
+    void checkFor_InvalidReferences(const meta::Expr*, const meta::Element*);
+    
+    void checkFor_InvalidReferences(const meta::Symbol*, const meta::Element*);
+
 
     void checkFor_InvalidReferences(const meta::Interlate*, 
                                     const meta::Node*, const meta::Module*);
 
-    void checkFor_InvalidReferences(const meta::Eqtn*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::Eqtn*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::Expr*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::Expr*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::AddOp*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::AddOp*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::MulOp*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::MulOp*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::ExpOp*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::ExpOp*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::Real*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::Real*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::Symbol*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::Symbol*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::FuncallAtom*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::FuncallAtom*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::Funcall*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::Funcall*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    void checkFor_InvalidReferences(const meta::ExprAtom*, const meta::Node*, 
+    void checkFor_InvalidReferences(const meta::ExprAtom*, const meta::Element*, 
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
-
-    void checkFor_InvalidReferences(const meta::LazyVar*, const meta::Node*);
-    void checkFor_InvalidReferences(const meta::DiffRel*, const meta::Node*);
-
-    void check(const meta::Link*);
 
     //Shell command checks
     void check(const shell::Commands*);

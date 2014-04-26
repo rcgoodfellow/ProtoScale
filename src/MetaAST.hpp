@@ -130,13 +130,14 @@ struct Element
   enum class Kind { Node, Link };
   Element(Kind k, std::string name, std::vector<std::string*> *p); 
   virtual ~Element() {}
-  Kind kind() { return _kind; }
+  Kind kind() const { return _kind; }
 
   std::vector<std::string*> *params;
   std::string name;
   Variables vars;
   Aliases aliases;
   LazyVars lazy_vars;
+  DiffRels diffrels;
   
   Variable* getVar(const std::string &s) const;
   Alias* getAlias(const std::string &s) const;
@@ -150,7 +151,6 @@ struct Element
 struct Node : public Element, public Lexeme
 {
   Interlates interlates;
-  DiffRels diffrels;
   Node(std::string n, std::vector<std::string*> *p, size_t line_no);
 };
 
