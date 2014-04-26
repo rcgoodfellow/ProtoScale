@@ -393,15 +393,26 @@ Sema::checkFor_InvalidReferences(const DiffRel *d, const Element *elem)
 }
 
 void
-Sema::check(const shell::Commands *cs)
+Sema::check(shell::Commands *cs)
 {
   using K = shell::Command::Kind;
-  for(const shell::Command* c : *cs)
+  std::vector<ModuleFragment> mfrags;;
+  for(shell::Command* c : *cs)
   {
     switch(c->kind())
     {
-      case K::Import: check_Import(dynamic_cast<const shell::Import*>(c)); 
-                      break;    
+      case K::Import: 
+      {
+        std::vector<ModuleFragment> mfs = 
+          check_Import(dynamic_cast<const shell::Import*>(c)); 
+        mfrags.insert(mfrags.end(), mfs.begin(), mfs.end());
+        break;    
+      }
+      case K::Create: 
+      {
+        check_Create(dynamic_cast<shell::Create*>(c), mfrags);
+        break;
+      }
     }
   }
 }
@@ -417,6 +428,33 @@ Sema::check_Import(const shell::Import *i)
   {
     string msg = "undefined module " + i->module_name;
     diagnostics.push_back( Diagnostic{curr_file, i->line_no(), msg} );
+    throw compilation_error { diagnostics };
+  }
+}
+void 
+Sema::check_Create(shell::Create *c, 
+                   const std::vector<ModuleFragment> &mfs)
+{
+  Element *type;
+  for(const ModuleFragment &f : mfs)
+  {
+    type = f.m->getNode(c->type_tgt);
+    if(type)
+    {
+      c->type = type;
+      break;
+    }
+    type = f.m->getLink(c->type_tgt);
+    {
+      c->type = type;
+      break;
+    }
+  }
+
+  if(!type)
+  {
+    string msg = "undefined element type " + c->type_tgt;
+    diagnostics.push_back( Diagnostic{curr_file, c->line_no(), msg} );
     throw compilation_error { diagnostics };
   }
 }

@@ -1,6 +1,7 @@
 #ifndef _PS_SHELLAST_
 #define _PS_SHELLAST_
 
+#include "MetaAST.hpp"
 #include <vector>
 #include <string>
 
@@ -67,6 +68,7 @@ using CreateTargets = std::vector<CreateTarget*>;
 struct Create : public Command, public Lexeme
 {
   std::string type_tgt;
+  meta::Element *type;
   CreateFormat *fmt;
   CreateTargets *tgts;
 

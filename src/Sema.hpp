@@ -120,9 +120,12 @@ class Sema
                                     const std::string&, const meta::Node*);
 
     //Shell command checks
-    void check(const shell::Commands*);
+    void check(shell::Commands*);
 
     std::vector<ModuleFragment> check_Import(const shell::Import*);
+    void check_Create(shell::Create*, 
+                      const std::vector<ModuleFragment>&);
+    
 
     void undefined_Var(const std::string&, const meta::Lexeme*);
 };
