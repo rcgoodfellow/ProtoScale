@@ -8,7 +8,7 @@ create Source{p} s0{5}, s1{2};
 
 create Generator g0, g1;
 
-create Load{f} l0{7};
+create Load{fp} l0{7};
 
 create Line{y, ya}
   l0{0.0623, 1.2543},

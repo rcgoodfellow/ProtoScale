@@ -125,6 +125,12 @@ class Sema
     std::vector<ModuleFragment> check_Import(const shell::Import*);
     void check_Create(shell::Create*, 
                       const std::vector<ModuleFragment>&);
+
+    void check_CreateType(shell::Create*,
+                          const std::vector<ModuleFragment>&);
+
+    void check_CreateParamsLegit(shell::Create*);
+    void check_CreateRequiredParams(shell::Create*);
     
 
     void undefined_Var(const std::string&, const meta::Lexeme*);

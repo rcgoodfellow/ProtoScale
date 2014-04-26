@@ -68,7 +68,7 @@ using CreateTargets = std::vector<CreateTarget*>;
 struct Create : public Command, public Lexeme
 {
   std::string type_tgt;
-  meta::Element *type;
+  meta::Element *type{nullptr};
   CreateFormat *fmt;
   CreateTargets *tgts;
 

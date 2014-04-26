@@ -431,9 +431,19 @@ Sema::check_Import(const shell::Import *i)
     throw compilation_error { diagnostics };
   }
 }
-void 
-Sema::check_Create(shell::Create *c, 
+
+void
+Sema::check_Create(shell::Create *c,
                    const std::vector<ModuleFragment> &mfs)
+{
+  check_CreateType(c, mfs);
+  check_CreateParamsLegit(c);
+  check_CreateRequiredParams(c);
+}
+
+void 
+Sema::check_CreateType(shell::Create *c, 
+                       const std::vector<ModuleFragment> &mfs)
 {
   Element *type;
   for(const ModuleFragment &f : mfs)
@@ -458,3 +468,59 @@ Sema::check_Create(shell::Create *c,
     throw compilation_error { diagnostics };
   }
 }
+
+void
+Sema::check_CreateRequiredParams(shell::Create *c)
+{
+  bool err{false};
+
+  for(const string *a : *(c->type->params))
+  {
+    auto i = std::find_if(
+        c->fmt->var_names->begin(),
+        c->fmt->var_names->end(),
+        [a](const string &s){ return s == *a; }
+        );
+    
+    if(i == c->fmt->var_names->end())
+    {
+      err = true;
+      string msg = "create parameters for " + c->type_tgt
+                 + " must include " + *a;
+      diagnostics.push_back( Diagnostic{curr_file, c->line_no(), msg} );
+    }
+  }
+
+  if(err)
+  {
+    throw compilation_error { diagnostics };
+  }
+}
+
+void
+Sema::check_CreateParamsLegit(shell::Create *c)
+{
+  bool err{false};
+
+  for(const string &a : *(c->fmt->var_names))
+  {
+    auto i = std::find_if(
+        c->type->params->begin(),
+        c->type->params->end(),
+        [&a](const string *s){ return *s == a; }
+        );
+
+    if(i == c->type->params->end())
+    {
+      err = true;
+      string msg = a + " is an invalid create parameter for " + c->type_tgt;
+      diagnostics.push_back( Diagnostic{curr_file, c->line_no(), msg} );
+    }
+  }
+
+  if(err)
+  {
+    throw compilation_error { diagnostics };
+  }
+}
+
