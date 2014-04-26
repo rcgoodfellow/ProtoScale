@@ -4,7 +4,7 @@ BISON=/usr/local/Cellar/bison/3.0.2/bin/bison
 CXXFLAGS=-x c++ -g -std=c++11 -Wno-deprecated-register
 
 .PHONY: all
-all: proto
+all: proto lib/libprotoscale_core.so
 
 .PHONY: debug
 debug: CXXFLAGS+=-DDEBUG
@@ -24,6 +24,18 @@ LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
 
 libprotoscale_parse.so : $(LIB_PARSE_OBJS) $(LIB_PARSE_HDR)
 	$(CXX) -shared -o $@ $(LIB_PARSE_OBJS)
+
+LIB_CORE_OBJS=lib/Core.o
+
+LIB_CORE_HDR=lib/Core.hpp
+
+lib/libprotoscale_core.so : $(LIB_CORE_OBJS) $(LIB_CORE_HDR)
+	$(CXX) -shared -o $@ $(LIB_CORE_OBJS)
+
+# Core ------------------------------------------------------------------------
+
+lib/Core.o : lib/Core.cpp lib/Core.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 # MetaModel Language ----------------------------------------------------------
 

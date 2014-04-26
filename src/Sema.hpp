@@ -15,6 +15,19 @@ extern ps::shell::Commands *sh_cmds;
 
 namespace ps {
 
+struct ModuleFragment 
+{ 
+  ModuleFragment(meta::Module *m, std::string fn) : m{m}, filename{fn} {}
+  meta::Module *m; std::string filename; 
+};
+
+struct ShellFragment
+{
+  ShellFragment(shell::Commands *c, std::string fn) : c{c}, filename{fn} {}
+  shell::Commands *c;
+  std::string filename;
+};
+
 class Sema
 {
   public:
@@ -27,18 +40,25 @@ class Sema
     std::string curr_file;
     std::vector<Diagnostic> diagnostics;
 
-    void buildMetaAst(const std::string&);
-    void buildShellAst(const std::string&);
+    std::unordered_map<std::string, 
+                       std::vector<ModuleFragment>
+                      > module_source_map;
+
+    std::unordered_map<std::string, 
+                       std::vector<ShellFragment>
+                      > cmd_source_map;
+
+    meta::Module* buildMetaAst(const std::string&);
+    shell::Commands* buildShellAst(const std::string&);
     
     void check(const meta::Module*);
 
     //Node checks
     void check(const meta::Node*, const meta::Module*);
     void checkFor_DuplicateNames(const meta::Node*);
+    void checkFor_InvalidReferences(const meta::Node*, const meta::Module*);
 
-    void checkFor_InvalidReferences(const meta::Node*, 
-                                    const meta::Module*);
-
+    //Invalid Reference checking
     void checkFor_InvalidReferences(const meta::FuncallAtom*, 
                                     const meta::Node*);
 
@@ -97,6 +117,9 @@ class Sema
     void checkFor_InvalidReferences(const meta::DiffRel*, const meta::Node*);
 
     void check(const meta::Link*);
+
+    //Shell command checks
+    void check(const shell::Commands*);
 
     void undefined_Var(const std::string&, const meta::Lexeme*);
 };

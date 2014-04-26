@@ -12,7 +12,7 @@ using std::string;
 using std::vector;
 using std::unordered_map;
 
-void 
+meta::Module*
 Sema::buildMetaAst(const string &src)
 {
   mm = nullptr;
@@ -21,11 +21,13 @@ Sema::buildMetaAst(const string &src)
   metayyparse();
   if(mm == nullptr)
   {
-    throw std::runtime_error("compilation failed for "+src);
+    throw std::runtime_error("compilation failed for " + src);
   }
+  module_source_map[mm->name].push_back({mm, src});
+  return mm;
 }
 
-void
+shell::Commands*
 Sema::buildShellAst(const string &src)
 {
   sh_cmds = nullptr;
@@ -34,8 +36,9 @@ Sema::buildShellAst(const string &src)
   shellyyparse();
   if(!sh_cmds)
   {
-    throw std::runtime_error("compilation failed for "+src);
+    throw std::runtime_error("compilation failed for " + src);
   }
+  return sh_cmds;
 }
 
 void
@@ -47,13 +50,13 @@ Sema::check()
 
     if(src_file.substr(src_file.length()-4, src_file.length()) == ".pmm")
     {
-      buildMetaAst(src_file);
-      check(mm);
+      meta::Module *m = buildMetaAst(src_file);
+      check(m);
     }
     else if(src_file.substr(src_file.length()-3, src_file.length()) == ".pm")
     {
-      buildShellAst(src_file);
-      //check(sh_cmd);
+      shell::Commands *c = buildShellAst(src_file);
+      check(c);
     }
   }
 }
@@ -379,4 +382,10 @@ Sema::checkFor_InvalidReferences(const DiffRel *d, const Node *n)
     throw compilation_error{ diagnostics };
   }
   checkFor_InvalidReferences(d->expr, n, "", nullptr, "", nullptr);
+}
+
+void
+Sema::check(const shell::Commands *cs)
+{
+
 }

@@ -1,4 +1,4 @@
-" ProtoScale vim syntax file
+" ProtoScale Modeling vim syntax file
 " Language: ProtoScale Description Language (.pdl)
 " Maintainer: Ryan Goodfellow
 " Version 0.1
