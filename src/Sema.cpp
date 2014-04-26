@@ -213,6 +213,7 @@ Sema::checkFor_InvalidReferences(const Expr *e, const Element *elem,
                                               elem, ln, l, rn, r); break;
     case K::ExprAtom: checkFor_InvalidReferences(dynamic_cast<const ExprAtom*>(e),
                                               elem, ln, l, rn, r); break;
+    default: ;
   }
 }
 
@@ -328,18 +329,9 @@ Sema::checkFor_InvalidReferences(const ExprAtom *e, const Element *elem,
 void
 Sema::checkFor_InvalidReferences(const Funcall *f, const Element *elem)
 {
-  for(const Expr *e : f->args) { checkFor_InvalidReferences(e, elem); }
-}
-
-void
-Sema::checkFor_InvalidReferences(const Expr *e, const Element *elem)
-{
-  using K = Expr::Kind;
-  switch(e->kind())
-  {
-    case K::Symbol: checkFor_InvalidReferences(
-                        dynamic_cast<const Symbol*>(e), elem);
-                    break;
+  for(const Expr *e : f->args) 
+  { 
+    checkFor_InvalidReferences(e, elem, "", nullptr, "", nullptr); 
   }
 }
 
@@ -411,6 +403,11 @@ Sema::check(shell::Commands *cs)
       case K::Create: 
       {
         check_Create(dynamic_cast<shell::Create*>(c), mfrags);
+        break;
+      }
+      case K::Connect:
+      {
+        check_ConnectReferences(dynamic_cast<shell::Connect*>(c), cs);
         break;
       }
     }
@@ -546,4 +543,73 @@ Sema::check_CreateArgsParamList(shell::Create *c)
   {
     throw compilation_error { diagnostics };
   }
+}
+    
+void 
+Sema::check_ConnectReferences(shell::Connect *cn, shell::Commands *cmds)
+{
+  for(shell::Connection *c : *(cn->connections))
+  {
+    check_ConnectionReferences(c, cmds);
+  }
+}
+
+void
+Sema::check_ConnectionReferences(shell::Connection *cnx, shell::Commands *cmds)
+{
+  for(shell::Command *c : *cmds)
+  {
+    if(c->kind() == shell::Command::Kind::Create)
+    {
+      shell::Create *cr = dynamic_cast<shell::Create*>(c);
+      if(cr->type->kind() == meta::Element::Kind::Node)
+      {
+        for(shell::CreateTarget *tgt : *(cr->tgts))
+        {
+          if(tgt->name == cnx->a)
+          {
+            cnx->ap = cr;
+          }
+          if(tgt->name == cnx->b)
+          {
+            cnx->bp = cr;
+          }
+          if(cnx->ap && cnx->bp) { break; }
+        }
+      }
+      if(cr->type->kind() == meta::Element::Kind::Link)
+      {
+        for(shell::CreateTarget *tgt : *(cr->tgts))
+        {
+          if(tgt->name == cnx->via)
+          {
+            cnx->viap = cr;
+            break;
+          }
+        }
+      }
+      if(cnx->ap && cnx->bp && cnx->viap) { break; }
+    }
+  }
+  if(!(cnx->ap && cnx->bp && cnx->viap)) 
+  { 
+    if(!cnx->ap)
+    {
+      string msg = "undefined reference to " + cnx->a;
+      diagnostics.push_back(Diagnostic{curr_file, cnx->line_no(), msg});
+    }
+    if(!cnx->bp)
+    {
+      string msg = "undefined reference to " + cnx->b;
+      diagnostics.push_back(Diagnostic{curr_file, cnx->line_no(), msg});
+    }
+    if(!cnx->viap)
+    {
+      string msg = "undefined reference to " + cnx->via;
+      diagnostics.push_back(Diagnostic{curr_file, cnx->line_no(), msg});
+    }
+    
+    throw compilation_error { diagnostics };
+  }
+  
 }

@@ -80,6 +80,7 @@ using Creates = std::vector<Create*>;
 struct Connection : public Lexeme
 {
   std::string a, b, via;
+  Create *ap{nullptr}, *bp{nullptr}, *viap{nullptr};
 
   Connection(std::string a, std::string b, std::string via, size_t line_no)
     : Lexeme{line_no}, a{a}, b{b}, via{via} {}

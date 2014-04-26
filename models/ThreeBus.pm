@@ -17,5 +17,5 @@ create Line{y, ya}
 
 connect b0 b1 l0,
         b0 b4 l1,
-        b1 b4 b4;
+        b1 b4 l2;
 

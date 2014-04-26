@@ -70,9 +70,6 @@ class Sema
                                     const meta::Element*);
 
     void checkFor_InvalidReferences(const meta::Funcall*, const meta::Element*);
-
-    void checkFor_InvalidReferences(const meta::Expr*, const meta::Element*);
-    
     void checkFor_InvalidReferences(const meta::Symbol*, const meta::Element*);
 
 
@@ -132,6 +129,8 @@ class Sema
     void check_CreateParamsLegit(shell::Create*);
     void check_CreateRequiredParams(shell::Create*);
     void check_CreateArgsParamList(shell::Create*);
+    void check_ConnectReferences(shell::Connect*, shell::Commands*);
+    void check_ConnectionReferences(shell::Connection*, shell::Commands*);
     
 
     void undefined_Var(const std::string&, const meta::Lexeme*);
