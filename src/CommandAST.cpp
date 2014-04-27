@@ -4,6 +4,7 @@
 #include "MetaScanner.hpp"
 #include "MetaASTPrinter.hpp"
 #include "Sema.hpp"
+#include "CppGen.hpp"
 
 using namespace ps;
 using namespace ps::cmd;
@@ -59,6 +60,9 @@ FileSet BuildPKGCommand::operator()() const
 
   Sema semanticChecker(*args);
   semanticChecker.check();
+
+  gen::Cpp generator;
+  generator.emit_Module(mm);
 
   return fs;
 }

@@ -18,7 +18,8 @@ LIB_PARSE_OBJS=\
 FileUtil.o \
 MetaParser.o MetaScanner.o MetaAST.o MetaASTPrinter.o Sema.o \
 CommandParser.o CommandScanner.o CommandAST.o \
-ModelParser.o ModelScanner.o ModelAST.o
+ModelParser.o ModelScanner.o ModelAST.o \
+CppGen.o
 
 LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
 
@@ -31,6 +32,11 @@ LIB_CORE_HDR=lib/Core.hpp
 
 lib/libprotoscale_core.so : $(LIB_CORE_OBJS) $(LIB_CORE_HDR)
 	$(CXX) -shared -o $@ $(LIB_CORE_OBJS)
+
+# CodeGen ---------------------------------------------------------------------
+
+CppGen.o: CppGen.cpp CppGen.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 # Core ------------------------------------------------------------------------
 
