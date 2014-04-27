@@ -7,7 +7,7 @@ if exists("b:current_syntax")
   finish
 endif
 
-syn keyword pmKeyword create destroy import connect
+syn keyword pmKeyword create destroy import connect symmetric
 syn match pmComment '`.*`'
 syn match pmSpecial '\:=\|\:\|\[\|\]\|{\|}\|(\|)\|;\|,'
 

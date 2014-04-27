@@ -25,6 +25,7 @@ using namespace ps::shell;
   ps::shell::Connections *connections;
   std::string *string;
   int token;
+  bool boolean;
 }
 
 %{
@@ -35,7 +36,7 @@ using namespace ps::shell;
 %}
 
 %token <string> TL_IDENT TL_REAL
-%token <token> TK_IMPORT TK_CREATE TK_CONNECT
+%token <token> TK_IMPORT TK_CREATE TK_CONNECT TK_SYMMETRIC
 %token <token> TO_SEMI TO_COMMA TS_OBR TS_CBR
 
 %type <commands> commands
@@ -47,6 +48,7 @@ using namespace ps::shell;
 %type<c_args> cr_tgt_args reals
 %type<connection> connection
 %type<connections> connections
+%type<boolean> symmetric
 
 
 %start commands
@@ -92,15 +94,19 @@ reals: TL_REAL { $$ = new CreateArgs(CURRLINE); $$->vals.push_back(*$1); }
      | reals TO_COMMA TL_REAL { $1->vals.push_back(*$3); }
      ;
 
-connect: TK_CONNECT connections { $$ = new Connect($2, CURRLINE); }
+connect: TK_CONNECT symmetric connections { $$ = new Connect($3, $2, CURRLINE); }
        ;
+
+symmetric: { $$ = false; }
+         | TK_SYMMETRIC { $$ = true; }
+         ;
 
 connections: connection { $$ = new Connections; $$->push_back($1); }
            | connections TO_COMMA connection {$1->push_back($3); }
            ;
 
-connection: TL_IDENT TL_IDENT TL_IDENT 
-            { $$ = new Connection(*$1, *$2, *$3, CURRLINE); }
+connection: TL_IDENT TL_IDENT TL_IDENT TL_IDENT 
+            { $$ = new Connection(*$1, *$2, *$3, *$4, CURRLINE); }
           ;
 
 %%

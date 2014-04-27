@@ -131,6 +131,8 @@ class Sema
     void check_CreateArgsParamList(shell::Create*);
     void check_ConnectReferences(shell::Connect*, shell::Commands*);
     void check_ConnectionReferences(shell::Connection*, shell::Commands*);
+    void check_ConnectInterlate(shell::Connect*);
+    void check_ConnectInterlate(shell::Connection*);
     
 
     void undefined_Var(const std::string&, const meta::Lexeme*);

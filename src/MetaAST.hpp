@@ -151,6 +151,7 @@ struct Node : public Element, public Lexeme
 {
   Interlates interlates;
   Node(std::string n, std::vector<std::string*> *p, size_t line_no);
+  Interlate* getInterlate(const std::string&);
 };
 
 struct Link : public Element, public Lexeme

@@ -50,10 +50,11 @@ extern int shellyydebug;
     TK_IMPORT = 260,
     TK_CREATE = 261,
     TK_CONNECT = 262,
-    TO_SEMI = 263,
-    TO_COMMA = 264,
-    TS_OBR = 265,
-    TS_CBR = 266
+    TK_SYMMETRIC = 263,
+    TO_SEMI = 264,
+    TO_COMMA = 265,
+    TS_OBR = 266,
+    TS_CBR = 267
   };
 #endif
 
@@ -78,8 +79,9 @@ union YYSTYPE
   ps::shell::Connections *connections;
   std::string *string;
   int token;
+  bool boolean;
 
-#line 83 "ShellParser.hpp" /* yacc.c:1915  */
+#line 85 "ShellParser.hpp" /* yacc.c:1915  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

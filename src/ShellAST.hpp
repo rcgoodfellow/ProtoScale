@@ -79,11 +79,16 @@ using Creates = std::vector<Create*>;
 
 struct Connection : public Lexeme
 {
-  std::string a, b, via;
+  std::string a, interlate, b, via;
   Create *ap{nullptr}, *bp{nullptr}, *viap{nullptr};
+  bool symmetric{false};
 
-  Connection(std::string a, std::string b, std::string via, size_t line_no)
-    : Lexeme{line_no}, a{a}, b{b}, via{via} {}
+  Connection(std::string a, 
+             std::string i, 
+             std::string b, 
+             std::string via, 
+             size_t line_no)
+    : Lexeme{line_no}, a{a}, interlate{i}, b{b}, via{via} {}
 
 };
 using Connections = std::vector<Connection*>;
@@ -91,9 +96,19 @@ using Connections = std::vector<Connection*>;
 struct Connect : public Command, public Lexeme
 {
   Connections *connections;
+  bool symmetric;
 
-  Connect(Connections *c, size_t line_no) 
-    : Lexeme{line_no}, Command{Kind::Connect}, connections{c} {}
+  Connect(Connections *c, bool sym, size_t line_no) 
+    : Lexeme{line_no}, Command{Kind::Connect}, connections{c}, symmetric{sym} 
+  {
+    if(symmetric)
+    {
+      for(Connection *cn : *connections)
+      {
+        cn->symmetric = true;
+      }
+    }
+  }
 };
 using Connects = std::vector<Connect*>;
 

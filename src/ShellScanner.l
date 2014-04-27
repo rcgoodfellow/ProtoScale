@@ -16,6 +16,7 @@
 "import"                  return TOKEN(TK_IMPORT);
 "create"                  return TOKEN(TK_CREATE);
 "connect"                 return TOKEN(TK_CONNECT);
+"symmetric"               return TOKEN(TK_SYMMETRIC);
 
 [a-zA-Z_][a-zA-Z0-9_\.]*  SAVE_TOKEN; return TL_IDENT;
 [0-9]+(\.[0-9]*)*         SAVE_TOKEN; return TL_REAL;

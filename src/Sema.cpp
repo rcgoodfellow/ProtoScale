@@ -407,7 +407,9 @@ Sema::check(shell::Commands *cs)
       }
       case K::Connect:
       {
-        check_ConnectReferences(dynamic_cast<shell::Connect*>(c), cs);
+        shell::Connect *cnx = dynamic_cast<shell::Connect*>(c);
+        check_ConnectReferences(cnx, cs);
+        check_ConnectInterlate(cnx);
         break;
       }
     }
@@ -612,4 +614,60 @@ Sema::check_ConnectionReferences(shell::Connection *cnx, shell::Commands *cmds)
     throw compilation_error { diagnostics };
   }
   
+}
+
+void
+Sema::check_ConnectInterlate(shell::Connect *cnx)
+{
+  for(shell::Connection *c : *(cnx->connections))
+  {
+    check_ConnectInterlate(c);
+  }
+
+}
+
+void
+Sema::check_ConnectInterlate(shell::Connection *cnx)
+{
+  if(cnx->symmetric && (cnx->ap->type != cnx->bp->type))
+  {
+    string msg = "A connection between two different types of nodes "
+               + string("cannot be symmetric");
+    diagnostics.push_back(Diagnostic{curr_file, cnx->line_no(), msg});
+    throw compilation_error{ diagnostics };
+  }
+
+  //check that target interlate exists
+  meta::Node *n = dynamic_cast<meta::Node*>(cnx->ap->type);
+  meta::Interlate *i = n->getInterlate(cnx->interlate); 
+  if(!i)
+  {
+    string msg = "The node " + n->name + " does not have an interlate named "
+               + cnx->interlate;
+    diagnostics.push_back(Diagnostic{curr_file, cnx->line_no(), msg});
+    throw compilation_error { diagnostics };
+  }
+
+  //check the argument types against the interlate
+  //node type 
+  if(i->params[1]->type != cnx->bp->type->name)
+  {
+    string msg = "The interlate " + cnx->interlate
+               + " does not accept a node parameter of type "
+               + cnx->bp->type->name;
+    diagnostics.push_back(Diagnostic{curr_file, cnx->line_no(), msg});
+    throw compilation_error { diagnostics };
+  }
+  
+  //link type
+  if(i->params[0]->type != cnx->viap->type->name)
+  {
+    string msg = "The interlate " + cnx->interlate
+               + " does not accept a link parameter of type "
+               + cnx->viap->type->name;
+    diagnostics.push_back(Diagnostic{curr_file, cnx->line_no(), msg});
+    throw compilation_error { diagnostics };
+  }
+
+
 }

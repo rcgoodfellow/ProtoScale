@@ -19,6 +19,16 @@ Node::Node(string n, vector<string*> *p, size_t line_no)
 Link::Link(string n, vector<string*> *p, size_t line_no)
   : Lexeme{line_no}, Element{Kind::Link, n, p} { }
 
+Interlate*
+Node::getInterlate(const string &name)
+{
+  auto i =
+    std::find_if(interlates.begin(), interlates.end(),
+        [&name](const Interlate *a){ return a->name == name; }
+    );
+  return i == interlates.end() ? nullptr : *i;
+}
+
 Variable*
 Element::getVar(const std::string &s) const
 {

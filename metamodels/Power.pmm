@@ -57,7 +57,7 @@ node Generator:
 
   `a generator must be connected to a source (prime mover) to generate power`
   `note: this model is oversimplified and not realistic`
-  src(ij Line, i Source):
+  source(ij Line, i Source):
     p = f.i * cos(t); 
     q = f.i * sin(t);
   ::
