@@ -1,10 +1,10 @@
-#ifndef shellyyHEADER_H
-#define shellyyHEADER_H 1
-#define shellyyIN_HEADER 1
+#ifndef modelyyHEADER_H
+#define modelyyHEADER_H 1
+#define modelyyIN_HEADER 1
 
-#line 6 "ShellScanner.hpp"
+#line 6 "ModelScanner.hpp"
 
-#line 8 "ShellScanner.hpp"
+#line 8 "ModelScanner.hpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -128,9 +128,9 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 typedef size_t yy_size_t;
 #endif
 
-extern yy_size_t shellyyleng;
+extern yy_size_t modelyyleng;
 
-extern FILE *shellyyin, *shellyyout;
+extern FILE *modelyyin, *modelyyout;
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
@@ -183,31 +183,31 @@ struct yy_buffer_state
 	};
 #endif /* !YY_STRUCT_YY_BUFFER_STATE */
 
-void shellyyrestart (FILE *input_file  );
-void shellyy_switch_to_buffer (YY_BUFFER_STATE new_buffer  );
-YY_BUFFER_STATE shellyy_create_buffer (FILE *file,int size  );
-void shellyy_delete_buffer (YY_BUFFER_STATE b  );
-void shellyy_flush_buffer (YY_BUFFER_STATE b  );
-void shellyypush_buffer_state (YY_BUFFER_STATE new_buffer  );
-void shellyypop_buffer_state (void );
+void modelyyrestart (FILE *input_file  );
+void modelyy_switch_to_buffer (YY_BUFFER_STATE new_buffer  );
+YY_BUFFER_STATE modelyy_create_buffer (FILE *file,int size  );
+void modelyy_delete_buffer (YY_BUFFER_STATE b  );
+void modelyy_flush_buffer (YY_BUFFER_STATE b  );
+void modelyypush_buffer_state (YY_BUFFER_STATE new_buffer  );
+void modelyypop_buffer_state (void );
 
-YY_BUFFER_STATE shellyy_scan_buffer (char *base,yy_size_t size  );
-YY_BUFFER_STATE shellyy_scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE shellyy_scan_bytes (yyconst char *bytes,yy_size_t len  );
+YY_BUFFER_STATE modelyy_scan_buffer (char *base,yy_size_t size  );
+YY_BUFFER_STATE modelyy_scan_string (yyconst char *yy_str  );
+YY_BUFFER_STATE modelyy_scan_bytes (yyconst char *bytes,yy_size_t len  );
 
-void *shellyyalloc (yy_size_t  );
-void *shellyyrealloc (void *,yy_size_t  );
-void shellyyfree (void *  );
+void *modelyyalloc (yy_size_t  );
+void *modelyyrealloc (void *,yy_size_t  );
+void modelyyfree (void *  );
 
 /* Begin user sect3 */
 
-#define shellyywrap() 1
+#define modelyywrap() 1
 #define YY_SKIP_YYWRAP
 
-extern int shellyylineno;
+extern int modelyylineno;
 
-extern char *shellyytext;
-#define yytext_ptr shellyytext
+extern char *modelyytext;
+#define yytext_ptr modelyytext
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
@@ -229,31 +229,31 @@ extern char *shellyytext;
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int shellyylex_destroy (void );
+int modelyylex_destroy (void );
 
-int shellyyget_debug (void );
+int modelyyget_debug (void );
 
-void shellyyset_debug (int debug_flag  );
+void modelyyset_debug (int debug_flag  );
 
-YY_EXTRA_TYPE shellyyget_extra (void );
+YY_EXTRA_TYPE modelyyget_extra (void );
 
-void shellyyset_extra (YY_EXTRA_TYPE user_defined  );
+void modelyyset_extra (YY_EXTRA_TYPE user_defined  );
 
-FILE *shellyyget_in (void );
+FILE *modelyyget_in (void );
 
-void shellyyset_in  (FILE * in_str  );
+void modelyyset_in  (FILE * in_str  );
 
-FILE *shellyyget_out (void );
+FILE *modelyyget_out (void );
 
-void shellyyset_out  (FILE * out_str  );
+void modelyyset_out  (FILE * out_str  );
 
-yy_size_t shellyyget_leng (void );
+yy_size_t modelyyget_leng (void );
 
-char *shellyyget_text (void );
+char *modelyyget_text (void );
 
-int shellyyget_lineno (void );
+int modelyyget_lineno (void );
 
-void shellyyset_lineno (int line_number  );
+void modelyyset_lineno (int line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -261,9 +261,9 @@ void shellyyset_lineno (int line_number  );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int shellyywrap (void );
+extern "C" int modelyywrap (void );
 #else
-extern int shellyywrap (void );
+extern int modelyywrap (void );
 #endif
 #endif
 
@@ -295,9 +295,9 @@ static int yy_flex_strlen (yyconst char * );
 #ifndef YY_DECL
 #define YY_DECL_IS_OURS 1
 
-extern int shellyylex (void);
+extern int modelyylex (void);
 
-#define YY_DECL int shellyylex (void)
+#define YY_DECL int modelyylex (void)
 #endif /* !YY_DECL */
 
 /* yy_get_previous_state - get the state just before the EOB char was reached */
@@ -314,9 +314,9 @@ extern int shellyylex (void);
 #undef YY_DECL
 #endif
 
-#line 29 "ShellScanner.l"
+#line 31 "ModelScanner.l"
 
 
-#line 321 "ShellScanner.hpp"
-#undef shellyyIN_HEADER
-#endif /* shellyyHEADER_H */
+#line 321 "ModelScanner.hpp"
+#undef modelyyIN_HEADER
+#endif /* modelyyHEADER_H */

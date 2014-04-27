@@ -1,5 +1,7 @@
 `ProtoScale 3 Bus Model`
 
+model ThreeBus:
+
 import Power;
 
 create Bus b0, b1, b3;
@@ -31,3 +33,5 @@ connect
 connect 
   g0 source s0 zl,
   g1 source s1 zl;
+
+:: `end of model ThreeBus`

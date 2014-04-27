@@ -1,28 +1,28 @@
 %{
-#include "ShellAST.hpp"
+#include "ModelAST.hpp"
 #include <iostream>
-ps::shell::Commands *sh_cmds;
+ps::model::Model *mdl;
 extern int yylex();
-using namespace ps::shell;
-#define CURRLINE shellyylloc.first_line
+using namespace ps::model;
+#define CURRLINE modelyylloc.first_line
 %}
 
 %locations
 %error-verbose
 
 %union {
-  ps::shell::Command *command;
-  ps::shell::Commands *commands;
-  ps::shell::Import *import;
-  ps::shell::Create *create;
-  ps::shell::Connect *connect;
-  ps::shell::CreateFormat *c_fmt;
-  ps::shell::CreateArgs *c_args;
-  ps::shell::CreateTarget *c_tgt;
-  ps::shell::CreateTargets *c_tgts;
+  ps::model::Command *command;
+  ps::model::Commands *commands;
+  ps::model::Import *import;
+  ps::model::Create *create;
+  ps::model::Connect *connect;
+  ps::model::CreateFormat *c_fmt;
+  ps::model::CreateArgs *c_args;
+  ps::model::CreateTarget *c_tgt;
+  ps::model::CreateTargets *c_tgts;
   std::vector<std::string> *strings;
-  ps::shell::Connection *connection;
-  ps::shell::Connections *connections;
+  ps::model::Connection *connection;
+  ps::model::Connections *connections;
   std::string *string;
   int token;
   bool boolean;
@@ -31,14 +31,15 @@ using namespace ps::shell;
 %{
   void yyerror(const char *s) 
   { 
-    printf("error[%d]: %s\n", shellyylloc.first_line, s); 
+    printf("error[%d]: %s\n", modelyylloc.first_line, s); 
   }
 %}
 
 %token <string> TL_IDENT TL_REAL
-%token <token> TK_IMPORT TK_CREATE TK_CONNECT TK_SYMMETRIC
-%token <token> TO_SEMI TO_COMMA TS_OBR TS_CBR
+%token <token> TK_IMPORT TK_CREATE TK_CONNECT TK_SYMMETRIC TK_MODEL
+%token <token> TO_SEMI TO_COMMA TO_COLON TS_OBR TS_CBR
 
+%type <model> model
 %type <commands> commands
 %type <command> command create import connect
 %type<c_fmt> cr_format
@@ -51,12 +52,15 @@ using namespace ps::shell;
 %type<boolean> symmetric
 
 
-%start commands
+%start model
 
 %%
 
-commands: command { sh_cmds = new Commands(); sh_cmds->push_back($1); } 
-        | commands command { sh_cmds->push_back($2); }
+model: TK_MODEL TL_IDENT TO_COLON commands TO_COLON TO_COLON { mdl = new Model(*$2, $4, CURRLINE); }
+     ;
+
+commands: command { $$ = new Commands(); $$->push_back($1); } 
+        | commands command { $1->push_back($2); }
         ;
 
 command: import TO_SEMI { $$ = $1; }

@@ -2,7 +2,7 @@
 #define _PS_METASEMA_
 
 #include "MetaAST.hpp"
-#include "ShellAST.hpp"
+#include "ModelAST.hpp"
 #include "FileUtil.hpp"
 #include "CompilationException.hpp"
 
@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 extern ps::meta::Module *mm;
-extern ps::shell::Commands *sh_cmds;
+extern ps::model::Model *mdl;
 
 namespace ps {
 
@@ -24,8 +24,8 @@ struct ModuleFragment
 
 struct ShellFragment
 {
-  ShellFragment(shell::Commands *c, std::string fn) : c{c}, filename{fn} {}
-  shell::Commands *c;
+  ShellFragment(model::Commands *c, std::string fn) : c{c}, filename{fn} {}
+  model::Commands *c;
   std::string filename;
 };
 
@@ -50,7 +50,7 @@ class Sema
                       > cmd_source_map;
 
     meta::Module* buildMetaAst(const std::string&);
-    shell::Commands* buildShellAst(const std::string&);
+    model::Model* buildShellAst(const std::string&);
     
     void check(const meta::Module*);
 
@@ -116,23 +116,23 @@ class Sema
                                     const std::string&, const meta::Link*, 
                                     const std::string&, const meta::Node*);
 
-    //Shell command checks
-    void check(shell::Commands*);
+    //Model command checks
+    void check(model::Model*);
 
-    std::vector<ModuleFragment> check_Import(const shell::Import*);
-    void check_Create(shell::Create*, 
+    std::vector<ModuleFragment> check_Import(const model::Import*);
+    void check_Create(model::Create*, 
                       const std::vector<ModuleFragment>&);
 
-    void check_CreateType(shell::Create*,
+    void check_CreateType(model::Create*,
                           const std::vector<ModuleFragment>&);
 
-    void check_CreateParamsLegit(shell::Create*);
-    void check_CreateRequiredParams(shell::Create*);
-    void check_CreateArgsParamList(shell::Create*);
-    void check_ConnectReferences(shell::Connect*, shell::Commands*);
-    void check_ConnectionReferences(shell::Connection*, shell::Commands*);
-    void check_ConnectInterlate(shell::Connect*);
-    void check_ConnectInterlate(shell::Connection*);
+    void check_CreateParamsLegit(model::Create*);
+    void check_CreateRequiredParams(model::Create*);
+    void check_CreateArgsParamList(model::Create*);
+    void check_ConnectReferences(model::Connect*, model::Model*);
+    void check_ConnectionReferences(model::Connection*, model::Model*);
+    void check_ConnectInterlate(model::Connect*);
+    void check_ConnectInterlate(model::Connection*);
     
 
     void undefined_Var(const std::string&, const meta::Lexeme*);

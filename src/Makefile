@@ -18,7 +18,7 @@ LIB_PARSE_OBJS=\
 FileUtil.o \
 MetaParser.o MetaScanner.o MetaAST.o MetaASTPrinter.o Sema.o \
 CommandParser.o CommandScanner.o CommandAST.o \
-ShellParser.o ShellScanner.o ShellAST.o
+ModelParser.o ModelScanner.o ModelAST.o
 
 LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
 
@@ -48,7 +48,8 @@ FileUtil.o : FileUtil.cpp FileUtil.hpp
 MetaParser.o : MetaParser.cpp MetaParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-Sema.o : Sema.cpp Sema.hpp CompilationException.hpp
+Sema.o : Sema.cpp Sema.hpp CompilationException.hpp MetaParser.hpp ModelParser.hpp \
+				 MetaScanner.hpp ModelScanner.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 MetaParser.cpp: MetaParser.y MetaAST.hpp
@@ -66,27 +67,27 @@ MetaScanner.cpp: MetaScanner.l MetaAST.hpp
 MetaScanner.hpp: MetaScanner.cpp
 	#^^
 
-# Shell Language --------------------------------------------------------------
+# Model Language --------------------------------------------------------------
 
-ShellAST.o : ShellAST.cpp ShellAST.hpp
+ModelAST.o : ModelAST.cpp ModelAST.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-ShellParser.o : ShellParser.cpp ShellParser.hpp
+ModelParser.o : ModelParser.cpp ModelParser.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-ShellParser.cpp : ShellParser.y ShellAST.hpp
-	$(BISON) -p shellyy -d -o $@ $<
+ModelParser.cpp : ModelParser.y ModelAST.hpp
+	$(BISON) -p modelyy -d -o $@ $<
 
-ShellParser.hpp: ShellParser.cpp
+ModelParser.hpp: ModelParser.cpp
 	#^^
 
-ShellScanner.o : ShellScanner.cpp ShellScanner.hpp
+ModelScanner.o : ModelScanner.cpp ModelScanner.hpp
 	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
-ShellScanner.cpp: ShellScanner.l ShellAST.hpp
-	$(FLEX) -P shellyy --header-file=ShellScanner.hpp -o $@ $<
+ModelScanner.cpp: ModelScanner.l ModelAST.hpp
+	$(FLEX) -P modelyy --header-file=ModelScanner.hpp -o $@ $<
 
-ShellScanner.hpp: ShellScanner.cpp
+ModelScanner.hpp: ModelScanner.cpp
 	#^^
 
 # Command Language ------------------------------------------------------------
@@ -121,5 +122,6 @@ clean:
 	rm -f *.so
 	rm -f proto
 	rm -f MetaParser.cpp MetaScanner.cpp MetaParser.hpp MetaScanner.hpp
+	rm -f ModelParser.cpp ModelParser.hpp ModelScanner.cpp ModelScanner.hpp
 	rm -f CommandScanner.cpp CommandScanner.hpp CommandParser.hpp CommandParser.cpp
 

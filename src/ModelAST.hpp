@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-namespace ps { namespace shell {
+namespace ps { namespace model {
 
 struct Lexeme
 {
@@ -29,6 +29,15 @@ struct Command
     Kind _kind;
 };
 using Commands = std::vector<Command*>;
+
+struct Model : public Lexeme
+{
+  std::string name;
+  Commands *commands;
+
+  Model(std::string n, Commands *c, size_t l) 
+    : Lexeme{l}, name{n}, commands{c} {}
+};
 
 struct Import : public Command, public Lexeme
 {

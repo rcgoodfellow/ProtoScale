@@ -30,14 +30,14 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_SHELLYY_SHELLPARSER_HPP_INCLUDED
-# define YY_SHELLYY_SHELLPARSER_HPP_INCLUDED
+#ifndef YY_MODELYY_MODELPARSER_HPP_INCLUDED
+# define YY_MODELYY_MODELPARSER_HPP_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int shellyydebug;
+extern int modelyydebug;
 #endif
 
 /* Token type.  */
@@ -51,10 +51,12 @@ extern int shellyydebug;
     TK_CREATE = 261,
     TK_CONNECT = 262,
     TK_SYMMETRIC = 263,
-    TO_SEMI = 264,
-    TO_COMMA = 265,
-    TS_OBR = 266,
-    TS_CBR = 267
+    TK_MODEL = 264,
+    TO_SEMI = 265,
+    TO_COMMA = 266,
+    TO_COLON = 267,
+    TS_OBR = 268,
+    TS_CBR = 269
   };
 #endif
 
@@ -63,25 +65,25 @@ extern int shellyydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 13 "ShellParser.y" /* yacc.c:1915  */
+#line 13 "ModelParser.y" /* yacc.c:1915  */
 
-  ps::shell::Command *command;
-  ps::shell::Commands *commands;
-  ps::shell::Import *import;
-  ps::shell::Create *create;
-  ps::shell::Connect *connect;
-  ps::shell::CreateFormat *c_fmt;
-  ps::shell::CreateArgs *c_args;
-  ps::shell::CreateTarget *c_tgt;
-  ps::shell::CreateTargets *c_tgts;
+  ps::model::Command *command;
+  ps::model::Commands *commands;
+  ps::model::Import *import;
+  ps::model::Create *create;
+  ps::model::Connect *connect;
+  ps::model::CreateFormat *c_fmt;
+  ps::model::CreateArgs *c_args;
+  ps::model::CreateTarget *c_tgt;
+  ps::model::CreateTargets *c_tgts;
   std::vector<std::string> *strings;
-  ps::shell::Connection *connection;
-  ps::shell::Connections *connections;
+  ps::model::Connection *connection;
+  ps::model::Connections *connections;
   std::string *string;
   int token;
   bool boolean;
 
-#line 85 "ShellParser.hpp" /* yacc.c:1915  */
+#line 87 "ModelParser.hpp" /* yacc.c:1915  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -102,8 +104,8 @@ struct YYLTYPE
 #endif
 
 
-extern YYSTYPE shellyylval;
-extern YYLTYPE shellyylloc;
-int shellyyparse (void);
+extern YYSTYPE modelyylval;
+extern YYLTYPE modelyylloc;
+int modelyyparse (void);
 
-#endif /* !YY_SHELLYY_SHELLPARSER_HPP_INCLUDED  */
+#endif /* !YY_MODELYY_MODELPARSER_HPP_INCLUDED  */

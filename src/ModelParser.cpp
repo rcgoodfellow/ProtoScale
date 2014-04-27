@@ -60,27 +60,27 @@
 
 
 /* Substitute the variable and function names.  */
-#define yyparse         shellyyparse
-#define yylex           shellyylex
-#define yyerror         shellyyerror
-#define yydebug         shellyydebug
-#define yynerrs         shellyynerrs
+#define yyparse         modelyyparse
+#define yylex           modelyylex
+#define yyerror         modelyyerror
+#define yydebug         modelyydebug
+#define yynerrs         modelyynerrs
 
-#define yylval          shellyylval
-#define yychar          shellyychar
-#define yylloc          shellyylloc
+#define yylval          modelyylval
+#define yychar          modelyychar
+#define yylloc          modelyylloc
 
 /* Copy the first part of user declarations.  */
-#line 1 "ShellParser.y" /* yacc.c:339  */
+#line 1 "ModelParser.y" /* yacc.c:339  */
 
-#include "ShellAST.hpp"
+#include "ModelAST.hpp"
 #include <iostream>
-ps::shell::Commands *sh_cmds;
+ps::model::Model *mdl;
 extern int yylex();
-using namespace ps::shell;
-#define CURRLINE shellyylloc.first_line
+using namespace ps::model;
+#define CURRLINE modelyylloc.first_line
 
-#line 84 "ShellParser.cpp" /* yacc.c:339  */
+#line 84 "ModelParser.cpp" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -99,15 +99,15 @@ using namespace ps::shell;
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "ShellParser.hpp".  */
-#ifndef YY_SHELLYY_SHELLPARSER_HPP_INCLUDED
-# define YY_SHELLYY_SHELLPARSER_HPP_INCLUDED
+   by #include "ModelParser.hpp".  */
+#ifndef YY_MODELYY_MODELPARSER_HPP_INCLUDED
+# define YY_MODELYY_MODELPARSER_HPP_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int shellyydebug;
+extern int modelyydebug;
 #endif
 
 /* Token type.  */
@@ -121,10 +121,12 @@ extern int shellyydebug;
     TK_CREATE = 261,
     TK_CONNECT = 262,
     TK_SYMMETRIC = 263,
-    TO_SEMI = 264,
-    TO_COMMA = 265,
-    TS_OBR = 266,
-    TS_CBR = 267
+    TK_MODEL = 264,
+    TO_SEMI = 265,
+    TO_COMMA = 266,
+    TO_COLON = 267,
+    TS_OBR = 268,
+    TS_CBR = 269
   };
 #endif
 
@@ -133,25 +135,25 @@ extern int shellyydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 13 "ShellParser.y" /* yacc.c:355  */
+#line 13 "ModelParser.y" /* yacc.c:355  */
 
-  ps::shell::Command *command;
-  ps::shell::Commands *commands;
-  ps::shell::Import *import;
-  ps::shell::Create *create;
-  ps::shell::Connect *connect;
-  ps::shell::CreateFormat *c_fmt;
-  ps::shell::CreateArgs *c_args;
-  ps::shell::CreateTarget *c_tgt;
-  ps::shell::CreateTargets *c_tgts;
+  ps::model::Command *command;
+  ps::model::Commands *commands;
+  ps::model::Import *import;
+  ps::model::Create *create;
+  ps::model::Connect *connect;
+  ps::model::CreateFormat *c_fmt;
+  ps::model::CreateArgs *c_args;
+  ps::model::CreateTarget *c_tgt;
+  ps::model::CreateTargets *c_tgts;
   std::vector<std::string> *strings;
-  ps::shell::Connection *connection;
-  ps::shell::Connections *connections;
+  ps::model::Connection *connection;
+  ps::model::Connections *connections;
   std::string *string;
   int token;
   bool boolean;
 
-#line 155 "ShellParser.cpp" /* yacc.c:355  */
+#line 157 "ModelParser.cpp" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -172,21 +174,21 @@ struct YYLTYPE
 #endif
 
 
-extern YYSTYPE shellyylval;
-extern YYLTYPE shellyylloc;
-int shellyyparse (void);
+extern YYSTYPE modelyylval;
+extern YYLTYPE modelyylloc;
+int modelyyparse (void);
 
-#endif /* !YY_SHELLYY_SHELLPARSER_HPP_INCLUDED  */
+#endif /* !YY_MODELYY_MODELPARSER_HPP_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
-#line 31 "ShellParser.y" /* yacc.c:358  */
+#line 31 "ModelParser.y" /* yacc.c:358  */
 
   void yyerror(const char *s) 
   { 
-    printf("error[%d]: %s\n", shellyylloc.first_line, s); 
+    printf("error[%d]: %s\n", modelyylloc.first_line, s); 
   }
 
-#line 190 "ShellParser.cpp" /* yacc.c:358  */
+#line 192 "ModelParser.cpp" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -428,23 +430,23 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  13
+#define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   33
+#define YYLAST   39
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  13
+#define YYNTOKENS  15
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  15
+#define YYNNTS  16
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  25
+#define YYNRULES  26
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  45
+#define YYNSTATES  51
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   267
+#define YYMAXUTOK   269
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -479,16 +481,16 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    58,    58,    59,    62,    63,    64,    67,    70,    74,
-      75,    78,    79,    82,    83,    86,    89,    90,    93,    94,
-      97,   100,   101,   104,   105,   108
+       0,    59,    59,    62,    63,    66,    67,    68,    71,    74,
+      78,    79,    82,    83,    86,    87,    90,    93,    94,    97,
+      98,   101,   104,   105,   108,   109,   112
 };
 #endif
 
@@ -498,10 +500,11 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "TL_IDENT", "TL_REAL", "TK_IMPORT",
-  "TK_CREATE", "TK_CONNECT", "TK_SYMMETRIC", "TO_SEMI", "TO_COMMA",
-  "TS_OBR", "TS_CBR", "$accept", "commands", "command", "import", "create",
-  "cr_format", "names", "cr_tgts", "cr_tgt", "cr_tgt_args", "reals",
-  "connect", "symmetric", "connections", "connection", YY_NULLPTR
+  "TK_CREATE", "TK_CONNECT", "TK_SYMMETRIC", "TK_MODEL", "TO_SEMI",
+  "TO_COMMA", "TO_COLON", "TS_OBR", "TS_CBR", "$accept", "model",
+  "commands", "command", "import", "create", "cr_format", "names",
+  "cr_tgts", "cr_tgt", "cr_tgt_args", "reals", "connect", "symmetric",
+  "connections", "connection", YY_NULLPTR
 };
 #endif
 
@@ -511,14 +514,14 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267
+     265,   266,   267,   268,   269
 };
 # endif
 
-#define YYPACT_NINF -9
+#define YYPACT_NINF -15
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-9)))
+  (!!((Yystate) == (-15)))
 
 #define YYTABLE_NINF -1
 
@@ -529,11 +532,12 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -4,     1,     9,     5,     0,    -9,     6,     7,     8,    -9,
-       3,    -9,    15,    -9,    -9,    -9,    -9,    -9,    16,    17,
-      18,    12,    -9,    -9,    -2,    13,    19,    -9,    20,    15,
-      22,    -9,    23,    -9,    17,    25,    -9,    -9,    -9,    -1,
-      -9,    -9,    26,    -9,    -9
+       3,     1,    13,     2,   -15,     4,    12,    14,     8,    -5,
+     -15,     9,    10,    11,   -15,     5,   -15,    19,    15,   -15,
+     -15,   -15,   -15,    20,    21,    22,    17,   -15,   -15,   -15,
+      -8,    16,    23,   -15,    27,    19,    28,   -15,    29,   -15,
+      21,    32,   -15,   -15,   -15,    -6,   -15,   -15,    33,   -15,
+     -15
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -541,25 +545,26 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,    21,     0,     2,     0,     0,     0,     7,
-       9,    22,     0,     1,     3,     4,     5,     6,     0,     0,
-       0,    20,    23,    11,     0,    16,     8,    13,     0,     0,
-       0,    10,     0,    15,     0,     0,    24,    12,    18,     0,
-      14,    25,     0,    17,    19
+       0,     0,     0,     0,     1,     0,     0,     0,    22,     0,
+       3,     0,     0,     0,     8,    10,    23,     0,     0,     4,
+       5,     6,     7,     0,     0,     0,    21,    24,     2,    12,
+       0,    17,     9,    14,     0,     0,     0,    11,     0,    16,
+       0,     0,    25,    13,    19,     0,    15,    26,     0,    18,
+      20
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -9,    -9,    27,    -9,    -9,    -9,    -9,    -9,    -8,    -9,
-      -9,    -9,    -9,    -9,     4
+     -15,   -15,   -15,    30,   -15,   -15,   -15,   -15,   -15,   -14,
+     -15,   -15,   -15,   -15,   -15,    -3
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5,     6,     7,    19,    24,    26,    27,    33,
-      39,     8,    12,    21,    22
+      -1,     2,     9,    10,    11,    12,    24,    30,    32,    33,
+      39,    45,    13,    17,    26,    27
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -567,45 +572,46 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      13,     1,     2,     3,     9,     1,     2,     3,    30,    42,
-      31,    43,    10,    11,    18,    15,    16,    17,    20,    23,
-      25,    28,    29,    35,    32,    37,    40,    38,    41,    34,
-      44,    14,     0,    36
+       6,     7,     8,    36,     3,    48,    37,    18,    49,     6,
+       7,     8,     1,     4,     5,    14,    16,    15,    23,    20,
+      21,    22,    25,    29,    31,    34,    46,    28,    35,    38,
+      41,    43,    42,    44,    40,    47,     0,    50,     0,    19
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     5,     6,     7,     3,     5,     6,     7,    10,    10,
-      12,    12,     3,     8,    11,     9,     9,     9,     3,     3,
-       3,     3,    10,     3,    11,     3,    34,     4,     3,    10,
-       4,     4,    -1,    29
+       5,     6,     7,    11,     3,    11,    14,    12,    14,     5,
+       6,     7,     9,     0,    12,     3,     8,     3,    13,    10,
+      10,    10,     3,     3,     3,     3,    40,    12,    11,    13,
+       3,     3,    35,     4,    11,     3,    -1,     4,    -1,     9
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     5,     6,     7,    14,    15,    16,    17,    24,     3,
-       3,     8,    25,     0,    15,     9,     9,     9,    11,    18,
-       3,    26,    27,     3,    19,     3,    20,    21,     3,    10,
-      10,    12,    11,    22,    10,     3,    27,     3,     4,    23,
-      21,     3,    10,    12,     4
+       0,     9,    16,     3,     0,    12,     5,     6,     7,    17,
+      18,    19,    20,    27,     3,     3,     8,    28,    12,    18,
+      10,    10,    10,    13,    21,     3,    29,    30,    12,     3,
+      22,     3,    23,    24,     3,    11,    11,    14,    13,    25,
+      11,     3,    30,     3,     4,    26,    24,     3,    11,    14,
+       4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    13,    14,    14,    15,    15,    15,    16,    17,    18,
-      18,    19,    19,    20,    20,    21,    22,    22,    23,    23,
-      24,    25,    25,    26,    26,    27
+       0,    15,    16,    17,    17,    18,    18,    18,    19,    20,
+      21,    21,    22,    22,    23,    23,    24,    25,    25,    26,
+      26,    27,    28,    28,    29,    29,    30
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     2,     2,     2,     2,     4,     0,
-       3,     1,     3,     1,     3,     2,     0,     3,     1,     3,
-       3,     0,     1,     1,     3,     4
+       0,     2,     6,     1,     2,     2,     2,     2,     2,     4,
+       0,     3,     1,     3,     1,     3,     2,     0,     3,     1,
+       3,     3,     0,     1,     1,     3,     4
 };
 
 
@@ -1375,151 +1381,157 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 58 "ShellParser.y" /* yacc.c:1661  */
-    { sh_cmds = new Commands(); sh_cmds->push_back((yyvsp[0].command)); }
-#line 1381 "ShellParser.cpp" /* yacc.c:1661  */
+#line 59 "ModelParser.y" /* yacc.c:1661  */
+    { mdl = new Model(*(yyvsp[-4].string), (yyvsp[-2].commands), CURRLINE); }
+#line 1387 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 3:
-#line 59 "ShellParser.y" /* yacc.c:1661  */
-    { sh_cmds->push_back((yyvsp[0].command)); }
-#line 1387 "ShellParser.cpp" /* yacc.c:1661  */
+#line 62 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.commands) = new Commands(); (yyval.commands)->push_back((yyvsp[0].command)); }
+#line 1393 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 4:
-#line 62 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.command) = (yyvsp[-1].command); }
-#line 1393 "ShellParser.cpp" /* yacc.c:1661  */
+#line 63 "ModelParser.y" /* yacc.c:1661  */
+    { (yyvsp[-1].commands)->push_back((yyvsp[0].command)); }
+#line 1399 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 5:
-#line 63 "ShellParser.y" /* yacc.c:1661  */
+#line 66 "ModelParser.y" /* yacc.c:1661  */
     { (yyval.command) = (yyvsp[-1].command); }
-#line 1399 "ShellParser.cpp" /* yacc.c:1661  */
+#line 1405 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 6:
-#line 64 "ShellParser.y" /* yacc.c:1661  */
+#line 67 "ModelParser.y" /* yacc.c:1661  */
     { (yyval.command) = (yyvsp[-1].command); }
-#line 1405 "ShellParser.cpp" /* yacc.c:1661  */
+#line 1411 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 7:
-#line 67 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.command) = new Import(*(yyvsp[0].string), CURRLINE); }
-#line 1411 "ShellParser.cpp" /* yacc.c:1661  */
+#line 68 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.command) = (yyvsp[-1].command); }
+#line 1417 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 8:
-#line 71 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.command) = new Create(*(yyvsp[-2].string), (yyvsp[-1].c_fmt), (yyvsp[0].c_tgts), CURRLINE); }
-#line 1417 "ShellParser.cpp" /* yacc.c:1661  */
+#line 71 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.command) = new Import(*(yyvsp[0].string), CURRLINE); }
+#line 1423 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 9:
-#line 74 "ShellParser.y" /* yacc.c:1661  */
-    {(yyval.c_fmt) = new CreateFormat(CURRLINE); }
-#line 1423 "ShellParser.cpp" /* yacc.c:1661  */
+#line 75 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.command) = new Create(*(yyvsp[-2].string), (yyvsp[-1].c_fmt), (yyvsp[0].c_tgts), CURRLINE); }
+#line 1429 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 10:
-#line 75 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.c_fmt) = new CreateFormat(CURRLINE, (yyvsp[-1].strings)); }
-#line 1429 "ShellParser.cpp" /* yacc.c:1661  */
+#line 78 "ModelParser.y" /* yacc.c:1661  */
+    {(yyval.c_fmt) = new CreateFormat(CURRLINE); }
+#line 1435 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 11:
-#line 78 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.strings) = new std::vector<std::string>(); (yyval.strings)->push_back(*(yyvsp[0].string)); }
-#line 1435 "ShellParser.cpp" /* yacc.c:1661  */
+#line 79 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.c_fmt) = new CreateFormat(CURRLINE, (yyvsp[-1].strings)); }
+#line 1441 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 12:
-#line 79 "ShellParser.y" /* yacc.c:1661  */
-    { (yyvsp[-2].strings)->push_back(*(yyvsp[0].string)); }
-#line 1441 "ShellParser.cpp" /* yacc.c:1661  */
+#line 82 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.strings) = new std::vector<std::string>(); (yyval.strings)->push_back(*(yyvsp[0].string)); }
+#line 1447 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 13:
-#line 82 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.c_tgts) = new CreateTargets(); (yyval.c_tgts)->push_back((yyvsp[0].c_tgt)); }
-#line 1447 "ShellParser.cpp" /* yacc.c:1661  */
+#line 83 "ModelParser.y" /* yacc.c:1661  */
+    { (yyvsp[-2].strings)->push_back(*(yyvsp[0].string)); }
+#line 1453 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 14:
-#line 83 "ShellParser.y" /* yacc.c:1661  */
-    { (yyvsp[-2].c_tgts)->push_back((yyvsp[0].c_tgt)); }
-#line 1453 "ShellParser.cpp" /* yacc.c:1661  */
+#line 86 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.c_tgts) = new CreateTargets(); (yyval.c_tgts)->push_back((yyvsp[0].c_tgt)); }
+#line 1459 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 15:
-#line 86 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.c_tgt) = new CreateTarget(*(yyvsp[-1].string), (yyvsp[0].c_args), CURRLINE); }
-#line 1459 "ShellParser.cpp" /* yacc.c:1661  */
+#line 87 "ModelParser.y" /* yacc.c:1661  */
+    { (yyvsp[-2].c_tgts)->push_back((yyvsp[0].c_tgt)); }
+#line 1465 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 16:
-#line 89 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.c_args) = new CreateArgs(CURRLINE); }
-#line 1465 "ShellParser.cpp" /* yacc.c:1661  */
+#line 90 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.c_tgt) = new CreateTarget(*(yyvsp[-1].string), (yyvsp[0].c_args), CURRLINE); }
+#line 1471 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 17:
-#line 90 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.c_args) = (yyvsp[-1].c_args); }
-#line 1471 "ShellParser.cpp" /* yacc.c:1661  */
+#line 93 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.c_args) = new CreateArgs(CURRLINE); }
+#line 1477 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 18:
-#line 93 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.c_args) = new CreateArgs(CURRLINE); (yyval.c_args)->vals.push_back(*(yyvsp[0].string)); }
-#line 1477 "ShellParser.cpp" /* yacc.c:1661  */
+#line 94 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.c_args) = (yyvsp[-1].c_args); }
+#line 1483 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 19:
-#line 94 "ShellParser.y" /* yacc.c:1661  */
-    { (yyvsp[-2].c_args)->vals.push_back(*(yyvsp[0].string)); }
-#line 1483 "ShellParser.cpp" /* yacc.c:1661  */
+#line 97 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.c_args) = new CreateArgs(CURRLINE); (yyval.c_args)->vals.push_back(*(yyvsp[0].string)); }
+#line 1489 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 20:
-#line 97 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.command) = new Connect((yyvsp[0].connections), (yyvsp[-1].boolean), CURRLINE); }
-#line 1489 "ShellParser.cpp" /* yacc.c:1661  */
+#line 98 "ModelParser.y" /* yacc.c:1661  */
+    { (yyvsp[-2].c_args)->vals.push_back(*(yyvsp[0].string)); }
+#line 1495 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 21:
-#line 100 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.boolean) = false; }
-#line 1495 "ShellParser.cpp" /* yacc.c:1661  */
+#line 101 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.command) = new Connect((yyvsp[0].connections), (yyvsp[-1].boolean), CURRLINE); }
+#line 1501 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 22:
-#line 101 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.boolean) = true; }
-#line 1501 "ShellParser.cpp" /* yacc.c:1661  */
+#line 104 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.boolean) = false; }
+#line 1507 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 23:
-#line 104 "ShellParser.y" /* yacc.c:1661  */
-    { (yyval.connections) = new Connections; (yyval.connections)->push_back((yyvsp[0].connection)); }
-#line 1507 "ShellParser.cpp" /* yacc.c:1661  */
+#line 105 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.boolean) = true; }
+#line 1513 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 24:
-#line 105 "ShellParser.y" /* yacc.c:1661  */
-    {(yyvsp[-2].connections)->push_back((yyvsp[0].connection)); }
-#line 1513 "ShellParser.cpp" /* yacc.c:1661  */
+#line 108 "ModelParser.y" /* yacc.c:1661  */
+    { (yyval.connections) = new Connections; (yyval.connections)->push_back((yyvsp[0].connection)); }
+#line 1519 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
   case 25:
-#line 109 "ShellParser.y" /* yacc.c:1661  */
+#line 109 "ModelParser.y" /* yacc.c:1661  */
+    {(yyvsp[-2].connections)->push_back((yyvsp[0].connection)); }
+#line 1525 "ModelParser.cpp" /* yacc.c:1661  */
+    break;
+
+  case 26:
+#line 113 "ModelParser.y" /* yacc.c:1661  */
     { (yyval.connection) = new Connection(*(yyvsp[-3].string), *(yyvsp[-2].string), *(yyvsp[-1].string), *(yyvsp[0].string), CURRLINE); }
-#line 1519 "ShellParser.cpp" /* yacc.c:1661  */
+#line 1531 "ModelParser.cpp" /* yacc.c:1661  */
     break;
 
 
-#line 1523 "ShellParser.cpp" /* yacc.c:1661  */
+#line 1535 "ModelParser.cpp" /* yacc.c:1661  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1754,6 +1766,6 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 112 "ShellParser.y" /* yacc.c:1906  */
+#line 116 "ModelParser.y" /* yacc.c:1906  */
 
 

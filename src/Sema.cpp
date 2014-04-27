@@ -2,8 +2,8 @@
 #include "MetaParser.hpp"
 #include "MetaScanner.hpp"
 
-#include "ShellParser.hpp"
-#include "ShellScanner.hpp"
+#include "ModelParser.hpp"
+#include "ModelScanner.hpp"
 
 using namespace ps;
 using namespace meta;
@@ -27,18 +27,18 @@ Sema::buildMetaAst(const string &src)
   return mm;
 }
 
-shell::Commands*
+model::Model*
 Sema::buildShellAst(const string &src)
 {
-  sh_cmds = nullptr;
+  mdl = nullptr;
   std::string source = readFile(src);
-  shellyy_scan_string(source.c_str());
-  shellyyparse();
-  if(!sh_cmds)
+  modelyy_scan_string(source.c_str());
+  modelyyparse();
+  if(!mdl)
   {
     throw std::runtime_error("compilation failed for " + src);
   }
-  return sh_cmds;
+  return mdl;
 }
 
 void
@@ -55,8 +55,8 @@ Sema::check()
     }
     else if(src_file.substr(src_file.length()-3, src_file.length()) == ".pm")
     {
-      shell::Commands *c = buildShellAst(src_file);
-      check(c);
+      model::Model *m = buildShellAst(src_file);
+      check(m);
     }
   }
 }
@@ -385,30 +385,30 @@ Sema::checkFor_InvalidReferences(const DiffRel *d, const Element *elem)
 }
 
 void
-Sema::check(shell::Commands *cs)
+Sema::check(model::Model *m)
 {
-  using K = shell::Command::Kind;
+  using K = model::Command::Kind;
   std::vector<ModuleFragment> mfrags;;
-  for(shell::Command* c : *cs)
+  for(model::Command* c : *m->commands)
   {
     switch(c->kind())
     {
       case K::Import: 
       {
         std::vector<ModuleFragment> mfs = 
-          check_Import(dynamic_cast<const shell::Import*>(c)); 
+          check_Import(dynamic_cast<const model::Import*>(c)); 
         mfrags.insert(mfrags.end(), mfs.begin(), mfs.end());
         break;    
       }
       case K::Create: 
       {
-        check_Create(dynamic_cast<shell::Create*>(c), mfrags);
+        check_Create(dynamic_cast<model::Create*>(c), mfrags);
         break;
       }
       case K::Connect:
       {
-        shell::Connect *cnx = dynamic_cast<shell::Connect*>(c);
-        check_ConnectReferences(cnx, cs);
+        model::Connect *cnx = dynamic_cast<model::Connect*>(c);
+        check_ConnectReferences(cnx, m);
         check_ConnectInterlate(cnx);
         break;
       }
@@ -417,7 +417,7 @@ Sema::check(shell::Commands *cs)
 }
 
 vector<ModuleFragment>
-Sema::check_Import(const shell::Import *i)
+Sema::check_Import(const model::Import *i)
 {
   try
   {
@@ -432,7 +432,7 @@ Sema::check_Import(const shell::Import *i)
 }
 
 void
-Sema::check_Create(shell::Create *c,
+Sema::check_Create(model::Create *c,
                    const std::vector<ModuleFragment> &mfs)
 {
   check_CreateType(c, mfs);
@@ -442,7 +442,7 @@ Sema::check_Create(shell::Create *c,
 }
 
 void 
-Sema::check_CreateType(shell::Create *c, 
+Sema::check_CreateType(model::Create *c, 
                        const std::vector<ModuleFragment> &mfs)
 {
   Element *type;
@@ -470,7 +470,7 @@ Sema::check_CreateType(shell::Create *c,
 }
 
 void
-Sema::check_CreateRequiredParams(shell::Create *c)
+Sema::check_CreateRequiredParams(model::Create *c)
 {
   bool err{false};
 
@@ -498,7 +498,7 @@ Sema::check_CreateRequiredParams(shell::Create *c)
 }
 
 void
-Sema::check_CreateParamsLegit(shell::Create *c)
+Sema::check_CreateParamsLegit(model::Create *c)
 {
   bool err{false};
 
@@ -525,11 +525,11 @@ Sema::check_CreateParamsLegit(shell::Create *c)
 }
 
 void 
-Sema::check_CreateArgsParamList(shell::Create *c)
+Sema::check_CreateArgsParamList(model::Create *c)
 {
   bool err{false};
 
-  for(const shell::CreateTarget *t : *(c->tgts))
+  for(const model::CreateTarget *t : *(c->tgts))
   {
     if(t->args->vals.size() != c->fmt->var_names->size())
     {
@@ -548,25 +548,25 @@ Sema::check_CreateArgsParamList(shell::Create *c)
 }
     
 void 
-Sema::check_ConnectReferences(shell::Connect *cn, shell::Commands *cmds)
+Sema::check_ConnectReferences(model::Connect *cn, model::Model *m)
 {
-  for(shell::Connection *c : *(cn->connections))
+  for(model::Connection *c : *(cn->connections))
   {
-    check_ConnectionReferences(c, cmds);
+    check_ConnectionReferences(c, m);
   }
 }
 
 void
-Sema::check_ConnectionReferences(shell::Connection *cnx, shell::Commands *cmds)
+Sema::check_ConnectionReferences(model::Connection *cnx, model::Model *m)
 {
-  for(shell::Command *c : *cmds)
+  for(model::Command *c : *m->commands)
   {
-    if(c->kind() == shell::Command::Kind::Create)
+    if(c->kind() == model::Command::Kind::Create)
     {
-      shell::Create *cr = dynamic_cast<shell::Create*>(c);
+      model::Create *cr = dynamic_cast<model::Create*>(c);
       if(cr->type->kind() == meta::Element::Kind::Node)
       {
-        for(shell::CreateTarget *tgt : *(cr->tgts))
+        for(model::CreateTarget *tgt : *(cr->tgts))
         {
           if(tgt->name == cnx->a)
           {
@@ -581,7 +581,7 @@ Sema::check_ConnectionReferences(shell::Connection *cnx, shell::Commands *cmds)
       }
       if(cr->type->kind() == meta::Element::Kind::Link)
       {
-        for(shell::CreateTarget *tgt : *(cr->tgts))
+        for(model::CreateTarget *tgt : *(cr->tgts))
         {
           if(tgt->name == cnx->via)
           {
@@ -617,9 +617,9 @@ Sema::check_ConnectionReferences(shell::Connection *cnx, shell::Commands *cmds)
 }
 
 void
-Sema::check_ConnectInterlate(shell::Connect *cnx)
+Sema::check_ConnectInterlate(model::Connect *cnx)
 {
-  for(shell::Connection *c : *(cnx->connections))
+  for(model::Connection *c : *(cnx->connections))
   {
     check_ConnectInterlate(c);
   }
@@ -627,7 +627,7 @@ Sema::check_ConnectInterlate(shell::Connect *cnx)
 }
 
 void
-Sema::check_ConnectInterlate(shell::Connection *cnx)
+Sema::check_ConnectInterlate(model::Connection *cnx)
 {
   if(cnx->symmetric && (cnx->ap->type != cnx->bp->type))
   {
