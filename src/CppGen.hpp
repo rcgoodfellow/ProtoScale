@@ -11,7 +11,8 @@ namespace ps { namespace gen {
 
 struct Cpp
 {
-  std::ofstream ofs;
+  std::ofstream ofs_hpp;
+  std::ofstream ofs_cpp;
   const meta::Module *module;
 
   void emit_Module(const meta::Module*);
