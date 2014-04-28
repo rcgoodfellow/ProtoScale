@@ -143,6 +143,12 @@ void
 Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n, 
                                  const Module *m)
 {
+  if(i->params.size() != 2)
+  {
+    string msg = "interlates only have two parameters, a link and a node";
+    diagnostics.push_back(Diagnostic{curr_file, i->line_no(), msg});
+    throw compilation_error{ diagnostics };
+  }
   Variable *link = i->params[0],
            *remote = i->params[1];
  

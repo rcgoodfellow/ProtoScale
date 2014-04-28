@@ -24,11 +24,13 @@ struct Cpp
   void emit_LinkForward(const meta::Link*);
 
   void emit_NodeStruct(const meta::Node*);
+  void emit_LinkStruct(const meta::Link*);
+
   void emit_ElementVars(const meta::Element*);
   void emit_ElementAliases(const meta::Element*);
+  void emit_NodeInterlates(const meta::Node*);
 
 
-  void emit_LinkStruct(const meta::Link*);
 
   void emit_Model(const model::Model*);
 };

@@ -99,6 +99,18 @@ struct Bus
     Y.imag(v)
   }
 
+  void bus(const Line &ij, const Bus &j)
+  {
+  }
+
+  void gen(const Line &ij, const Generator &j)
+  {
+  }
+
+  void load(const Line &ij, const Load &j)
+  {
+  }
+
 };
 
 struct Generator
@@ -122,6 +134,10 @@ struct Generator
   inline void q(real v)
   {
     S.imag(v)
+  }
+
+  void source(const Line &ij, const Source &i)
+  {
   }
 
 };
@@ -156,6 +172,10 @@ struct Load
   inline void q(real v)
   {
     S.imag(v)
+  }
+
+  void bus(const Line &ij, const Bus &j)
+  {
   }
 
 };

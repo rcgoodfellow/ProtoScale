@@ -81,6 +81,7 @@ Cpp::emit_NodeStruct(const meta::Node *n)
 
   emit_ElementVars(n);
   emit_ElementAliases(n);
+  emit_NodeInterlates(n);
 
   ofs << "};" << std::endl << std::endl;
 }
@@ -197,5 +198,25 @@ Cpp::emit_ElementAliases(const meta::Element *e)
 
     ofs << "  }" << std::endl
         << std::endl;
+  }
+}
+
+void
+Cpp::emit_NodeInterlates(const meta::Node *n)
+{
+  for(const meta::Interlate *i : n->interlates)
+  {
+    ofs << "  void " << i->name << "(";
+
+    const meta::Variable *lnk = i->params[0],
+                   *nod = i->params[1];
+
+    ofs << "const " << lnk->type << " &" << lnk->name << ", "
+        << "const " << nod->type << " &" << nod->name;
+
+    ofs <<  ")" << std::endl
+        << "  {" << std::endl;
+  
+    ofs << "  }" << std::endl << std::endl;
   }
 }
