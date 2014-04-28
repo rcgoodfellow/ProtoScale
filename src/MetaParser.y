@@ -35,6 +35,7 @@
   ps::meta::Accessor *accessor;
   ps::meta::Accessors *accessors;
   int token;
+  bool boolean;
 };
 
 %{
@@ -49,7 +50,7 @@
 /* Keywords */
 %token <token> TK_MODULE TK_NODE TK_LINK
 /* Built-In Types */
-%token <token> TT_REAL TT_COMPLEX
+%token <token> TT_REAL TT_COMPLEX TT_STATIC
 /* Operators */
 %token <token> TO_COLON TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ TO_SEMI TO_PRIME TO_GETS
 %token <token> TO_MUEQ TO_POW TO_DOT TO_COMMA
@@ -71,6 +72,7 @@
 %type <eqtn> eqtn
 %type <accessor> accessor
 %type <accessors> accessors
+%type <boolean> static
 
 %left TO_PLUS TO_MINUS
 %left TO_MUL TO_DIV
@@ -177,10 +179,22 @@ var_names: TL_IDENT { $$ = new std::vector<std::string*>(); $$->push_back($1); }
          | var_names TO_COMMA TL_IDENT { $1->push_back($3); }
          ;
 
-typename: TT_COMPLEX { $$ = new std::string("complex"); }
-        | TT_REAL { $$ = new std::string("real"); }
+typename: static TT_COMPLEX 
+          { 
+            if($1) { $$ = new std::string("static complex"); }
+            else { $$ = new std::string("complex"); }
+          }
+        | static TT_REAL 
+          { 
+            if($1) { $$ = new std::string("static real"); }
+            else { $$ = new std::string("real"); } 
+          }
         | TL_IDENT { $$ = $1; }
         ;
+
+static: { $$ = false; }
+      | TT_STATIC { $$ = true; }
+      ;
 
 alias: var_names TO_ASSIGN accessors
        { 

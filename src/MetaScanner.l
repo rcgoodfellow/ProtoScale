@@ -19,6 +19,7 @@
 
 "complex"                 return TOKEN(TT_COMPLEX);
 "real"                    return TOKEN(TT_REAL);
+"static"                  return TOKEN(TT_STATIC);
 
 [a-zA-Z_][a-zA-Z0-9_\.]*  SAVE_TOKEN; return TL_IDENT;
 [0-9]+(\.[0-9]*)*         SAVE_TOKEN; return TL_REAL;

@@ -113,8 +113,8 @@ Cpp::emit_ElementAliases(const meta::Element *e)
 {
   for(const meta::Alias *a : e->aliases)
   {
-    ofs << "  " << "real " << a->name << "() const { }" << std::endl;
-    ofs << "  " << "void " << a->name << "(real v) { }" << std::endl 
+    ofs << "  inline " << "real " << a->name << "() const { }" << std::endl;
+    ofs << "  inline " << "void " << a->name << "(real v) { }" << std::endl 
         << std::endl;
   }
 }
