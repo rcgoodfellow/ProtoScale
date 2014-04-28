@@ -47,9 +47,8 @@ struct Bus
   }
   inline void v(real v)
   {
-    real mag = std::abs(V);
     real angle = std::arg(V);
-    V = std::polar(mag+v, angle);
+    V = std::polar(v, angle);
   }
 
   inline real va() const
@@ -59,8 +58,7 @@ struct Bus
   inline void va(real v)
   {
     real mag = std::abs(V);
-    real angle = std::arg(V);
-    V = std::polar(mag, angle+v);
+    V = std::polar(mag, v);
   }
 
   inline real y() const
@@ -69,9 +67,8 @@ struct Bus
   }
   inline void y(real v)
   {
-    real mag = std::abs(Y);
     real angle = std::arg(Y);
-    Y = std::polar(mag+v, angle);
+    Y = std::polar(v, angle);
   }
 
   inline real ya() const
@@ -81,8 +78,7 @@ struct Bus
   inline void ya(real v)
   {
     real mag = std::abs(Y);
-    real angle = std::arg(Y);
-    Y = std::polar(mag, angle+v);
+    Y = std::polar(mag, v);
   }
 
   inline real g() const
@@ -175,9 +171,8 @@ struct Line
   }
   inline void y(real v)
   {
-    real mag = std::abs(Y);
     real angle = std::arg(Y);
-    Y = std::polar(mag+v, angle);
+    Y = std::polar(v, angle);
   }
 
   inline real ya() const
@@ -187,8 +182,7 @@ struct Line
   inline void ya(real v)
   {
     real mag = std::abs(Y);
-    real angle = std::arg(Y);
-    Y = std::polar(mag, angle+v);
+    Y = std::polar(mag, v);
   }
 
 };

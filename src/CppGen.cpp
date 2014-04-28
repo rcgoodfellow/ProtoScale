@@ -133,9 +133,8 @@ string mag_getter(string varname)
 string mag_setter(string varname, string argname, string indent)
 {
   return
-    indent + "real mag = std::abs("+varname+");\n" +
     indent + "real angle = std::arg("+varname+");\n" +
-    indent + varname+" = std::polar(mag+"+argname+", angle);";
+    indent + varname+" = std::polar("+argname+", angle);";
 }
 
 string angle_getter(string varname)
@@ -147,8 +146,7 @@ string angle_setter(string varname, string argname, string indent)
 {
   return
     indent + "real mag = std::abs("+varname+");\n" +
-    indent + "real angle = std::arg("+varname+");\n" +
-    indent + varname+" = std::polar(mag, angle+"+argname+");";
+    indent + varname+" = std::polar(mag, "+argname+");";
 }
 
 void
