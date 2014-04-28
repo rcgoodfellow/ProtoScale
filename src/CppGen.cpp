@@ -104,50 +104,61 @@ Cpp::emit_ElementVars(const meta::Element *e)
 {
   for(const meta::Variable *v : e->vars)
   {
-    ofs << "  " << v->type << " " << v->name << ";" << std::endl;
+    ofs << "  " << v->type << " _" << v->name << "_;" << std::endl;
+
+    ofs << "  inline " << v->type << " " << v->name << "()" << std::endl 
+        << "  {" << std::endl
+        << "    return " << "this->_" << v->name << "_;" << std::endl
+        << "  }" << std::endl;
+    
+    ofs << "  inline void " << v->name 
+        << "("<< v->type << " " << "v" << ")" << std::endl 
+        << "  {" << std::endl
+        << "    " << "this->_" << v->name << "_ = v;" << std::endl
+        << "  }" << std::endl << std::endl;
   }
   ofs << std::endl << std::endl;
 }
 
 string re_getter(string varname)
 {
-  return "return " + varname + ".real()";
+  return "return this->_" + varname + "_.real()";
 }
 string re_setter(string varname, string argname)
 {
-  return varname+".real("+argname+")";
+  return "this->_"+varname+"_.real("+argname+")";
 }
 
 string im_getter(string varname)
 {
-  return "return " + varname + ".imag()";
+  return "return this->_" + varname + "_.imag()";
 }
 string im_setter(string varname, string argname)
 {
-  return varname+".imag("+argname+")";
+  return "this->_"+varname+"_.imag("+argname+")";
 }
 
 string mag_getter(string varname)
 {
-  return "return std::abs(" + varname + ")";
+  return "return std::abs(this->_"+varname+"_)";
 }
 string mag_setter(string varname, string argname, string indent)
 {
   return
-    indent + "real angle = std::arg("+varname+");\n" +
-    indent + varname+" = std::polar("+argname+", angle);";
+    indent + "real angle = std::arg(this->_"+varname+"_);\n" +
+    indent + "this->_"+varname+"_ = std::polar("+argname+", angle);";
 }
 
 string angle_getter(string varname)
 {
-  return "return std::arg(" + varname + ")";
+  return "return std::arg(this->_"+varname+"_)";
 }
 
 string angle_setter(string varname, string argname, string indent)
 {
   return
-    indent + "real mag = std::abs("+varname+");\n" +
-    indent + varname+" = std::polar(mag, "+argname+");";
+    indent + "real mag = std::abs(this->_"+varname+"_);\n" +
+    indent + "this->_"+varname+"_ = std::polar(mag, "+argname+");";
 }
 
 void
