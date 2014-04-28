@@ -108,13 +108,96 @@ Cpp::emit_ElementVars(const meta::Element *e)
   ofs << std::endl << std::endl;
 }
 
+string re_getter(string varname)
+{
+  return "return " + varname + ".real()";
+}
+string re_setter(string varname, string argname)
+{
+  return varname+".real("+argname+")";
+}
+
+string im_getter(string varname)
+{
+  return "return " + varname + ".imag()";
+}
+string im_setter(string varname, string argname)
+{
+  return varname+".imag("+argname+")";
+}
+
+string mag_getter(string varname)
+{
+  return "return std::abs(" + varname + ")";
+}
+string mag_setter(string varname, string argname, string indent)
+{
+  return
+    indent + "real mag = std::abs("+varname+");\n" +
+    indent + "real angle = std::arg("+varname+");\n" +
+    indent + varname+" = std::polar(mag+"+argname+", angle);";
+}
+
+string angle_getter(string varname)
+{
+  return "return std::arg(" + varname + ")";
+}
+
+string angle_setter(string varname, string argname, string indent)
+{
+  return
+    indent + "real mag = std::abs("+varname+");\n" +
+    indent + "real angle = std::arg("+varname+");\n" +
+    indent + varname+" = std::polar(mag, angle+"+argname+");";
+}
+
 void
 Cpp::emit_ElementAliases(const meta::Element *e)
 {
   for(const meta::Alias *a : e->aliases)
   {
-    ofs << "  inline " << "real " << a->name << "() const { }" << std::endl;
-    ofs << "  inline " << "void " << a->name << "(real v) { }" << std::endl 
+    ofs << "  inline " << "real " << a->name << "() const" << std::endl
+        << "  {" << std::endl;
+
+    if(a->accessor->name == "re")
+    {
+      ofs << "    " << re_getter(a->accessor->target) << std::endl;
+    }
+    if(a->accessor->name == "im")
+    {
+      ofs << "    " << im_getter(a->accessor->target) << std::endl;
+    }
+    if(a->accessor->name == "mag")
+    {
+      ofs << "    " << mag_getter(a->accessor->target) << std::endl;
+    }
+    if(a->accessor->name == "angle")
+    {
+      ofs << "    " << angle_getter(a->accessor->target) << std::endl;
+    }
+
+    ofs << "  }" << std::endl;
+    ofs << "  inline " << "void " << a->name << "(real v)" << std::endl
+        << "  {" << std::endl;
+    
+    if(a->accessor->name == "re")
+    {
+      ofs << "    " << re_setter(a->accessor->target, "v") << std::endl;
+    }
+    if(a->accessor->name == "im")
+    {
+      ofs << "    " << im_setter(a->accessor->target, "v") << std::endl;
+    }
+    if(a->accessor->name == "mag")
+    {
+      ofs << mag_setter(a->accessor->target, "v", "    ") << std::endl;
+    }
+    if(a->accessor->name == "angle")
+    {
+      ofs << angle_setter(a->accessor->target, "v", "    ") << std::endl;
+    }
+
+    ofs << "  }" << std::endl
         << std::endl;
   }
 }

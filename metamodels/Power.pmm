@@ -14,7 +14,7 @@ node Bus:
   Y static complex;          `admittance`
   p, q  := re(S),  im(S);    `real, reactive power`
   v, va := mag(V), angle(V); `voltage magnitude and angle`
-  y, ya := mag(V), angle(Y); `admittance magnitude angle`
+  y, ya := mag(Y), angle(Y); `admittance magnitude angle`
   g, b  := re(Y),  im(Y);    `conductance susceptance`
 
   `how a bus interacts with other buses via transmission line`
@@ -39,7 +39,7 @@ node Bus:
 `                                                                             `
 `-----------------------------------------------------------------------------`
 link Line{y, ya}:
-  Y complex;
+  Y static complex;
   y, ya := mag(Y), angle(Y);
 ::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
