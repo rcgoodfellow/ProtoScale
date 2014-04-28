@@ -357,6 +357,14 @@ Sema::checkFor_InvalidReferences(const Accessor *a, const Element *e)
 {
   const Variable *v = e->getVar(a->target);
   if(!v) { undefined_Var(a->target, a); }
+
+  if(!(a->name == "re"  || a->name == "im" || 
+       a->name == "mag" || a->name == "angle"))
+  {
+    string msg = "undefined accessor " + a->name;
+    diagnostics.push_back(Diagnostic{curr_file, a->line_no(), msg});
+    throw compilation_error{ diagnostics };
+  }
 }
 
 void
