@@ -126,6 +126,7 @@ CommandScanner.hpp : CommandScanner.cpp
 clean:
 	rm -f *.o
 	rm -f *.so
+	rm -f *.pmm.hpp
 	rm -f proto
 	rm -f MetaParser.cpp MetaScanner.cpp MetaParser.hpp MetaScanner.hpp
 	rm -f ModelParser.cpp ModelParser.hpp ModelScanner.cpp ModelScanner.hpp
