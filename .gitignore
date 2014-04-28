@@ -29,6 +29,16 @@ CommandParser.cpp
 CommandParser.hpp
 CommandScanner.cpp
 CommandScanner.hpp
+ModelParser.cpp
+ModelParser.hpp
+ModelScanner.cpp
+ModelScanner.hpp
+
+#protoscale generated
+*.pmm.hpp
+*.pmm.cpp
+*.pm.hpp
+*.pm.cpp
 
 #binaries
 proto
@@ -39,3 +49,4 @@ proto
 
 #debugging info
 *.dSYM
+
