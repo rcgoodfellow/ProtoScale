@@ -68,6 +68,19 @@ Element::hasSymbol(const std::string &s) const
   return v || a || l;
 }
 
+string
+Element::symbolType(const std::string &s) const
+{
+  Variable *v = getVar(s);
+  if(v){ return v->type; }
+  Alias *a = getAlias(s);
+  if(a){ return "real"; }
+  //TODO a lazy var could be complex
+  LazyVar *l = getLazyVar(s);
+  if(l){ return "real"; }
+  return "";
+}
+
 Node*
 Module::getNode(const std::string &s) const
 {

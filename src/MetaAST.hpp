@@ -63,8 +63,16 @@ using NodeElements = std::vector<NodeElement*>;
 struct Variable : public NodeElement, public NamedLexeme
 { 
   std::string type; 
+  bool is_static{false};
   Variable(std::string n, std::string t, size_t line_no) 
-    : NodeElement{Kind::Variable}, NamedLexeme{n, line_no}, type{t} {}
+    : NodeElement{Kind::Variable}, NamedLexeme{n, line_no}, type{t} 
+  {
+    if(type.substr(0,6) == "static")
+    {
+      is_static = true;
+      type = type.substr(7, t.length());
+    }
+  }
 };
 using Variables = std::vector<Variable*>;
 
@@ -78,16 +86,16 @@ using Accessors = std::vector<Accessor*>;
 
 struct Alias : public NodeElement, public NamedLexeme
 {
-  const Accessor *accessor;
-  Alias(std::string n, const Accessor *a, size_t line_no)
+  Accessor *accessor;
+  Alias(std::string n, Accessor *a, size_t line_no)
     : NamedLexeme{n, line_no}, NodeElement{Kind::Alias}, accessor{a} {}
 };
 using Aliases = std::vector<Alias*>;
 
 struct LazyVar : public NodeElement, public NamedLexeme
 {
-  const Expr *expr;
-  LazyVar(std::string n, const Expr *e, size_t line_no)
+  Expr *expr;
+  LazyVar(std::string n, Expr *e, size_t line_no)
     : NamedLexeme{n, line_no}, NodeElement{Kind::LazyVar}, expr{e} {}
 };
 using LazyVars = std::vector<LazyVar*>;
@@ -142,6 +150,7 @@ struct Element
   Alias* getAlias(const std::string &s) const;
   LazyVar* getLazyVar(const std::string &s) const;
   bool hasSymbol(const std::string &s) const;
+  std::string symbolType(const std::string &s) const;
 
   private:
     Kind _kind;
@@ -221,21 +230,22 @@ struct Real : public Atom, public Lexeme
 struct Symbol : public Atom, public Lexeme
 {
   std::string value;
+  std::string type;
   Symbol(std::string v, size_t line_no) 
     : Lexeme{line_no}, Atom{Kind::Symbol}, value{v} {}
 };
 
 struct ExprAtom : public Atom, public Lexeme
 {
-  const Expr *value;
-  ExprAtom(const Expr *v, size_t line_no) 
+  Expr *value;
+  ExprAtom(Expr *v, size_t line_no) 
     : Lexeme{line_no}, Atom{Kind::ExprAtom}, value{v} {}
 };
 
 struct FuncallAtom : public Atom, public Lexeme
 {
-  const Funcall *value;
-  FuncallAtom(const Funcall *f, size_t line_no) 
+  Funcall *value;
+  FuncallAtom(Funcall *f, size_t line_no) 
     : Lexeme{line_no}, Atom{Kind::Funcall}, value{f} {}
 };
 

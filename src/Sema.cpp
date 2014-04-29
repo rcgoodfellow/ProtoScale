@@ -62,30 +62,30 @@ Sema::check()
 }
 
 void
-Sema::check(const Module* m)
+Sema::check(Module* m)
 {
   for(Node *e: m->nodes) { check(e, m); }
   for(Link *l: m->links) { check(l, m); }
 }
 
 void
-Sema::check(const Element* e, const Module* m)
+Sema::check(Element* e, Module* m)
 {
   checkFor_DuplicateNames(e);
   checkFor_InvalidReferences(e, m);
 }
 
 void
-Sema::checkFor_DuplicateNames(const Element *elem)
+Sema::checkFor_DuplicateNames(Element *elem)
 {
   unordered_map <string, vector<const NamedLexeme*>> names;
-  for(const Variable *v : elem->vars){ names[v->name].push_back(v); }
-  for(const Alias *a : elem->aliases){ names[a->name].push_back(a); }
-  for(const LazyVar *v : elem->lazy_vars){ names[v->name].push_back(v); }
+  for(Variable *v : elem->vars){ names[v->name].push_back(v); }
+  for(Alias *a : elem->aliases){ names[a->name].push_back(a); }
+  for(LazyVar *v : elem->lazy_vars){ names[v->name].push_back(v); }
   if(elem->kind() == Element::Kind::Node)
   {
-    const Node *n = dynamic_cast<const Node*>(elem);
-    for(const Interlate *i : n->interlates){ names[i->name].push_back(i); }
+    Node *n = dynamic_cast<Node*>(elem);
+    for(Interlate *i : n->interlates){ names[i->name].push_back(i); }
   }
 
   bool name_conflict{false};
@@ -115,24 +115,24 @@ Sema::checkFor_DuplicateNames(const Element *elem)
 }
 
 void
-Sema::checkFor_InvalidReferences(const Element *e, const Module *m)
+Sema::checkFor_InvalidReferences(Element *e, Module *m)
 {
-  for(const Alias *a : e->aliases)
+  for(Alias *a : e->aliases)
   {
     checkFor_InvalidReferences(a->accessor, e);
   }
-  for(const LazyVar *v : e->lazy_vars)
+  for(LazyVar *v : e->lazy_vars)
   {
     checkFor_InvalidReferences(v, e);
   }
-  for(const DiffRel *d : e->diffrels)
+  for(DiffRel *d : e->diffrels)
   {
     checkFor_InvalidReferences(d, e);
   }
   if(e->kind() == Element::Kind::Node)
   {
-    const Node *n = dynamic_cast<const Node*>(e);
-    for(const Interlate *i : n->interlates)
+    Node *n = dynamic_cast<Node*>(e);
+    for(Interlate *i : n->interlates)
     {
       checkFor_InvalidReferences(i, n, m);
     }
@@ -140,8 +140,7 @@ Sema::checkFor_InvalidReferences(const Element *e, const Module *m)
 }
 
 void
-Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n, 
-                                 const Module *m)
+Sema::checkFor_InvalidReferences(Interlate *i, Node *n, Module *m)
 {
   if(i->params.size() != 2)
   {
@@ -172,7 +171,7 @@ Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n,
     throw compilation_error{ diagnostics };
   }
 
-  for(const Eqtn *e : i->eqtns)
+  for(Eqtn *e : i->eqtns)
   {
     checkFor_InvalidReferences(e, n, 
                                link->name, link_type, 
@@ -181,9 +180,9 @@ Sema::checkFor_InvalidReferences(const Interlate *i, const Node *n,
 }
 
 void
-Sema::checkFor_InvalidReferences(const Eqtn *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(Eqtn *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   Variable *vtgt = elem->getVar(e->tgt);
   Alias *atgt = elem->getAlias(e->tgt);
@@ -198,70 +197,70 @@ Sema::checkFor_InvalidReferences(const Eqtn *e, const Element *elem,
 }
 
 void
-Sema::checkFor_InvalidReferences(const Expr *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(Expr *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   using K = Expr::Kind;
   switch(e->kind())
   {
-    case K::AddOp: checkFor_InvalidReferences(dynamic_cast<const AddOp*>(e),
+    case K::AddOp: checkFor_InvalidReferences(dynamic_cast<AddOp*>(e),
                                               elem, ln, l, rn, r); break;
-    case K::MulOp: checkFor_InvalidReferences(dynamic_cast<const MulOp*>(e),
+    case K::MulOp: checkFor_InvalidReferences(dynamic_cast<MulOp*>(e),
                                               elem, ln, l, rn, r); break;
-    case K::ExpOp: checkFor_InvalidReferences(dynamic_cast<const ExpOp*>(e),
+    case K::ExpOp: checkFor_InvalidReferences(dynamic_cast<ExpOp*>(e),
                                               elem, ln, l, rn, r); break;
-    case K::Real: checkFor_InvalidReferences(dynamic_cast<const Real*>(e),
+    case K::Real: checkFor_InvalidReferences(dynamic_cast<Real*>(e),
                                               elem, ln, l, rn, r); break;
-    case K::Symbol: checkFor_InvalidReferences(dynamic_cast<const Symbol*>(e),
+    case K::Symbol: checkFor_InvalidReferences(dynamic_cast<Symbol*>(e),
                                               elem, ln, l, rn, r); break;
-    case K::Funcall: checkFor_InvalidReferences(dynamic_cast<const FuncallAtom*>(e),
+    case K::Funcall: checkFor_InvalidReferences(dynamic_cast<FuncallAtom*>(e),
                                               elem, ln, l, rn, r); break;
-    case K::ExprAtom: checkFor_InvalidReferences(dynamic_cast<const ExprAtom*>(e),
+    case K::ExprAtom: checkFor_InvalidReferences(dynamic_cast<ExprAtom*>(e),
                                               elem, ln, l, rn, r); break;
     default: ;
   }
 }
 
 void
-Sema::checkFor_InvalidReferences(const AddOp *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(AddOp *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   checkFor_InvalidReferences(e->l, elem, ln, l, rn, r); 
   if(e->r) checkFor_InvalidReferences(e->r, elem, ln, l, rn, r); 
 }
 
 void
-Sema::checkFor_InvalidReferences(const MulOp *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(MulOp *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   checkFor_InvalidReferences(e->l, elem, ln, l, rn, r); 
   if(e->r) checkFor_InvalidReferences(e->r, elem, ln, l, rn, r); 
 }
 
 void
-Sema::checkFor_InvalidReferences(const ExpOp *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(ExpOp *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   checkFor_InvalidReferences(e->l, elem, ln, l, rn, r); 
   if(e->r) checkFor_InvalidReferences(e->r, elem, ln, l, rn, r); 
 }
 
 void
-Sema::checkFor_InvalidReferences(const Real *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(Real *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   return;
 }
 
 void
-Sema::checkFor_InvalidReferences(const Symbol *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(Symbol *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   size_t dotsep = e->value.find(".");
   if(dotsep != std::string::npos)
@@ -277,6 +276,7 @@ Sema::checkFor_InvalidReferences(const Symbol *e, const Element *elem,
         diagnostics.push_back(Diagnostic{curr_file, line, msg});
         throw compilation_error{ diagnostics };
       }
+      e->type = l->symbolType(varname);
     }
     else if(varloc == rn)
     {
@@ -287,6 +287,7 @@ Sema::checkFor_InvalidReferences(const Symbol *e, const Element *elem,
         diagnostics.push_back(Diagnostic{curr_file, line, msg});
         throw compilation_error{ diagnostics };
       }
+      e->type = r->symbolType(varname);
     }
     else
     {
@@ -305,39 +306,40 @@ Sema::checkFor_InvalidReferences(const Symbol *e, const Element *elem,
       diagnostics.push_back(Diagnostic{curr_file, line, msg});
       throw compilation_error{ diagnostics };
     }
+    e->type = elem->symbolType(e->value);
   }
 }
 
 void
-Sema::checkFor_InvalidReferences(const FuncallAtom *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(FuncallAtom *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   checkFor_InvalidReferences(e->value, elem, ln, l, rn, r);
 }
 
 void
-Sema::checkFor_InvalidReferences(const Funcall *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(Funcall *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   for(Expr *ex : e->args) { checkFor_InvalidReferences(ex, elem, ln, l, rn, r); }
 }
 
 void
-Sema::checkFor_InvalidReferences(const ExprAtom *e, const Element *elem,
-                                 const std::string &ln, const Link *l, 
-                                 const std::string &rn, const Node *r)
+Sema::checkFor_InvalidReferences(ExprAtom *e, Element *elem,
+                                 std::string ln, Link *l, 
+                                 std::string rn, Node *r)
 {
   checkFor_InvalidReferences(e->value, elem, ln, l, rn, r);
 }
 
 void
-Sema::checkFor_InvalidReferences(const Funcall *f, const Element *elem)
+Sema::checkFor_InvalidReferences(Funcall *f, Element *elem)
 {
-  for(const Expr *e : f->args) 
+  for(Expr *e : f->args) 
   { 
-    checkFor_InvalidReferences(e, elem, "", nullptr, "", nullptr); 
+    checkFor_InvalidReferences(e, elem, string(""), nullptr, string(""), nullptr); 
   }
 }
 
@@ -352,14 +354,14 @@ Sema::undefined_Var(const std::string &s, const Lexeme *l)
 }
 
 void
-Sema::checkFor_InvalidReferences(const Symbol *s, const Element *elem)
+Sema::checkFor_InvalidReferences(Symbol *s, Element *elem)
 {
-  const Variable *v = elem->getVar(s->value);
+  Variable *v = elem->getVar(s->value);
   if(!v) { undefined_Var(s->value, s); }
 }
 
 void
-Sema::checkFor_InvalidReferences(const Accessor *a, const Element *e)
+Sema::checkFor_InvalidReferences(Accessor *a, Element *e)
 {
   const Variable *v = e->getVar(a->target);
   if(!v) { undefined_Var(a->target, a); }
@@ -374,19 +376,19 @@ Sema::checkFor_InvalidReferences(const Accessor *a, const Element *e)
 }
 
 void
-Sema::checkFor_InvalidReferences(const FuncallAtom *f, const Element *elem)
+Sema::checkFor_InvalidReferences(FuncallAtom *f, Element *elem)
 {
   checkFor_InvalidReferences(f->value, elem);
 }
 
 void
-Sema::checkFor_InvalidReferences(const LazyVar *v, const Element *e)
+Sema::checkFor_InvalidReferences(LazyVar *v, Element *e)
 {
-  checkFor_InvalidReferences(v->expr, e, "", nullptr, "", nullptr);   
+  checkFor_InvalidReferences(v->expr, e, string(""), nullptr, string(""), nullptr);
 }
 
 void
-Sema::checkFor_InvalidReferences(const DiffRel *d, const Element *elem)
+Sema::checkFor_InvalidReferences(DiffRel *d, Element *elem)
 {  
   if(!elem->hasSymbol(d->tgt))
   {

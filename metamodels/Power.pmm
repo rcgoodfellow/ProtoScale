@@ -101,7 +101,7 @@ node Load{fp}:
 
   p, q := re(S), im(S);
 
-  bus(ij Line, j Bus): S = f*V.j; ::
+  `bus(ij Line, j Bus): S = f*V.j; ::`
 ::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
 :: `End of Power Module`
