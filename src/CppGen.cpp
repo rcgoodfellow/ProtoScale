@@ -234,6 +234,12 @@ Cpp::emit_ElementAliases(const meta::Element *e)
 void
 Cpp::emit_NodeInterlates(const meta::Node *n)
 {
+  std::vector<meta::TypedSymbol*> dynamics = n->dynamics();
+  std::cout << "Found " << dynamics.size() 
+            << " dynamic variables in node " << n->name << std::endl;
+      
+  for(meta::TypedSymbol *s : dynamics) { std::cout << s->name << std::endl; }
+
   for(const meta::Interlate *i : n->interlates)
   {
     const meta::Variable *lnk = i->params[0],
@@ -249,28 +255,37 @@ Cpp::emit_NodeInterlates(const meta::Node *n)
             << " };" << std::endl;
 
     ofs_hpp << "  std::vector<"+line_bus_t+"> "
-        << i->name << "_nbrs;" << std::endl;
+            << i->name << "_nbrs;" << std::endl;
 
-    for(const meta::Eqtn *e : i->eqtns)
+    for(meta::Eqtn *e : i->eqtns)
     {
       //generate interlate signature
+      string res_type = isComplex(e->expr) ? "complex" : "real";
       //expression implementation
-      ofs_hpp << "  void " << i->name << "_" << e->tgt << "("
+      ofs_hpp << "  "+res_type+" " << i->name << "_" << e->tgt << "("
               <<  ");" << std::endl;
       //expression derivative implementation
-      ofs_hpp << "  void " << i->name << "_d" << e->tgt << "("
+      ofs_hpp << "  "+res_type+" " << i->name << "_d" << e->tgt << "("
               <<  ");" << std::endl << std::endl;
     
       //generate interlate implementation
-      ofs_cpp << "void " << n->name << "::" << i->name << "_" << e->tgt << "("
+      ofs_cpp << res_type << " " << n->name << "::" << i->name << "_" << e->tgt 
+              << "("
               << ")" << std::endl
               << "{" << std::endl;
-      
+     
+      std::vector<meta::Symbol*> eq_dyn = e->findDynamics();
+  
+      std::cout << "Found " << eq_dyn.size() 
+                << " dynamic variables in eqtn " << e->tgt << std::endl;
+      for(meta::Symbol *s : eq_dyn) { std::cout << s->value << std::endl; }
+
       emit_InterlateEqtn(e, i, n);
       
       ofs_cpp << "}" << std::endl << std::endl;
 
-      ofs_cpp << "void " << n->name << "::" << i->name << "_d" << e->tgt << "("
+      ofs_cpp << res_type << " " << n->name << "::" << i->name << "_d" << e->tgt 
+              << "("
               << ")" << std::endl
               << "{" << std::endl;
 
@@ -286,13 +301,10 @@ Cpp::emit_InterlateEqtn(const meta::Eqtn *e,
                         const meta::Interlate *i, 
                         const meta::Node *n)
 {
-  ofs_cpp << "  " << e->tgt << "(" << std::endl;
-  
-  ofs_cpp << "    ";
+  ofs_cpp << "  return ";
   emit_InterlateExpr(e->expr, i, n, true);
+  ofs_cpp << "  ;";
   ofs_cpp << std::endl;
-
-  ofs_cpp << "  );" << std::endl;
 }
 
 void
@@ -438,7 +450,7 @@ Cpp::emit_InterlateSymbol(const meta::Symbol *e,
   if(top)
   {
     ofs_cpp << std::endl 
-            << "    ps::sum<"+e->type+">("+cname+", [](const "+nbr_t+" &_)" 
+            << "    ps::sum<"+e->typed->type+">("+cname+", [](const "+nbr_t+" &_)" 
             << std::endl 
             << "    {return "; 
   }
@@ -547,7 +559,7 @@ Cpp::isComplex(const meta::Expr *e)
       break;
 
     case K::Symbol :
-      return dynamic_cast<const meta::Symbol*>(e)->type == "complex"; 
+      return dynamic_cast<const meta::Symbol*>(e)->typed->type == "complex"; 
       break;
 
     case K::Funcall :

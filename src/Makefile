@@ -19,7 +19,7 @@ FileUtil.o \
 MetaParser.o MetaScanner.o MetaAST.o MetaASTPrinter.o Sema.o \
 CommandParser.o CommandScanner.o CommandAST.o \
 ModelParser.o ModelScanner.o ModelAST.o \
-CppGen.o
+CppGen.o DynamicsSniffer.o
 
 LIB_PARSE_HDR=MetaAST.hpp CommandAST.hpp MetaASTPrinter.hpp
 
@@ -32,6 +32,9 @@ LIB_CORE_HDR=lib/Core.hpp
 
 lib/libprotoscale_core.so : $(LIB_CORE_OBJS) $(LIB_CORE_HDR)
 	$(CXX) -shared -o $@ $(LIB_CORE_OBJS)
+
+DynamicsSniffer.o: DynamicsSniffer.cpp DynamicsSniffer.hpp
+	$(CXX) $(CXXFLAGS) -fpic -c $< -o $@
 
 # CodeGen ---------------------------------------------------------------------
 

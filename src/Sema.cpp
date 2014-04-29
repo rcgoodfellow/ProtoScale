@@ -120,6 +120,8 @@ Sema::checkFor_InvalidReferences(Element *e, Module *m)
   for(Alias *a : e->aliases)
   {
     checkFor_InvalidReferences(a->accessor, e);
+    const Variable *v = e->getVar(a->accessor->target);
+    a->is_static = v->is_static;
   }
   for(LazyVar *v : e->lazy_vars)
   {
@@ -185,7 +187,9 @@ Sema::checkFor_InvalidReferences(Eqtn *e, Element *elem,
                                  std::string rn, Node *r)
 {
   Variable *vtgt = elem->getVar(e->tgt);
+  if(vtgt){ e->ts = vtgt; }
   Alias *atgt = elem->getAlias(e->tgt);
+  if(atgt){ e->ts = atgt; }
   if(!vtgt && !atgt)
   {
     size_t line = e->line_no();
@@ -276,7 +280,7 @@ Sema::checkFor_InvalidReferences(Symbol *e, Element *elem,
         diagnostics.push_back(Diagnostic{curr_file, line, msg});
         throw compilation_error{ diagnostics };
       }
-      e->type = l->symbolType(varname);
+      e->typed = l->getSymbol(varname);
     }
     else if(varloc == rn)
     {
@@ -287,7 +291,7 @@ Sema::checkFor_InvalidReferences(Symbol *e, Element *elem,
         diagnostics.push_back(Diagnostic{curr_file, line, msg});
         throw compilation_error{ diagnostics };
       }
-      e->type = r->symbolType(varname);
+      e->typed = r->getSymbol(varname);
     }
     else
     {
@@ -306,7 +310,7 @@ Sema::checkFor_InvalidReferences(Symbol *e, Element *elem,
       diagnostics.push_back(Diagnostic{curr_file, line, msg});
       throw compilation_error{ diagnostics };
     }
-    e->type = elem->symbolType(e->value);
+    e->typed = elem->getSymbol(e->value);
   }
 }
 

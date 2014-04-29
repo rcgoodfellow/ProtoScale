@@ -1,4 +1,5 @@
 #include "MetaAST.hpp"
+#include "DynamicsSniffer.hpp"
 
 using namespace ps;
 using namespace ps::meta;
@@ -59,6 +60,21 @@ Element::getLazyVar(const std::string &s) const
   return i == lazy_vars.end() ? nullptr : *i;
 }
 
+std::vector<TypedSymbol*>
+Element::dynamics() const
+{
+  std::vector<TypedSymbol*> ds;
+  for(Variable *v : vars)
+  {
+    if(!v->is_static){ ds.push_back(v); }
+  }
+  for(Alias *a : aliases)
+  {
+    if(!a->is_static){ ds.push_back(a); }
+  }
+  return ds;
+}
+
 bool
 Element::hasSymbol(const std::string &s) const
 {
@@ -66,6 +82,21 @@ Element::hasSymbol(const std::string &s) const
   Alias *a = getAlias(s);
   LazyVar *l = getLazyVar(s);
   return v || a || l;
+}
+
+TypedSymbol*
+Element::getSymbol(const std::string &s)
+{
+  Variable *b = getVar(s);
+  if(b){return b;}
+
+  Alias *a = getAlias(s);
+  if(a){return a;}
+
+  LazyVar *l = getLazyVar(s);
+  if(l){return l;}
+
+  return nullptr;
 }
 
 string
@@ -101,3 +132,16 @@ Module::getLink(const std::string &s) const
   return i == links.end() ? nullptr : *i;
 
 }
+
+std::vector<meta::Symbol*>
+Eqtn::findDynamics()
+{
+  std::vector<meta::Symbol*> ds;
+
+  if(!ts->is_static){ ds.push_back(new Symbol(tgt,  line_no())); }
+  
+  ps::findDynamics(expr, ds);     
+
+  return ds;
+}
+

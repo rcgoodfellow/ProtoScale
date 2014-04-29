@@ -166,11 +166,11 @@ var_decl_groups_cs: var_decl_group
                     { $1->insert($1->end(), $3->begin(), $3->end()); }
                   ;
 
-var_decl_group: var_names typename
+var_decl_group: var_names static typename
               { $$ = new NodeElements();
                 for(std::string *v : *$1)
                 {
-                  $$->push_back(new Variable(*v, *$2, CURRLINE));
+                  $$->push_back(new Variable(*v, *$3, $2, CURRLINE));
                 }
               }
          ;
@@ -179,15 +179,13 @@ var_names: TL_IDENT { $$ = new std::vector<std::string*>(); $$->push_back($1); }
          | var_names TO_COMMA TL_IDENT { $1->push_back($3); }
          ;
 
-typename: static TT_COMPLEX 
+typename: TT_COMPLEX 
           { 
-            if($1) { $$ = new std::string("static complex"); }
-            else { $$ = new std::string("complex"); }
+            $$ = new std::string("complex");
           }
         | static TT_REAL 
           { 
-            if($1) { $$ = new std::string("static real"); }
-            else { $$ = new std::string("real"); } 
+            $$ = new std::string("real"); 
           }
         | TL_IDENT { $$ = $1; }
         ;

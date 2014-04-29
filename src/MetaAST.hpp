@@ -20,6 +20,7 @@ struct Node;
 struct Link;
 using Nodes = std::vector<Node*>;
 using Links = std::vector<Link*>;
+struct Symbol;
 
 struct Lexeme
 {
@@ -48,6 +49,7 @@ struct Module : public Lexeme
   Link* getLink(const std::string&) const;
 };
 
+//TODO: Perhaps get rid of this and just use TypedSymbol ?
 struct NodeElement 
 { 
   enum class Kind { Variable, LazyVar, Alias, DiffRel, Interlate };
@@ -59,13 +61,28 @@ struct NodeElement
 };
 using NodeElements = std::vector<NodeElement*>;
 
-
-struct Variable : public NodeElement, public NamedLexeme
-{ 
-  std::string type; 
+struct TypedSymbol : public NodeElement, public NamedLexeme
+{
+  std::string type{};
   bool is_static{false};
-  Variable(std::string n, std::string t, size_t line_no) 
-    : NodeElement{Kind::Variable}, NamedLexeme{n, line_no}, type{t} 
+
+  TypedSymbol(NodeElement::Kind k, std::string n, std::string t, bool is, 
+              size_t line_no)
+    : NodeElement{k}, NamedLexeme{n, line_no}, type{t}, is_static{is} {}
+
+  TypedSymbol(NodeElement::Kind k, std::string n, std::string t, size_t l)
+    : NodeElement{k}, NamedLexeme{n, l}, type{t} {}
+
+  TypedSymbol(NodeElement::Kind k, std::string n, size_t line_no)
+    : NodeElement{k}, NamedLexeme{n, line_no} {}
+
+  virtual ~TypedSymbol() {}
+};
+
+struct Variable : TypedSymbol
+{ 
+  Variable(std::string n, std::string t, bool is, size_t line_no) 
+    : TypedSymbol{Kind::Variable, n, t, is, line_no}
   {
     if(type.substr(0,6) == "static")
     {
@@ -84,19 +101,19 @@ struct Accessor : public Lexeme
 };
 using Accessors = std::vector<Accessor*>;
 
-struct Alias : public NodeElement, public NamedLexeme
+struct Alias : public TypedSymbol
 {
   Accessor *accessor;
   Alias(std::string n, Accessor *a, size_t line_no)
-    : NamedLexeme{n, line_no}, NodeElement{Kind::Alias}, accessor{a} {}
+    : TypedSymbol{Kind::Alias, n, "real", line_no}, accessor{a} {}
 };
 using Aliases = std::vector<Alias*>;
 
-struct LazyVar : public NodeElement, public NamedLexeme
+struct LazyVar : public TypedSymbol
 {
   Expr *expr;
   LazyVar(std::string n, Expr *e, size_t line_no)
-    : NamedLexeme{n, line_no}, NodeElement{Kind::LazyVar}, expr{e} {}
+    : TypedSymbol{Kind::LazyVar, n, line_no}, expr{e} {}
 };
 using LazyVars = std::vector<LazyVar*>;
 
@@ -112,7 +129,9 @@ using DiffRels = std::vector<DiffRel*>;
 
 struct Eqtn : public Lexeme
 {
+  //TODO: tgt should be a symbol
   std::string tgt;
+  TypedSymbol *ts{nullptr};
   bool differential;
   std::string time_unit;
   int linkop;
@@ -120,6 +139,8 @@ struct Eqtn : public Lexeme
   Eqtn(std::string t, int l, Expr *e, size_t line_no, bool d=false, 
        std::string i="") 
     : Lexeme{line_no}, tgt{t}, linkop{l}, expr{e}, differential{d}, time_unit{i} {}
+
+  std::vector<meta::Symbol*> findDynamics();
 };
 using Eqtns = std::vector<Eqtn*>;
 
@@ -149,8 +170,10 @@ struct Element
   Variable* getVar(const std::string &s) const;
   Alias* getAlias(const std::string &s) const;
   LazyVar* getLazyVar(const std::string &s) const;
+  TypedSymbol* getSymbol(const std::string &s);
   bool hasSymbol(const std::string &s) const;
   std::string symbolType(const std::string &s) const;
+  std::vector<TypedSymbol*> dynamics() const;
 
   private:
     Kind _kind;
@@ -230,7 +253,7 @@ struct Real : public Atom, public Lexeme
 struct Symbol : public Atom, public Lexeme
 {
   std::string value;
-  std::string type;
+  TypedSymbol *typed{nullptr};
   Symbol(std::string v, size_t line_no) 
     : Lexeme{line_no}, Atom{Kind::Symbol}, value{v} {}
 };
