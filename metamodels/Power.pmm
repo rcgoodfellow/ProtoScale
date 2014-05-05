@@ -10,7 +10,7 @@ module Power:
 `                                                                             `
 `-----------------------------------------------------------------------------`
 node Bus:
-  S, V complex;              `power and voltage`
+  S, V  complex;              `power and voltage`
   Y static complex;          `admittance`
   p, q  := re(S),  im(S);    `real, reactive power`
   v, va := mag(V), angle(V); `voltage magnitude and angle`
@@ -20,7 +20,7 @@ node Bus:
   `how a bus interacts with other buses via transmission line`
   bus(ij Line, j Bus):
     y += y.ij;
-    p += g*v^2 + v*v.j*y.ij*cos(ya.ij + va.j - va);
+    p += g*v^2 + v*q.j*y.ij*cos(ya.ij + va.j - va);
     q += b*v^2 + v*v.j*y.ij*sin(ya.ij + va.j - va);
   ::
 
@@ -28,7 +28,6 @@ node Bus:
    gen(ij Line, j Generator): S += S.j; ::
    load(ij Line, j Load):     S += S.j; ::
 ::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
-
 
 
 `----------|------------------------------------------------------------------`
@@ -58,9 +57,9 @@ node Generator:
 
   `a generator must be connected to a source (prime mover) to generate power`
   `note: this model is oversimplified and not realistic`
-  source(ij Line, i Source):
-    p = f.i * cos(t); 
-    q = f.i * sin(t);
+  source(ij Line, j Source):
+    p = f.j * cos(t); 
+    q = f.j * sin(t);
   ::
 ::`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 

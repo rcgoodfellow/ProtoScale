@@ -2,15 +2,14 @@
 #include "MetaAST.hpp"
 #include "MetaParser.hpp"
 #include "MetaScanner.hpp"
-#include "MetaASTPrinter.hpp"
-#include "Sema.hpp"
+#include "SemaVisitor.hpp"
 #include "CppGen.hpp"
 
 using namespace ps;
 using namespace ps::cmd;
 
 
-extern meta::Module *mm;
+extern meta::ModuleFragment *mm;
 
 void doBuildAST(const std::string &src)
 {
@@ -35,16 +34,6 @@ FileSet BuildASTCommand::operator()() const
   for(const std::string &s : *args)
   {
     doBuildAST(s);
-
-    meta::ASTPrinter pp;
-    std::string out_fn = s + ".psast";
-    std::ofstream out(out_fn);
-    std::cout << "AST for " << s << " saved to " << out_fn << std::endl;
-
-    std::string ast = pp.print(mm);
-    fs.push_back(out_fn);
-    out << ast;
-    out.close();
   }
 
   return fs;
@@ -61,8 +50,10 @@ FileSet BuildPKGCommand::operator()() const
   Sema semanticChecker(*args);
   semanticChecker.check();
 
-  gen::Cpp generator;
-  generator.emit_Module(mm);
+  gen::cpp::Generator generator;
+  generator.emitModule(mm);
+  //gen::Cpp generator;
+  //generator.emit_Module(mm);
 
   return fs;
 }

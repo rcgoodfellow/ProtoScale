@@ -10,7 +10,7 @@ struct Diagnostic
   enum class Kind{ Error, Warning, Info };
 
   Diagnostic(std::string f, size_t l, std::string m, Kind k=Kind::Error) 
-    : _kind{k}, filename{f}, line_no{l}, msg{m} {}
+    : filename{f}, line_no{l}, msg{m}, _kind{k} {}
 
   Kind kind() const { return _kind; }
 
@@ -24,10 +24,15 @@ struct Diagnostic
 
 struct compilation_error : std::runtime_error
 {
+  compilation_error(Diagnostic d)
+    : compilation_error{std::vector<Diagnostic>{d}} {}
+
   compilation_error(std::vector<Diagnostic> diagnostics)
-    : std::runtime_error{""}, diagnostics{diagnostics}
+    : std::runtime_error{""}, diagnostics{diagnostics} { }
+
+  const char* what() const _NOEXCEPT override
   {
-    _what = "";
+    std::string _what = "";
     using K = Diagnostic::Kind;
     for(const Diagnostic &d : diagnostics)
     {
@@ -41,17 +46,12 @@ struct compilation_error : std::runtime_error
                                                d.filename.length());
       _what += short_fn + "["+std::to_string(d.line_no)+"] " + d.msg + "\n";
     }
-  }
-
-  const char* what() const _NOEXCEPT override
-  {
-     return _what.c_str();
+    return _what.c_str();
   }
 
   std::vector<Diagnostic> diagnostics;
   
   private:
-    std::string _what{"compilation exception"};
 };
 
 #endif

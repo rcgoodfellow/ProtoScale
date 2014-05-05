@@ -50,3 +50,5 @@ proto
 #debugging info
 *.dSYM
 
+build
+Build

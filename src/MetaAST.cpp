@@ -1,147 +1,302 @@
 #include "MetaAST.hpp"
-#include "DynamicsSniffer.hpp"
 
-using namespace ps;
 using namespace ps::meta;
 
 using std::string;
 using std::vector;
+using std::pair;
+using std::unordered_map;
 
-Element::Element(Kind k, string n, vector<string*> *p)
-  : _kind{k}, name{n}, params{p}
+ModuleFragment::ModuleFragment(
+    std::string name, 
+    std::vector<Element*> *elements, 
+    size_t line_no)
+  : DefinitionT{name, 0, line_no}, DefinitionContext{this} 
 {
-  //All elements have an implicit time variable
-  lazy_vars.push_back(new LazyVar{"t", new Symbol{"t", 0}, 0});
+  for(Element *e : *elements) { e->addTo(this); }
 }
 
-Node::Node(string n, vector<string*> *p, size_t line_no)
-  : Lexeme{line_no}, Element{Kind::Node, n, p} { }
-
-Link::Link(string n, vector<string*> *p, size_t line_no)
-  : Lexeme{line_no}, Element{Kind::Link, n, p} { }
-
-Interlate*
-Node::getInterlate(const string &name)
+unordered_map<string,Definition*>
+ModuleFragment::definitions()
 {
-  auto i =
-    std::find_if(interlates.begin(), interlates.end(),
-        [&name](const Interlate *a){ return a->name == name; }
-    );
-  return i == interlates.end() ? nullptr : *i;
+  unordered_map<string, Definition*> d;
+  d[name] = this;
+  d.insert(nodes.begin(), nodes.end());
+  d.insert(links.begin(), links.end());
+  return d;
 }
 
-Variable*
-Element::getVar(const std::string &s) const
+Definition*
+ModuleFragment::definition(string name)
 {
-  auto i = 
-    std::find_if(vars.begin(), vars.end(), 
-        [&s](const Variable *v){ return v->name == s; });
-  
-  return i == vars.end() ? nullptr : *i;
-}
+  if(name == this->name){ return this; }
 
-Alias*
-Element::getAlias(const std::string &s) const
-{
-  auto i = 
-    std::find_if(aliases.begin(), aliases.end(),
-        [&s](const Alias *a){ return a->name == s; });
+  auto ni = nodes.find(name);
+  if(ni != nodes.end()){ return ni->second; }
 
-  return i == aliases.end() ? nullptr : *i;
-}
-
-LazyVar*
-Element::getLazyVar(const std::string &s) const
-{
-  auto i = 
-    std::find_if(lazy_vars.begin(), lazy_vars.end(),
-        [&s](const LazyVar *a){ return a->name == s; });
-
-  return i == lazy_vars.end() ? nullptr : *i;
-}
-
-std::vector<TypedSymbol*>
-Element::dynamics() const
-{
-  std::vector<TypedSymbol*> ds;
-  for(Variable *v : vars)
-  {
-    if(!v->is_static){ ds.push_back(v); }
-  }
-  for(Alias *a : aliases)
-  {
-    if(!a->is_static){ ds.push_back(a); }
-  }
-  return ds;
-}
-
-bool
-Element::hasSymbol(const std::string &s) const
-{
-  Variable *v = getVar(s);
-  Alias *a = getAlias(s);
-  LazyVar *l = getLazyVar(s);
-  return v || a || l;
-}
-
-TypedSymbol*
-Element::getSymbol(const std::string &s)
-{
-  Variable *b = getVar(s);
-  if(b){return b;}
-
-  Alias *a = getAlias(s);
-  if(a){return a;}
-
-  LazyVar *l = getLazyVar(s);
-  if(l){return l;}
+  auto li = links.find(name);
+  if(li != links.end()){ return li->second; }
 
   return nullptr;
 }
 
-string
-Element::symbolType(const std::string &s) const
+Element::Element(string name, vector<string> params, 
+                      ModuleFragment *definition_context, size_t line_no)
+    : DefinitionT(name, params.size(), line_no),
+      DefinitionContext{definition_context}, params{params}
+
 {
-  Variable *v = getVar(s);
-  if(v){ return v->type; }
-  Alias *a = getAlias(s);
-  if(a){ return "real"; }
-  //TODO a lazy var could be complex
-  LazyVar *l = getLazyVar(s);
-  if(l){ return "real"; }
-  return "";
+  lazyvars["t"] = 
+    new LazyVariable("t", new FunctionCall("time", {}, this, 0), 0);
 }
 
-Node*
-Module::getNode(const std::string &s) const
+unordered_map<string, Definition*>
+Element::definitions()
 {
-  auto i = 
-    std::find_if(nodes.begin(), nodes.end(),
-        [&s](Node *n){ return n->name == s; });
-
-  return i == nodes.end() ? nullptr : *i;
+  unordered_map<string, Definition*> d;
+  d[name] = this;
+  d.insert(variables.begin(), variables.end());
+  d.insert(aliases.begin(), aliases.end());
+  d.insert(lazyvars.begin(), lazyvars.end());
+  d.insert(parent->definitions().begin(), parent->definitions().end());
+  return d;
 }
 
-Link*
-Module::getLink(const std::string &s) const
+Definition*
+Element::definition(string name)
 {
-  auto i = 
-    std::find_if(links.begin(), links.end(),
-        [&s](Link *l){ return l->name == s; });
+  if(name == this->name){ return this; }
+
+  auto iv = variables.find(name);
+  if(iv != variables.end()){ return iv->second; }
+
+  auto ia = aliases.find(name);
+  if(ia != aliases.end()){ return ia->second; }
+
+  auto il = lazyvars.find(name);
+  if(il != lazyvars.end()){ return il->second; }
+
+  return parent->definition(name);
+}
+
+Definition*
+Node::definition(string name)
+{
+  Definition *d = Element::definition(name); 
+  if(d){ return d; }
+
+  auto id = diffrels.find(name);
+  if(id != diffrels.end()){ return id->second; }
   
-  return i == links.end() ? nullptr : *i;
+  auto il = interlates.find(name);
+  if(il != interlates.end()){ return il->second; }
 
+  return parent->definition(name);
 }
 
-std::vector<meta::Symbol*>
-Eqtn::findDynamics()
+Definition*
+Link::definition(string name)
 {
-  std::vector<meta::Symbol*> ds;
-
-  if(!ts->is_static){ ds.push_back(new Symbol(tgt,  line_no())); }
-  
-  ps::findDynamics(expr, ds);     
-
-  return ds;
+  return Element::definition(name);
 }
 
+unordered_map<string, Definition*>
+Node::definitions()
+{
+  unordered_map<string, Definition*> d = Element::definitions();
+  d.insert(diffrels.begin(), diffrels.end());
+  return d;
+}
+
+unordered_map<string, Definition*>
+Link::definitions()
+{
+  return Element::definitions();
+}
+
+unordered_map<string, Definition*>
+Interlate::definitions()
+{
+  unordered_map<string, Definition*> d;
+  d[link_param->name] = link_param;
+  d[node_param->name] = node_param;
+  d.insert(parent->definitions().begin(), parent->definitions().end());
+  return d;
+}
+
+Definition*
+Interlate::definition(string name)
+{
+  if(link_param->name == name){ return link_param; }
+  if(node_param->name == name){ return node_param; }
+  return parent->definition(name);
+}
+
+bool 
+Interlation::dynamic(){ return target->dynamic || expression->dynamic; }
+
+string 
+Interlation::type(){ return target->type; }
+
+void
+ModuleFragment::accept(Visitor &v)
+{
+  v.visit(this);
+  for(pair<string, Node*> p : nodes) { p.second->accept(v); }
+  for(pair<string, Link*> p : links) { p.second->accept(v); }
+  v.leave(this);
+}
+
+void 
+Element::accept(Visitor &v)
+{
+  v.visit(this);
+  for(pair<string, Variable*> p : variables) { p.second->accept(v); }
+  for(pair<string, Alias*> p : aliases) { p.second->accept(v); }
+  for(pair<string, LazyVariable*> p : lazyvars) { p.second->accept(v); }
+  //v.leave(this);
+}
+
+void 
+Node::accept(Visitor &v)
+{
+  v.visit(this);
+  Element::accept(v);
+  for(pair<string, Interlate*> p : interlates) { p.second->accept(v); }
+  for(pair<string, DiffRel*> p : diffrels) { p.second->accept(v); }
+  v.leave(this);
+}
+
+void 
+Link::accept(Visitor &v)
+{
+  v.visit(this);
+  Element::accept(v);
+  v.leave(this);
+}
+
+void 
+Variable::accept(Visitor &v)
+{
+  v.visit(this);
+  
+  v.leave(this);
+}
+
+void 
+Alias::accept(Visitor &v)
+{
+  v.visit(this);
+  accessor->accept(v);
+  v.leave(this);
+}
+
+void 
+LazyVariable::accept(Visitor &v)
+{
+  v.visit(this);
+  expression->accept(v);
+  v.leave(this);
+}
+
+void 
+Function::accept(Visitor &v)
+{
+  v.visit(this);
+  for(Variable *p : parameters){ p->accept(v); }
+  for(Expression *e : body){ e->accept(v); }
+  v.leave(this);
+}
+
+void 
+Interlation::accept(Visitor &v)
+{
+  v.visit(this);
+  target->accept(v);
+  expression->accept(v);
+  v.leave(this);
+}
+
+void 
+Interlate::accept(Visitor &v)
+{
+  v.visit(this);
+  link_param->accept(v);
+  node_param->accept(v);
+  for(Interlation *i : body) { i->accept(v); }
+  v.leave(this);
+}
+
+void 
+DiffRel::accept(Visitor &v)
+{
+  v.visit(this);
+  time_unit->accept(v);
+  expression->accept(v);
+  v.leave(this);
+}
+
+void 
+BinaryOperation::accept(Visitor &v)
+{
+  v.visit(this);
+  lhs->accept(v);
+  rhs->accept(v);
+  v.leave(this);
+}
+
+void 
+Sum::accept(Visitor &v)
+{
+  v.visit(this);
+  BinaryOperation::accept(v);
+  v.leave(this);
+}
+
+void 
+Product::accept(Visitor &v)
+{
+  v.visit(this);
+  BinaryOperation::accept(v);
+  v.leave(this);
+}
+
+void 
+Power::accept(Visitor &v)
+{
+  v.visit(this);
+  BinaryOperation::accept(v);
+  v.leave(this);
+}
+
+void 
+FunctionCall::accept(Visitor &v)
+{
+  v.visit(this);
+  for(Expression *e : arguments){ e->accept(v); }
+  v.leave(this);
+}
+
+void 
+Symbol::accept(Visitor &v)
+{
+  v.visit(this);
+
+  v.leave(this);
+}
+
+void 
+RealLiteral::accept(Visitor &v)
+{
+  v.visit(this);
+
+  v.leave(this);
+}
+
+void 
+ComplexLiteral::accept(Visitor &v)
+{
+  v.visit(this);
+
+  v.leave(this);
+}

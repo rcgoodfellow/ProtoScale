@@ -1,7 +1,7 @@
 %{
 #include "ModelAST.hpp"
 #include <iostream>
-ps::model::Model *mdl;
+ps::model::ModelFragment *mdl;
 extern int yylex();
 using namespace ps::model;
 #define CURRLINE modelyylloc.first_line
@@ -56,7 +56,8 @@ using namespace ps::model;
 
 %%
 
-model: TK_MODEL TL_IDENT TO_COLON commands TO_COLON TO_COLON { mdl = new Model(*$2, $4, CURRLINE); }
+model: TK_MODEL TL_IDENT TO_COLON commands TO_COLON TO_COLON 
+       { mdl = new ModelFragment(*$2, $4, CURRLINE); }
      ;
 
 commands: command { $$ = new Commands(); $$->push_back($1); } 

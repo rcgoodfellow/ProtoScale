@@ -1,9 +1,12 @@
 %{
   #include "MetaAST.hpp"
   #include <iostream>
-  ps::meta::Module *mm;
+  ps::meta::ModuleFragment *mm;
+  ps::meta::DefinitionContext *ctx;
   extern int yylex();
   using namespace ps::meta;
+  using std::vector;
+  using std::string;
   #define CURRLINE metayylloc.first_line
 %}
 
@@ -11,31 +14,40 @@
 %error-verbose
 
 %union {
-  ps::meta::Module *module;
-  ps::meta::Element *element;
-  ps::meta::Elements *elements;
-  ps::meta::Expr *expr;
-  ps::meta::Exprs *exprs;
-  ps::meta::Variable *variable;
-  ps::meta::Variables *variables;
-  std::vector<std::string*> *strings;
-  std::string *string;
-  ps::meta::Node *node;
-  ps::meta::Link *link;
-  ps::meta::NodeElement *node_element;
-  ps::meta::NodeElements *node_elements;
-  ps::meta::Atom *atom;
-  ps::meta::Atoms *atoms;
-  ps::meta::Funcall *funcall;
-  ps::meta::Eqtn *eqtn;
-  ps::meta::Eqtns *eqtns;
-  ps::meta::AddOp *addop;
-  ps::meta::MulOp *mulop;
-  ps::meta::ExpOp *expop;
-  ps::meta::Accessor *accessor;
-  ps::meta::Accessors *accessors;
-  int token;
-  bool boolean;
+  ps::meta::ASTNode            *astnode;
+  ps::meta::ModuleFragment     *module;
+  ps::meta::Definition         *definition;
+  std::vector<ps::meta::Definition*> *definitions;
+  ps::meta::Element            *element;
+  std::vector<ps::meta::Element*> *elements;
+  ps::meta::Node               *node;
+  ps::meta::Link               *link; 
+  ps::meta::Variable           *variable;
+  ps::meta::Alias              *alias;
+  ps::meta::Interlation        *interlation;
+  std::vector<ps::meta::Interlation*> *interlations;
+  ps::meta::Interlate          *interlate;
+  ps::meta::LazyVariable       *lazyvariable;
+  ps::meta::DifferentialEqtn   *differentialeqtn;
+
+  
+  ps::meta::Expression         *expression;
+  std::vector<ps::meta::Expression*> *expressions;
+  ps::meta::BinaryOperation    *binaryoperation;
+  ps::meta::Sum                *sum;
+  ps::meta::Product            *product;
+  ps::meta::Power              *power;
+  ps::meta::FunctionCall       *functioncall;
+  std::vector<ps::meta::FunctionCall*> *functioncalls;
+  ps::meta::Symbol             *symbol;
+  ps::meta::RealLiteral        *realliteral;
+  ps::meta::ComplexLiteral     *complexliteral;
+  int                               token;
+  std::string                       *string;
+  std::vector<std::string>          *strings;
+  bool                              boolean;
+  ps::meta::Sum::Operator      sumop_t;
+  ps::meta::Product::Operator  productop_t;
 };
 
 %{
@@ -52,7 +64,8 @@
 /* Built-In Types */
 %token <token> TT_REAL TT_COMPLEX TT_STATIC
 /* Operators */
-%token <token> TO_COLON TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ TO_SEMI TO_PRIME TO_GETS
+%token <token> TO_COLON TO_ASSIGN TO_PLUS TO_MINUS TO_MUL TO_DIV TO_EQ TO_PLEQ 
+%token <token> TO_SEMI TO_PRIME TO_GETS
 %token <token> TO_MUEQ TO_POW TO_DOT TO_COMMA
 /* Sepcial Symbols */
 %token <token> TS_POPEN TS_PCLOSE TS_BOPEN TS_BCLOSE
@@ -62,17 +75,19 @@
 %type <elements> elements
 %type <strings> var_names params
 %type <string> typename
-%type <node_element> interlate diffrel
-%type <node_elements> node_element node_elements var_decl_group var_decl_groups_cs alias link_elements link_element lazy_var
-%type <expr> expr sum product exponential atom
-%type <exprs> stmts
-%type <token> addop mulop linkop
-%type <funcall> funcall
-%type <eqtns> eqtns
-%type <eqtn> eqtn
-%type <accessor> accessor
-%type <accessors> accessors
+%type <definition> interlate diffrel
+%type <definitions> node_definition node_definitions var_decl_group alias link_elements link_element lazy_var
+%type <expression> expr sum product exponential atom
+%type <expressions> stmts
+%type <token> linkop
+%type <sumop_t> addop
+%type <productop_t> mulop
+%type <functioncall> funcall
+%type <functioncall> accessor
+%type <functioncalls> accessors
 %type <boolean> static
+%type <interlation> interlation
+%type <interlations> interlations
 
 %left TO_PLUS TO_MINUS
 %left TO_MUL TO_DIV
@@ -82,111 +97,60 @@
 %%
 
 module: TK_MODULE TL_IDENT TO_COLON elements TO_COLON TO_COLON 
-        { 
-          mm = new Module(*$2, CURRLINE); 
-          for(Element *e : *$4)
-          {
-            if(e->kind() == Element::Kind::Node)
-            {
-              mm->nodes.push_back(dynamic_cast<Node*>(e));
-            }
-            if(e->kind() == Element::Kind::Link)
-            {
-              mm->links.push_back(dynamic_cast<Link*>(e));
-            }
-          }
-        }
+        { mm = new ModuleFragment(*$2, $4, CURRLINE); }
       ;
 
-elements: TK_NODE node {$$ = new Elements(); $$->push_back($2); }
-        | TK_LINK link {$$ = new Elements(); $$->push_back($2); }
+elements: TK_NODE node {$$ = new vector<Element*>; $$->push_back($2); }
+        | TK_LINK link {$$ = new vector<Element*>; $$->push_back($2); }
         | elements TK_NODE node { $1->push_back($3); }
         | elements TK_LINK link { $1->push_back($3); }
         ;
 
-params: { $$ = new std::vector<std::string*>; }
+params: { $$ = new vector<string>; }
       | TS_BOPEN var_names TS_BCLOSE { $$ = $2; }
       ;
 
-node: TL_IDENT params TO_COLON node_elements TO_COLON TO_COLON 
-                    { 
-                      auto *n = new Node(*$1, $2, CURRLINE); 
-                      for(NodeElement *v : *$4) 
-                      { 
-                        if(v->kind() == NodeElement::Kind::Variable)
-                        {
-                          n->vars.push_back(dynamic_cast<Variable*>(v)); 
-                        }
-                        if(v->kind() == NodeElement::Kind::Alias)
-                        {
-                          n->aliases.push_back(dynamic_cast<Alias*>(v));
-                        }
-                        if(v->kind() == NodeElement::Kind::LazyVar)
-                        {
-                          n->lazy_vars.push_back(dynamic_cast<LazyVar*>(v));
-                        }
-                        if(v->kind() == NodeElement::Kind::DiffRel)
-                        {
-                          n->diffrels.push_back(dynamic_cast<DiffRel*>(v));
-                        }
-                        if(v->kind() == NodeElement::Kind::Interlate)
-                        {
-                          n->interlates.push_back(dynamic_cast<Interlate*>(v));
-                        }
-                      }
-                      $$ = n;
-                    }
+node: TL_IDENT params TO_COLON node_definitions TO_COLON TO_COLON 
+      { auto *n = new Node(*$1, *$2, mm, CURRLINE); 
+        for(Definition *d : *$4) { d->addTo(n); }
+        ctx = n;
+        $$ = n; }
     ;
 
-node_elements: node_element { $$ = new NodeElements(); 
-                              $$->insert($$->end(), $1->begin(), $1->end()); }
-             | node_elements node_element 
-                            { $1->insert($1->end(), $2->begin(), $2->end()); }
-             ;
+node_definitions: node_definition 
+                  { $$ = new vector<Definition*>; 
+                    $$->insert($$->end(), $1->begin(), $1->end()); }
+                | node_definitions node_definition
+                  { $1->insert($1->end(), $2->begin(), $2->end()); }
+                ;
 
-node_element: var_decl_group TO_SEMI { $$ = $1; }
-            | alias TO_SEMI { $$ = $1; }
-            | lazy_var TO_SEMI { $$ = $1; }
-            | diffrel TO_SEMI 
-                { $$ = new NodeElements(); $$->push_back($1); }
-            | interlate TO_COLON TO_COLON
-                { $$ = new NodeElements(); $$->push_back($1); }
-            ;
+node_definition: var_decl_group TO_SEMI { $$ = $1; }
+               | alias TO_SEMI { $$ = $1; }
+               | lazy_var TO_SEMI { $$ = $1; }
+               | diffrel TO_SEMI 
+                 { $$ = new vector<Definition*>; $$->push_back($1); }
+               | interlate TO_COLON TO_COLON
+                 { $$ = new vector<Definition*>; $$->push_back($1); }
+               ;
 
 diffrel: TL_IDENT TO_PRIME TO_DIV TL_IDENT TO_EQ expr 
-          { $$ = new DiffRel(*$1, $6, *$4, CURRLINE); }
+          { $$ = new DiffRel(*$1, $6, new Symbol(*$4, ctx, CURRLINE), CURRLINE); }
        ;
 
-var_decl_groups_cs: var_decl_group 
-                    { 
-                      $$ = new NodeElements();
-                      $$->insert($$->end(), $1->begin(), $1->end()); 
-                    }
-                  | var_decl_groups_cs TO_COMMA var_decl_group
-                    { $1->insert($1->end(), $3->begin(), $3->end()); }
-                  ;
-
 var_decl_group: var_names static typename
-              { $$ = new NodeElements();
-                for(std::string *v : *$1)
-                {
-                  $$->push_back(new Variable(*v, *$3, $2, CURRLINE));
-                }
-              }
+                { $$ = new vector<Definition*>;
+                  for(string v : *$1)
+                  {
+                    $$->push_back(new Variable(v, *$3, $2, CURRLINE));
+                  } }
          ;
 
-var_names: TL_IDENT { $$ = new std::vector<std::string*>(); $$->push_back($1); }
-         | var_names TO_COMMA TL_IDENT { $1->push_back($3); }
+var_names: TL_IDENT { $$ = new vector<string>(); $$->push_back(*$1); }
+         | var_names TO_COMMA TL_IDENT { $1->push_back(*$3); }
          ;
 
-typename: TT_COMPLEX 
-          { 
-            $$ = new std::string("complex");
-          }
-        | static TT_REAL 
-          { 
-            $$ = new std::string("real"); 
-          }
+typename: TT_COMPLEX { $$ = new string("complex"); }
+        | static TT_REAL { $$ = new string("real"); }
         | TL_IDENT { $$ = $1; }
         ;
 
@@ -195,64 +159,61 @@ static: { $$ = false; }
       ;
 
 alias: var_names TO_ASSIGN accessors
-       { 
-         $$ = new NodeElements();  
+       { $$ = new vector<Definition*>;  
          for(size_t i=0; i<$1->size(); ++i)
          {
-            std::string s = *((*$1)[i]);
-            Accessor *a = (*$3)[i];
+            string s = (*$1)[i];
+            FunctionCall *a = (*$3)[i];
             $$->push_back(new Alias(s, a, CURRLINE));
-         }
-       }
+         } }
      ;
 
 lazy_var: var_names TO_GETS stmts
-          {
-            $$ = new NodeElements();
+          { $$ = new vector<Definition*>;
             for(size_t i=0; i<$1->size(); ++i)
             {
-              std::string s = *((*$1)[i]);
-              Expr *e = (*$3)[i];
-              $$->push_back(new LazyVar(s, e, CURRLINE));
-            }
-          }
+              string s = (*$1)[i];
+              Expression *e = (*$3)[i];
+              $$->push_back(new LazyVariable(s, e, CURRLINE));
+            } }
         ;
 
 accessor: TL_IDENT TS_POPEN TL_IDENT TS_PCLOSE 
-          { $$ = new Accessor(*$1, *$3, CURRLINE); }
+          { vector<Expression*> args;
+            args.push_back(new Symbol(*$3, ctx, CURRLINE));
+            $$ = new FunctionCall(*$1, args, ctx, CURRLINE); }
         ;
 
-accessors: accessor { $$ = new Accessors(); $$->push_back($1); }
+accessors: accessor { $$ = new vector<FunctionCall*>; $$->push_back($1); }
          | accessors TO_COMMA accessor {$1->push_back($3); }
          ;
 
-interlate: TL_IDENT TS_POPEN var_decl_groups_cs TS_PCLOSE TO_COLON
-           eqtns
-           { Interlate *i = new Interlate(*$1, CURRLINE); 
-             for(NodeElement *e : *$3)
-             {
-               i->params.push_back(dynamic_cast<Variable*>(e));
-             }
-             i->eqtns = *$6;
-             $$ = i; 
-           }
+interlate: TL_IDENT TS_POPEN TL_IDENT TL_IDENT TO_COMMA TL_IDENT TL_IDENT 
+           TS_PCLOSE TO_COLON interlations
+           { Interlate *i = new Interlate(*$1, 
+                                          dynamic_cast<Node*>(ctx), 
+                                          CURRLINE); 
+             i->link_param = new Variable(*$3, *$4, true, CURRLINE);
+             i->node_param = new Variable(*$6, *$7, true, CURRLINE);
+             i->body = *$10;
+             ctx = i;
+             $$ = i; }
          ;
 
-eqtn: TL_IDENT linkop expr TO_SEMI { $$ = new Eqtn(*$1, $2, $3, CURRLINE); }
-    | TL_IDENT TO_PRIME TO_DIV TL_IDENT linkop expr TO_SEMI 
-              { $$ = new Eqtn(*$1, $5, $6, CURRLINE, true, *$4); }
-    ;
+interlations: interlation { $$ = new vector<Interlation*>; $$->push_back($1); }
+            | interlations interlation { $1->push_back($2); }
+            ;
 
-eqtns: eqtn { $$ = new Eqtns(); $$->push_back($1); }
-     | eqtns eqtn { $1->push_back($2); }
-     ;
+interlation: TL_IDENT linkop expr TO_SEMI 
+             { $$ = new Interlation(new Symbol(*$1, ctx, CURRLINE), $3); }
+           ;
 
 linkop: TO_PLEQ { $$ = $1; }
       | TO_MUEQ { $$ = $1; }
       | TO_EQ { $$ = $1; }
       ;
 
-stmts: expr { $$ = new Exprs(); $$->push_back($1); }
+stmts: expr { $$ = new vector<Expression*>; $$->push_back($1); }
      | stmts TO_COMMA expr { $1->push_back($3); }
      ;
 
@@ -260,58 +221,44 @@ expr: sum
     ;
 
 sum: product { $$ = $1; }
-   | sum addop sum { $$ = new AddOp($<addop>1, CURRLINE, $<addop>3, $2); }
+   | sum addop sum { $$ = new Sum($1, $3, $2, CURRLINE); }
    ;
 
 product: exponential { $$ = $1; }
        | product mulop product 
-         { $$ = new MulOp($<mulop>1, CURRLINE, $<mulop>3, $2); }
+         { $$ = new Product($1, $3, $2, CURRLINE); }
        ;
 
 exponential: atom { $$ = $1; }
            | exponential TO_POW exponential 
-              { $$ = new ExpOp($<expop>1, CURRLINE, $<expop>3, TO_POW); }
+              { $$ = new Power($1, $3, CURRLINE); }
            ;
 
-addop: TO_PLUS { $$ = $1; }
-     | TO_MINUS { $$ = $1; }
+addop: TO_PLUS { $$ = Sum::Operator::add; }
+     | TO_MINUS { $$ = Sum::Operator::subtract; }
      ;
 
-mulop: TO_MUL { $$ = $1; }
-     | TO_DIV { $$ = $1; }
+mulop: TO_MUL { $$ = Product::Operator::multiply; }
+     | TO_DIV { $$ = Product::Operator::divide; }
      ;
 
-atom: TL_REAL { $$ = new Real(stod(*$1), CURRLINE); }
-    | TL_IDENT { $$ = new Symbol(*$1, CURRLINE); }
-    | TS_POPEN expr TS_PCLOSE { $$ = new ExprAtom($2, CURRLINE); }
-    | funcall { $$ = new FuncallAtom($1, CURRLINE); }
+atom: TL_REAL { $$ = new RealLiteral(stod(*$1), CURRLINE); }
+    | TL_IDENT { $$ = new Symbol(*$1, ctx, CURRLINE); }
+    | TS_POPEN expr TS_PCLOSE { $$ = $2; }
+    | funcall { $$ = $1; }
     ;
 
-funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE { $$ = new Funcall(*$1, *$3, CURRLINE); }
+funcall: TL_IDENT TS_POPEN stmts TS_PCLOSE 
+         { $$ = new FunctionCall(*$1, *$3, ctx, CURRLINE); }
 
 link: TL_IDENT params TO_COLON link_elements TO_COLON TO_COLON
-        { 
-          auto *l = new Link(*$1, $2, CURRLINE); 
-          for(NodeElement *v : *$4)
-          {
-            if(v->kind() == NodeElement::Kind::Variable)
-            {
-              l->vars.push_back(dynamic_cast<Variable*>(v)); 
-            }
-            if(v->kind() == NodeElement::Kind::Alias)
-            {
-              l->aliases.push_back(dynamic_cast<Alias*>(v));
-            }
-            if(v->kind() == NodeElement::Kind::LazyVar)
-            {
-              l->lazy_vars.push_back(dynamic_cast<LazyVar*>(v));
-            }
-          }
-          $$ = l;
-        }
+        { auto *l = new Link(*$1, *$2, mm, CURRLINE); 
+          for(Definition *d : *$4) { d->addTo(l); }
+          ctx = l;
+          $$ = l; }
     ;
 
-link_elements: link_element { $$ = new NodeElements(); 
+link_elements: link_element { $$ = new vector<Definition*>; 
                               $$->insert($$->end(), $1->begin(), $1->end()); }
              | link_elements link_element 
                             { $1->insert($1->end(), $2->begin(), $2->end()); }
@@ -322,7 +269,5 @@ link_element: var_decl_group TO_SEMI { $$ = $1; }
             | alias TO_SEMI { $$ = $1; }
             | lazy_var TO_SEMI { $$ = $1; }
             ;
-
-
 
 %%

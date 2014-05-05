@@ -4,78 +4,75 @@
 #include "MetaAST.hpp"
 #include "ModelAST.hpp"
 
+#include <unordered_set>
 #include <fstream>
 #include <algorithm>
 
-namespace ps { namespace gen {
+#endif
 
-struct Cpp
+namespace ps { namespace gen { namespace cpp {
+
+struct Generator;
+
+class Indentation
 {
-  std::ofstream ofs_hpp;
-  std::ofstream ofs_cpp;
-  const meta::Module *module;
+  size_t _at{0};  
+  size_t _width{0};
 
-  void emit_Module(const meta::Module*);
-  void emit_OpenGuards();
-  void emit_CloseGuards();
-  void emit_Includes();
-  void emit_Usings();
-  
-  void emit_NodeForward(const meta::Node*);
-  void emit_LinkForward(const meta::Link*);
+  public:
+    Indentation(size_t width=2) : _width{width} {}
+    Indentation & operator ++()    { ++_at; return *this; }
+    Indentation & operator ++(int) { _at++; return *this; }
+    Indentation & operator --()    { --_at; return *this; }
+    Indentation & operator --(int) { _at--; return *this; }
 
-  void emit_NodeStruct(const meta::Node*);
-  void emit_LinkStruct(const meta::Link*);
+    size_t width() { return _width; }
+    size_t at() { return _at; }
+    size_t pos() { return _at * _width; }
+    std::string get() { return std::string(pos(), ' '); }
 
-  void emit_TimeFunc();
-
-  void emit_ElementVars(const meta::Element*);
-  void emit_ElementAliases(const meta::Element*);
-  void emit_NodeInterlates(const meta::Node*);
-  void emit_InterlateEqtn(const meta::Eqtn*, 
-                          const meta::Interlate*,
-                          const meta::Node*);
-
-  void emit_InterlateExpr(const meta::Expr*, 
-                          const meta::Interlate*,
-                          const meta::Node*,
-                          bool top=false);
-
-  void emit_InterlateAddOp(const meta::AddOp*, 
-                           const meta::Interlate*,
-                           const meta::Node*, 
-                           bool top);
-
-  void emit_InterlateMulOp(const meta::MulOp*, 
-                           const meta::Interlate*,
-                           const meta::Node*,
-                           bool top=false);
-
-  void emit_InterlateExpOp(const meta::ExpOp*, 
-                           const meta::Interlate*,
-                           const meta::Node*);
-
-  void emit_InterlateReal(const meta::Real*);
-
-  void emit_InterlateSymbol(const meta::Symbol*, 
-                            const meta::Interlate*,
-                            const meta::Node*,
-                            bool top=false);
-
-  void emit_InterlateFuncallAtom(const meta::FuncallAtom*, 
-                                 const meta::Interlate*,
-                                 const meta::Node*);
-
-  void emit_InterlateFuncall(const meta::Funcall*, 
-                             const meta::Interlate*,
-                             const meta::Node*);
-
-  bool hasRemoteRefs(const meta::Expr*);
-  bool isComplex(const meta::Expr*);
-
-  void emit_Model(const model::Model*);
 };
 
-}} // ps::gen
 
-#endif
+struct MetaVisitor : public meta::Visitor
+{
+  Generator *gen;
+  MetaVisitor(Generator *gen) : gen{gen} {}
+  void visit(meta::ModuleFragment*) override; 
+  void leave(meta::ModuleFragment*) override;
+  void visit(meta::Element*) override;
+  void leave(meta::Node*) override;
+  void leave(meta::Link*) override;
+  //void visit(meta::Node*) override;
+  void visit(meta::Interlate*) override;
+};
+
+struct ModelVisitor : public meta::Visitor
+{
+  Generator *gen;
+  ModelVisitor(Generator *gen) : gen{gen} {}
+};
+
+struct Generator
+{
+  std::unordered_set<std::string, std::vector<meta::ModuleFragment*>> modules; 
+  std::unordered_set<std::string, std::vector<model::ModelFragment*>> models;
+
+  MetaVisitor meta_visitor{this};
+  ModelVisitor model_visitor{this};
+
+  std::ofstream ofs_hpp;
+  Indentation indent_hpp;
+
+  std::ofstream ofs_cpp;
+  Indentation indent_cpp;
+
+  void emit_hpp(std::string);
+  void emit_hpp_newline(size_t);
+  void emit_cpp(std::string);
+  void emit_cpp_newline(size_t);
+
+  void emitModule(meta::ModuleFragment*);
+};
+
+}}}

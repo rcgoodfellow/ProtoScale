@@ -7,6 +7,34 @@
 
 namespace ps { namespace model {
 
+struct Visitor;
+
+struct ASTNode
+{
+  virtual ~ASTNode() {}
+  virtual void accept(Visitor&) = 0;
+};
+
+struct Command;
+struct ModelFragment;
+struct Import;
+struct Create;
+struct Connect;
+
+struct Visitor
+{
+  virtual void visit(ModelFragment*){}
+  virtual void leave(ModelFragment*){}
+  virtual void visit(Command*){}
+  virtual void leave(Command*){}
+  virtual void visit(Import*){}
+  virtual void leave(Import*){}
+  virtual void visit(Create*){}
+  virtual void leave(Create*){}
+  virtual void visit(Connect*){}
+  virtual void leave(Connect*){}
+};
+
 struct Lexeme
 {
   Lexeme(size_t l) : _line_no{l} {}
@@ -16,7 +44,7 @@ struct Lexeme
     size_t _line_no;
 };
 
-struct Command
+struct Command : public ASTNode
 {
   enum class Kind { Import, Create, Connect };
 
@@ -30,13 +58,16 @@ struct Command
 };
 using Commands = std::vector<Command*>;
 
-struct Model : public Lexeme
+struct ModelFragment : public Lexeme, ASTNode
 {
   std::string name;
   Commands *commands;
 
-  Model(std::string n, Commands *c, size_t l) 
+  ModelFragment(std::string n, Commands *c, size_t l) 
     : Lexeme{l}, name{n}, commands{c} {}
+  
+  void accept(Visitor&) override;
+  Create* find(const std::string &name);
 };
 
 struct Import : public Command, public Lexeme
@@ -44,7 +75,9 @@ struct Import : public Command, public Lexeme
   std::string module_name;
 
   Import(std::string mn, size_t line_no) 
-    : Lexeme{line_no}, Command{Kind::Import}, module_name{mn} {}
+    : Command{Kind::Import}, Lexeme{line_no}, module_name{mn} {}
+
+  void accept(Visitor&) override;
 };
 using Imports = std::vector<Import*>;
 
@@ -82,7 +115,9 @@ struct Create : public Command, public Lexeme
   CreateTargets *tgts;
 
   Create(std::string tt, CreateFormat *cf, CreateTargets *ts, size_t line_no) 
-    : Lexeme{line_no}, Command{Kind::Create}, type_tgt{tt}, fmt{cf}, tgts{ts} {}
+    : Command{Kind::Create}, Lexeme{line_no}, type_tgt{tt}, fmt{cf}, tgts{ts} {}
+
+  void accept(Visitor&) override;
 };
 using Creates = std::vector<Create*>;
 
@@ -108,16 +143,15 @@ struct Connect : public Command, public Lexeme
   bool symmetric;
 
   Connect(Connections *c, bool sym, size_t line_no) 
-    : Lexeme{line_no}, Command{Kind::Connect}, connections{c}, symmetric{sym} 
+    : Command{Kind::Connect}, Lexeme{line_no}, connections{c}, symmetric{sym} 
   {
     if(symmetric)
     {
-      for(Connection *cn : *connections)
-      {
-        cn->symmetric = true;
-      }
+      for(Connection *cn : *connections) { cn->symmetric = true; }
     }
   }
+  
+  void accept(Visitor&) override;
 };
 using Connects = std::vector<Connect*>;
 

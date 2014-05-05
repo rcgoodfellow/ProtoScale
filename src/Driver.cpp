@@ -70,13 +70,6 @@ void Driver::run()
         break;
       }
 
-      defualt :
-      {
-#ifdef DEBUG
-        std::cout << "strange command type ..." << std::endl;
-#endif
-        break;
-      }
     }
 
   }
